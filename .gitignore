@@ -1,0 +1,6 @@
+__pycache__/
+.pytest_cache/
+.streamlit/
+*.pyc
+sample_repo.zip
+
