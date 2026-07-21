@@ -1,7 +1,18 @@
-# Synthetic evidence fixture
+# Service Health API
 
-Verified: pytest is used and the project has a Dockerfile.
-Partial: claims about production-scale reliability are unsupported by this tiny fixture.
-Contradicted: the project does not use PostgreSQL; it only returns an in-memory health response.
-Unsupported: Kubernetes deployment is not present.
+A small synthetic repository used to demonstrate evidence-based claim auditing.
 
+## Features
+
+- Uses pytest for automated health-check testing.
+- Includes Docker deployment configuration based on Python 3.11.
+- Provides production-scale reliability for high-traffic workloads.
+- Uses PostgreSQL for persistent health-check storage.
+- Publishes signed release artifacts through an automated delivery pipeline.
+
+## Installation
+
+```bash
+pip install pytest
+python -m pytest
+```

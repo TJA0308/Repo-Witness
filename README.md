@@ -1,6 +1,6 @@
 # Repo Witness
 
-Repo Witness is a focused repository claim auditor for OpenAI Build Week's Developer Tools track. Upload a repository ZIP, enter technical claims, and receive evidence-linked verdicts with supporting excerpts and cautious corrected wording.
+Repo Witness is a focused repository claim auditor for OpenAI Build Week's Developer Tools track. Upload a repository ZIP, discover candidate technical claims from its README or enter claims manually, and receive evidence-linked verdicts with supporting excerpts and cautious corrected wording.
 
 ## Supported platforms
 
@@ -21,7 +21,13 @@ Activate the environment on Windows with `.venv\Scripts\activate`, or on macOS/L
 streamlit run app.py
 ```
 
-No API key is required. Without `OPENAI_API_KEY`, the app starts in deterministic demo mode. Click **Load sample** to run an audit against the bundled `sample_repo/`, or upload a ZIP and enter one claim per line.
+No API key is required. Without `OPENAI_API_KEY`, the app starts in deterministic demo mode. Click **Load sample repository**, then **Find README claims**, to review suggestions from the bundled `sample_repo/`. You can also upload a ZIP and enter claims manually.
+
+## README claim discovery
+
+After uploading or loading a repository, click **Find README claims**. Repo Witness prefers a root-level `README.md`, `README.rst`, `README.txt`, or `README`, and offers a selector when several are available. It deterministically suggests concise implementation-oriented statements while excluding headings, badges, code fences, commands, URLs, contribution text, license text, and obvious duplicates. Claim discovery makes no OpenAI API request.
+
+Discovered claims are suggestions, not verdicts. Select the useful suggestions, apply them to the editable claim list, add or remove wording as needed, and run the audit only after review. Manual claim entry remains available throughout; no discovered claim is audited automatically.
 
 ## Optional OpenAI mode
 
@@ -53,15 +59,17 @@ Install development dependencies, then run the documented suite:
 python -m pytest -q --basetemp .pytest-tmp
 ```
 
-The tests cover ZIP safety, filtering, size limits, temporary cleanup, empty claims, deterministic evidence retrieval, and Markdown export.
+The tests cover ZIP safety, filtering, size limits, temporary cleanup, README discovery and extraction, empty claims, deterministic evidence retrieval, manual claims, the bundled sample, and Markdown export.
 
 ## Architecture
 
-`repo_witness/ingest.py` validates archive size, rejects traversal and symlinks, limits entries and extracted text, and filters secrets, binaries, dependencies, and build outputs. `repo_witness/evidence.py` deterministically scores repository text and returns at most six small line-numbered snippets. `repo_witness/analyzer.py` either applies deterministic demo heuristics or sends only those snippets to OpenAI and parses a Pydantic `ClaimAudit`. `repo_witness/export.py` creates the evidence-linked Markdown report. `app.py` is the Streamlit deployment entry point.
+`repo_witness/ingest.py` validates archive size, rejects traversal and symlinks, limits entries and extracted text, and filters secrets, binaries, dependencies, and build outputs. `repo_witness/readme_claims.py` locates eligible README files and deterministically suggests conservative claim candidates. `repo_witness/evidence.py` scores repository text and returns at most six small line-numbered snippets. `repo_witness/analyzer.py` either applies deterministic demo heuristics or sends only those snippets to OpenAI and parses a Pydantic `ClaimAudit`. `repo_witness/export.py` creates the evidence-linked Markdown report. `app.py` is the Streamlit deployment entry point.
 
 Repository evidence is kept separate from analysis. Missing evidence is never treated as contradiction.
 
 ## Limitations
+
+README discovery is deterministic and heuristic, not semantic understanding or universal Markdown parsing. It intentionally favors a few explicit implementation statements and may miss claims, especially when prose spans several lines or uses unusual wording. Because the existing evidence retriever can surface the originating README sentence, an unsupported discovered claim may still have README evidence; users must inspect the supporting files and interpretation rather than treating discovery as verification.
 
 Demo mode is deterministic but intentionally heuristic: lexical matches can miss synonyms and do not prove runtime or production behavior. The app does not execute uploaded code. Model-assisted classifications can still be wrong and require human review.
 
