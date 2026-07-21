@@ -1,6 +1,6 @@
 from __future__ import annotations
 import json, os
-from typing import Iterable
+from collections.abc import Iterable, Mapping
 import re
 from .evidence import retrieve_evidence
 from .models import AuditReport, ClaimAudit, EvidenceSnippet, Verdict
@@ -30,21 +30,44 @@ def demo_classify(claim: str, evidence: list[EvidenceSnippet]) -> ClaimAudit:
     corrected = claim if verdict == Verdict.VERIFIED else f"The repository provides evidence related to: {claim.rstrip('.')}."
     return ClaimAudit(claim=claim, verdict=verdict, confidence=confidence, evidence=evidence, reasoning=reason, corrected_wording=corrected)
 
-def analyze_demo(root, claims: Iterable[str]) -> AuditReport:
-    clean = [c.strip() for c in claims if c.strip()]
-    return AuditReport(audits=[demo_classify(c, retrieve_evidence(root, c)) for c in clean], analyzer="Deterministic demo mode")
+def _retrieve_claim_evidence(root, claim: str, claim_sources: Mapping[str, str] | None) -> list[EvidenceSnippet]:
+    source_path = claim_sources.get(claim) if claim_sources else None
+    excluded_paths = (source_path,) if source_path else ()
+    return retrieve_evidence(root, claim, excluded_paths=excluded_paths)
 
-def analyze_openai(root, claims: Iterable[str], model: str = DEFAULT_MODEL) -> AuditReport:
+def analyze_demo(root, claims: Iterable[str], claim_sources: Mapping[str, str] | None = None) -> AuditReport:
+    clean = [c.strip() for c in claims if c.strip()]
+    return AuditReport(
+        audits=[demo_classify(c, _retrieve_claim_evidence(root, c, claim_sources)) for c in clean],
+        analyzer="Deterministic demo mode",
+    )
+
+def analyze_openai(
+    root,
+    claims: Iterable[str],
+    model: str = DEFAULT_MODEL,
+    claim_sources: Mapping[str, str] | None = None,
+) -> AuditReport:
     from openai import OpenAI
     clean = [c.strip() for c in claims if c.strip()]
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
     audits = []
     for claim in clean:
-        evidence = retrieve_evidence(root, claim)
+        evidence = _retrieve_claim_evidence(root, claim, claim_sources)
+        if not evidence:
+            audits.append(demo_classify(claim, evidence))
+            continue
         payload = json.dumps([e.model_dump() for e in evidence], ensure_ascii=False)
         response = client.responses.parse(model=model, input=[{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": f"Claim: {claim}\nEvidence snippets (repository facts only):\n{payload}"}], text_format=ClaimAudit)
         audits.append(response.output_parsed.model_copy(update={"claim": claim, "evidence": evidence}))
     return AuditReport(audits=audits, analyzer=f"OpenAI {model}")
 
-def analyze(root, claims: Iterable[str], model: str = DEFAULT_MODEL) -> AuditReport:
-    return analyze_openai(root, claims, model) if os.environ.get("OPENAI_API_KEY") else analyze_demo(root, claims)
+def analyze(
+    root,
+    claims: Iterable[str],
+    model: str = DEFAULT_MODEL,
+    claim_sources: Mapping[str, str] | None = None,
+) -> AuditReport:
+    if os.environ.get("OPENAI_API_KEY"):
+        return analyze_openai(root, claims, model, claim_sources)
+    return analyze_demo(root, claims, claim_sources)

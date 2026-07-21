@@ -25,10 +25,10 @@ def load_styles() -> None:
     st.markdown(f"<style>{stylesheet}</style>", unsafe_allow_html=True)
 
 
-def run_repository_audit(root: Path, claims: list[str]):
+def run_repository_audit(root: Path, claims: list[str], claim_sources: dict[str, str] | None = None):
     status = st.status("Scanning repository and collecting evidence…", expanded=True)
     try:
-        report = analyze(root, claims)
+        report = analyze(root, claims, claim_sources=claim_sources)
         status.update(label="Audit complete", state="complete", expanded=False)
         return report
     except Exception:
@@ -74,7 +74,7 @@ def render_workflow() -> None:
     )
 
 
-def render_results(report) -> None:
+def render_results(report, claim_sources: dict[str, str] | None = None) -> None:
     counts = {verdict: 0 for verdict in Verdict}
     for audit in report.audits:
         counts[audit.verdict] += 1
@@ -95,6 +95,8 @@ def render_results(report) -> None:
             with status_col:
                 st.markdown(f'<span class="rw-verdict rw-verdict-{status_class}">{status_text}</span>', unsafe_allow_html=True)
                 st.markdown(f"### {audit.claim}")
+                source_path = claim_sources.get(audit.claim) if claim_sources else None
+                st.caption(f"Claim source · {source_path}" if source_path else "Claim source · Manual entry")
             with confidence_col:
                 st.metric("Confidence", f"{audit.confidence:.0%}")
 
@@ -140,6 +142,7 @@ def clear_discovery_state() -> None:
         "selected_suggestions",
         "discovery_status",
         "discovery_error",
+        "claims_source_path",
     ):
         st.session_state.pop(key, None)
 
@@ -148,12 +151,14 @@ def uploaded_repository_changed() -> None:
     st.session_state["sample_loaded"] = False
     clear_discovery_state()
     st.session_state.pop("report", None)
+    st.session_state.pop("report_claim_sources", None)
 
 
 def load_sample_repository() -> None:
     st.session_state["sample_loaded"] = True
     clear_discovery_state()
     st.session_state.pop("report", None)
+    st.session_state.pop("report_claim_sources", None)
 
 
 def acquire_repository() -> tuple[Path | None, bool]:
@@ -172,6 +177,7 @@ def set_claims_for_selected_readme() -> None:
     st.session_state["discovered_claims"] = claims
     st.session_state["selected_suggestions"] = claims
     st.session_state["claims_editor"] = "\n".join(claims)
+    st.session_state["claims_source_path"] = selected_path
     st.session_state["discovery_status"] = "ready" if claims else "no_claims"
 
 
@@ -180,6 +186,7 @@ def discover_repository_claims() -> None:
     temporary = False
     clear_discovery_state()
     st.session_state.pop("report", None)
+    st.session_state.pop("report_claim_sources", None)
     try:
         root, temporary = acquire_repository()
         if root is None:
@@ -205,7 +212,10 @@ def discover_repository_claims() -> None:
 def apply_selected_suggestions() -> None:
     selected = st.session_state.get("selected_suggestions", [])
     st.session_state["claims_editor"] = "\n".join(selected)
+    if not selected:
+        st.session_state.pop("claims_source_path", None)
     st.session_state.pop("report", None)
+    st.session_state.pop("report_claim_sources", None)
 
 
 def render_claim_review() -> None:
@@ -345,7 +355,10 @@ if run_audit:
         root, temporary = acquire_repository()
         if root is None:
             raise ValueError("No repository is available to audit")
-        st.session_state["report"] = run_repository_audit(root, claims)
+        source_path = st.session_state.get("claims_source_path")
+        claim_sources = {claim: source_path for claim in claims} if source_path else {}
+        st.session_state["report"] = run_repository_audit(root, claims, claim_sources)
+        st.session_state["report_claim_sources"] = claim_sources
     except Exception as exc:
         st.error(f"Could not scan repository: {exc}")
     finally:
@@ -354,4 +367,4 @@ if run_audit:
 
 report = st.session_state.get("report")
 if report:
-    render_results(report)
+    render_results(report, st.session_state.get("report_claim_sources", {}))

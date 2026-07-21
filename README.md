@@ -67,9 +67,15 @@ The tests cover ZIP safety, filtering, size limits, temporary cleanup, README di
 
 Repository evidence is kept separate from analysis. Missing evidence is never treated as contradiction.
 
+### Evidence authority and provenance
+
+For README-discovered claims, the selected README is tracked as the **claim source** and excluded from supporting **repository evidence**. A claim source explains what the project asserts; it cannot prove that assertion. Implementation verdicts require independent technical artifacts such as source code, tests, dependency manifests, CI workflows, Docker or deployment configuration, migrations, schemas, infrastructure-as-code, or executable configuration. When no independent evidence remains, the verdict is `INSUFFICIENT_EVIDENCE`.
+
+General documentation, project descriptions, comments, and unexecuted examples are contextual and lower-authority than implementation artifacts. Repo Witness displays the originating README path separately and never includes that file as evidence for its discovered claim.
+
 ## Limitations
 
-README discovery is deterministic and heuristic, not semantic understanding or universal Markdown parsing. It intentionally favors a few explicit implementation statements and may miss claims, especially when prose spans several lines or uses unusual wording. Because the existing evidence retriever can surface the originating README sentence, an unsupported discovered claim may still have README evidence; users must inspect the supporting files and interpretation rather than treating discovery as verification.
+README discovery is deterministic and heuristic, not semantic understanding or universal Markdown parsing. It intentionally favors a few explicit implementation statements and may miss claims, especially when prose spans several lines or uses unusual wording. Originating README statements are excluded from implementation evidence, but users must still review the authority and relevance of every independent snippet.
 
 Demo mode is deterministic but intentionally heuristic: lexical matches can miss synonyms and do not prove runtime or production behavior. The app does not execute uploaded code. Model-assisted classifications can still be wrong and require human review.
 

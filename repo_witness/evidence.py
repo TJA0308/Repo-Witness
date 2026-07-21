@@ -1,5 +1,6 @@
 from __future__ import annotations
 import re
+from collections.abc import Collection
 from pathlib import Path
 from .models import EvidenceSnippet
 
@@ -10,13 +11,22 @@ TEXT_EXTENSIONS = {".py", ".js", ".ts", ".tsx", ".jsx", ".go", ".rs", ".java", "
 def _terms(claim: str) -> list[str]:
     return [x.lower() for x in re.findall(r"[a-zA-Z0-9][a-zA-Z0-9_+.#-]{2,}", claim) if x.lower() not in {"the", "and", "with", "uses", "has", "for"}]
 
-def retrieve_evidence(root: Path, claim: str, limit: int = MAX_CANDIDATES) -> list[EvidenceSnippet]:
+def retrieve_evidence(
+    root: Path,
+    claim: str,
+    limit: int = MAX_CANDIDATES,
+    excluded_paths: Collection[str] | None = None,
+) -> list[EvidenceSnippet]:
     terms = _terms(claim)
     if not terms:
         return []
+    excluded = {path.replace("\\", "/").casefold() for path in (excluded_paths or ())}
     scored = []
     for path in sorted(root.rglob("*")):
         if not path.is_file() or (path.suffix.lower() not in TEXT_EXTENSIONS and path.name.lower() not in {"dockerfile", "makefile"}):
+            continue
+        relative = path.relative_to(root).as_posix()
+        if relative.casefold() in excluded:
             continue
         try:
             lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
@@ -27,7 +37,7 @@ def retrieve_evidence(root: Path, claim: str, limit: int = MAX_CANDIDATES) -> li
             hits = [t for t in terms if t in low]
             if hits:
                 score = len(set(hits)) * 10 + sum(low.count(t) for t in set(hits))
-                scored.append((score, path.relative_to(root).as_posix(), idx + 1, [*dict.fromkeys(hits)]))
+                scored.append((score, relative, idx + 1, [*dict.fromkeys(hits)]))
     scored.sort(key=lambda item: (-item[0], item[1], item[2]))
     results, seen = [], set()
     for score, rel, line, hits in scored:
@@ -41,4 +51,3 @@ def retrieve_evidence(root: Path, claim: str, limit: int = MAX_CANDIDATES) -> li
         if len(results) >= limit:
             break
     return results
-
