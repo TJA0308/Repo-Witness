@@ -6,6 +6,7 @@ from .evidence import retrieve_evidence
 from .models import AuditReport, ClaimAudit, EvidenceSnippet, Verdict
 
 SYSTEM_PROMPT = """You audit technical claims against repository evidence. Use only supplied snippets. Keep repository evidence separate from reasoning. VERIFIED requires direct support; PARTIALLY_VERIFIED means only part is supported; CONTRADICTED requires direct conflicting evidence; lack of evidence is always INSUFFICIENT_EVIDENCE. Return corrected wording that does not overclaim."""
+DEFAULT_MODEL = os.environ.get("OPENAI_MODEL", "gpt-5.1")
 
 def demo_classify(claim: str, evidence: list[EvidenceSnippet]) -> ClaimAudit:
     claim_low = claim.lower()
@@ -33,7 +34,7 @@ def analyze_demo(root, claims: Iterable[str]) -> AuditReport:
     clean = [c.strip() for c in claims if c.strip()]
     return AuditReport(audits=[demo_classify(c, retrieve_evidence(root, c)) for c in clean], analyzer="Deterministic demo mode")
 
-def analyze_openai(root, claims: Iterable[str], model: str = "gpt-5.1") -> AuditReport:
+def analyze_openai(root, claims: Iterable[str], model: str = DEFAULT_MODEL) -> AuditReport:
     from openai import OpenAI
     clean = [c.strip() for c in claims if c.strip()]
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -45,5 +46,5 @@ def analyze_openai(root, claims: Iterable[str], model: str = "gpt-5.1") -> Audit
         audits.append(response.output_parsed.model_copy(update={"claim": claim, "evidence": evidence}))
     return AuditReport(audits=audits, analyzer=f"OpenAI {model}")
 
-def analyze(root, claims: Iterable[str], model: str = "gpt-5.1") -> AuditReport:
+def analyze(root, claims: Iterable[str], model: str = DEFAULT_MODEL) -> AuditReport:
     return analyze_openai(root, claims, model) if os.environ.get("OPENAI_API_KEY") else analyze_demo(root, claims)

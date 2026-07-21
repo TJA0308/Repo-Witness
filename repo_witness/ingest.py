@@ -3,6 +3,7 @@ import io, shutil, stat, tempfile, zipfile
 from pathlib import Path, PurePosixPath
 
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024
+MAX_TOTAL_EXTRACTED_BYTES = 25 * 1024 * 1024
 MAX_FILE_BYTES = 1 * 1024 * 1024
 MAX_FILES = 5000
 IGNORED_DIRS = {".git", ".hg", ".svn", "node_modules", "target", "dist", "build", ".venv", "venv", "env", "__pycache__", ".tox"}
@@ -20,6 +21,9 @@ def safe_member_path(name: str) -> Path | None:
 def should_ignore(path: Path) -> bool:
     return bool(set(path.parts) & IGNORED_DIRS) or path.name.lower() in IGNORED_NAMES or path.suffix.lower() in IGNORED_SUFFIXES
 
+def cleanup_repository(root: Path) -> None:
+    shutil.rmtree(root, ignore_errors=True)
+
 def extract_repository(upload: bytes | bytearray | io.BufferedIOBase, destination: Path | None = None) -> Path:
     if hasattr(upload, "read"):
         upload = upload.read()
@@ -34,6 +38,7 @@ def extract_repository(upload: bytes | bytearray | io.BufferedIOBase, destinatio
             if len(infos) > MAX_FILES:
                 raise ValueError("ZIP contains too many files")
             kept = 0
+            extracted_bytes = 0
             for info in infos:
                 rel = safe_member_path(info.filename)
                 if rel is None or should_ignore(rel) or info.is_dir():
@@ -50,7 +55,10 @@ def extract_repository(upload: bytes | bytearray | io.BufferedIOBase, destinatio
                 raw = archive.read(info)
                 if len(raw) > MAX_FILE_BYTES or b"\x00" in raw:
                     continue
+                if extracted_bytes + len(raw) > MAX_TOTAL_EXTRACTED_BYTES:
+                    raise ValueError("Repository exceeds 25 MiB total extracted-size limit")
                 out.write_bytes(raw)
+                extracted_bytes += len(raw)
                 kept += 1
         if not kept:
             raise ValueError("No eligible text files found in repository")
@@ -59,4 +67,3 @@ def extract_repository(upload: bytes | bytearray | io.BufferedIOBase, destinatio
         if destination is None:
             shutil.rmtree(target, ignore_errors=True)
         raise
-
