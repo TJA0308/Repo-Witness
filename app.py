@@ -35,7 +35,7 @@ with st.sidebar:
     st.subheader("Safe scan")
     st.write("Text files, tests, CI, Docker, and deployment config are scanned. Secrets, binaries, dependencies, and build outputs are excluded.")
     st.info("No API key required. Demo mode provides a deterministic repository audit; model-assisted analysis is optional.")
-    st.caption("Uploaded repositories are processed temporarily and deleted after each audit.")
+    st.caption("Uploaded repositories are processed in a temporary workspace and are not intentionally retained.")
 
 upload = st.file_uploader(
     "Repository ZIP",

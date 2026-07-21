@@ -2,5 +2,6 @@ __pycache__/
 .pytest_cache/
 !.streamlit/
 !.streamlit/config.toml
+.streamlit/secrets.toml
 *.pyc
 sample_repo.zip
