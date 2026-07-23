@@ -1,0 +1,5 @@
+name: continuous integration
+jobs:
+  lint:
+    steps:
+      - run: ruff check .

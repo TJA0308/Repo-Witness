@@ -1,0 +1,3 @@
+Release artifacts are assembled before publication.
+Release artifacts are copied to the staging directory.
+Release artifacts receive a checksum before upload.

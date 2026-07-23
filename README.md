@@ -61,6 +61,22 @@ python -m pytest -q --basetemp .pytest-tmp
 
 The tests cover ZIP safety, filtering, size limits, temporary cleanup, README discovery and extraction, empty claims, deterministic evidence retrieval, manual claims, the bundled sample, and Markdown export.
 
+## Lexical retrieval benchmark
+
+The checked-in benchmark measures whether the existing lexical evidence retriever returns an expected repository-relative file for 12 synthetic claims. It reports Hit Rate / Recall@1, Recall@3, Recall@5, mean reciprocal rank (MRR), the number of evaluated cases, and the first expected snippet rank for each case. A rank is the one-based position of the first retrieved snippet from any expected file; an unretrieved expected file has a `null` rank.
+
+The dataset includes direct lexical matches, a synonym case, irrelevant distractors, and README provenance exclusions. Its files are small synthetic fixtures under `benchmarks/lexical_evidence/`; it uses no private or downloaded repository and requires no API key.
+
+Run it from the repository root:
+
+```bash
+python -m repo_witness.benchmark
+```
+
+Current checked-in results, measured with that command, are 12 evaluated cases, Hit Rate / Recall@1 `0.75`, Recall@3 `0.9166666666666666`, Recall@5 `0.9166666666666666`, and MRR `0.8333333333333334`. The complete command output includes every case's rank and retrieved repository-relative paths.
+
+This small synthetic benchmark checks deterministic lexical ranking and source exclusion only. It does not demonstrate semantic understanding, generalize to arbitrary repositories, prove that retrieved text supports a claim, validate verdict quality, or establish runtime behavior. In particular, synonym phrasing can be missed.
+
 ## Architecture
 
 `repo_witness/ingest.py` validates archive size, rejects traversal and symlinks, limits entries and extracted text, and filters secrets, binaries, dependencies, and build outputs. `repo_witness/readme_claims.py` locates eligible README files and deterministically suggests conservative claim candidates. `repo_witness/evidence.py` scores repository text and returns at most six small line-numbered snippets. `repo_witness/analyzer.py` either applies deterministic demo heuristics or sends only those snippets to OpenAI and parses a Pydantic `ClaimAudit`. `repo_witness/export.py` creates the evidence-linked Markdown report. `app.py` is the Streamlit deployment entry point.

@@ -1,5 +1,6 @@
 __pycache__/
 .pytest_cache/
+.pytest-tmp*/
 !.streamlit/
 !.streamlit/config.toml
 .streamlit/secrets.toml

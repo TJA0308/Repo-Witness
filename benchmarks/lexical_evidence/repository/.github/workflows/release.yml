@@ -1,0 +1,5 @@
+name: release artifacts
+jobs:
+  sign:
+    steps:
+      - run: sigstore sign dist/package.whl

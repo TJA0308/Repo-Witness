@@ -1,0 +1,66 @@
+{
+  "cases": [
+    {
+      "id": "pytest-tests",
+      "claim": "Uses pytest for automated authentication testing.",
+      "expected_paths": ["tests/test_auth.py"]
+    },
+    {
+      "id": "docker-python",
+      "claim": "Includes Docker configuration based on Python 3.11.",
+      "expected_paths": ["Dockerfile"]
+    },
+    {
+      "id": "redis-cache",
+      "claim": "Uses Redis as the cache backend.",
+      "expected_paths": ["config/cache.toml"]
+    },
+    {
+      "id": "sqlite-storage",
+      "claim": "Stores application records in SQLite.",
+      "expected_paths": ["src/storage.py"]
+    },
+    {
+      "id": "kubernetes-health",
+      "claim": "Configures a Kubernetes health probe.",
+      "expected_paths": ["deploy/k8s.yaml"]
+    },
+    {
+      "id": "prometheus-metrics",
+      "claim": "Exports Prometheus request metrics.",
+      "expected_paths": ["src/metrics.py"]
+    },
+    {
+      "id": "jwt-authentication",
+      "claim": "Authenticates API requests with JWT bearer tokens.",
+      "expected_paths": ["src/auth.py"]
+    },
+    {
+      "id": "ci-lint",
+      "claim": "Runs Ruff lint checks in continuous integration.",
+      "expected_paths": [".github/workflows/ci.yml"]
+    },
+    {
+      "id": "readme-provenance",
+      "claim": "Uses pytest for automated authentication testing.",
+      "expected_paths": ["tests/test_auth.py"],
+      "excluded_source_path": "README.md"
+    },
+    {
+      "id": "nested-readme-provenance",
+      "claim": "Uses Redis as the cache backend.",
+      "expected_paths": ["config/cache.toml"],
+      "excluded_source_path": "docs/README.md"
+    },
+    {
+      "id": "synonym-job-worker",
+      "claim": "Processes deferred jobs with a background worker.",
+      "expected_paths": ["src/tasks.py"]
+    },
+    {
+      "id": "distracted-release-signing",
+      "claim": "Signs release artifacts with Sigstore.",
+      "expected_paths": [".github/workflows/release.yml"]
+    }
+  ]
+}
