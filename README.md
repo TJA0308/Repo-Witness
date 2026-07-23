@@ -61,6 +61,10 @@ python -m pytest -q --basetemp .pytest-tmp
 
 The tests cover ZIP safety, filtering, size limits, temporary cleanup, README discovery and extraction, empty claims, deterministic evidence retrieval, manual claims, the bundled sample, and Markdown export.
 
+## Evaluation
+
+RepoWitness includes a deterministic synthetic evaluation of the production lexical evidence retriever. See the [lexical retrieval benchmark](#lexical-retrieval-benchmark) for the command, metrics, and limitations.
+
 ## Lexical retrieval benchmark
 
 The checked-in benchmark measures whether the existing lexical evidence retriever returns an expected repository-relative file for 12 synthetic claims. It reports Hit Rate / Recall@1, Recall@3, Recall@5, mean reciprocal rank (MRR), the number of evaluated cases, and the first expected snippet rank for each case. A rank is the one-based position of the first retrieved snippet from any expected file; an unretrieved expected file has a `null` rank.
@@ -79,7 +83,7 @@ This small synthetic benchmark checks deterministic lexical ranking and source e
 
 ## Architecture
 
-`repo_witness/ingest.py` validates archive size, rejects traversal and symlinks, limits entries and extracted text, and filters secrets, binaries, dependencies, and build outputs. `repo_witness/readme_claims.py` locates eligible README files and deterministically suggests conservative claim candidates. `repo_witness/evidence.py` scores repository text and returns at most six small line-numbered snippets. `repo_witness/analyzer.py` either applies deterministic demo heuristics or sends only those snippets to OpenAI and parses a Pydantic `ClaimAudit`. `repo_witness/export.py` creates the evidence-linked Markdown report. `app.py` is the Streamlit deployment entry point.
+RepoWitness separates untrusted repository ingestion, claim provenance, bounded lexical retrieval, structured analysis, and presentation. See the [technical architecture](docs/architecture.md) for the verified system flow, component map, trust boundaries, exact security controls, analysis modes, design decisions, benchmark context, and limitations.
 
 Repository evidence is kept separate from analysis. Missing evidence is never treated as contradiction.
 
