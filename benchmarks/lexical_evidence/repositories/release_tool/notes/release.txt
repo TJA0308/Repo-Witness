@@ -1,0 +1,3 @@
+Release artifacts are assembled in the distribution directory.
+Release artifacts receive metadata before publication.
+Release artifacts are copied to a staging directory.

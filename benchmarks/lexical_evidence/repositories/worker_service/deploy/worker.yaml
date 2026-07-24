@@ -1,0 +1,6 @@
+kind: Deployment
+metadata:
+  name: queue-worker
+spec:
+  replicas: 2
+  description: Celery worker process

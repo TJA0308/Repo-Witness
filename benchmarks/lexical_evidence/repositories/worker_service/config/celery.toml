@@ -1,0 +1,2 @@
+broker = "redis://cache:6379/0"
+framework = "Celery task queue"
