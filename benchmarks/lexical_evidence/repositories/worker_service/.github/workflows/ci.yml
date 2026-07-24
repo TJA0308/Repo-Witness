@@ -1,0 +1,5 @@
+name: worker checks
+jobs:
+  test:
+    steps:
+      - run: pytest

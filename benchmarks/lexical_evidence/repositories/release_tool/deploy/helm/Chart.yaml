@@ -1,0 +1,3 @@
+apiVersion: v2
+name: release-tool
+description: Helm deployment chart

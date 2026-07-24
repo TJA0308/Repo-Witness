@@ -1,0 +1,7 @@
+name: scheduled pipeline
+schedule:
+  cron: "0 2 * * *"
+steps:
+  - extract
+  - transform
+  - load

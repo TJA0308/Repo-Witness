@@ -1,66 +1,390 @@
 {
+  "version": 2,
   "cases": [
     {
-      "id": "pytest-tests",
-      "claim": "Uses pytest for automated authentication testing.",
-      "expected_paths": ["tests/test_auth.py"]
-    },
-    {
-      "id": "docker-python",
-      "claim": "Includes Docker configuration based on Python 3.11.",
-      "expected_paths": ["Dockerfile"]
-    },
-    {
-      "id": "redis-cache",
-      "claim": "Uses Redis as the cache backend.",
-      "expected_paths": ["config/cache.toml"]
-    },
-    {
-      "id": "sqlite-storage",
-      "claim": "Stores application records in SQLite.",
-      "expected_paths": ["src/storage.py"]
-    },
-    {
-      "id": "kubernetes-health",
-      "claim": "Configures a Kubernetes health probe.",
-      "expected_paths": ["deploy/k8s.yaml"]
-    },
-    {
-      "id": "prometheus-metrics",
-      "claim": "Exports Prometheus request metrics.",
-      "expected_paths": ["src/metrics.py"]
-    },
-    {
-      "id": "jwt-authentication",
-      "claim": "Authenticates API requests with JWT bearer tokens.",
-      "expected_paths": ["src/auth.py"]
-    },
-    {
-      "id": "ci-lint",
-      "claim": "Runs Ruff lint checks in continuous integration.",
-      "expected_paths": [".github/workflows/ci.yml"]
-    },
-    {
-      "id": "readme-provenance",
+      "id": "api-pytest-auth",
+      "repository": "api_service",
       "claim": "Uses pytest for automated authentication testing.",
       "expected_paths": ["tests/test_auth.py"],
-      "excluded_source_path": "README.md"
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical", "hard-distractor"],
+      "supported": true,
+      "hard_negative_paths": ["README.md"]
     },
     {
-      "id": "nested-readme-provenance",
+      "id": "api-docker-python",
+      "repository": "api_service",
+      "claim": "Includes Docker configuration based on Python 3.11.",
+      "expected_paths": ["Dockerfile"],
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical", "repeated-snippets"],
+      "supported": true
+    },
+    {
+      "id": "api-redis-cache",
+      "repository": "api_service",
       "claim": "Uses Redis as the cache backend.",
       "expected_paths": ["config/cache.toml"],
-      "excluded_source_path": "docs/README.md"
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical", "hard-distractor"],
+      "supported": true,
+      "hard_negative_paths": ["docs/README.md"]
     },
     {
-      "id": "synonym-job-worker",
+      "id": "api-sqlite-storage",
+      "repository": "api_service",
+      "claim": "Stores application records in SQLite.",
+      "expected_paths": ["src/storage.py"],
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical"],
+      "supported": true
+    },
+    {
+      "id": "api-kubernetes-health",
+      "repository": "api_service",
+      "claim": "Configures a Kubernetes health probe.",
+      "expected_paths": ["deploy/k8s.yaml"],
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical", "repeated-snippets"],
+      "supported": true
+    },
+    {
+      "id": "api-prometheus-metrics",
+      "repository": "api_service",
+      "claim": "Exports Prometheus request metrics.",
+      "expected_paths": ["src/metrics.py"],
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical"],
+      "supported": true
+    },
+    {
+      "id": "api-jwt-authentication",
+      "repository": "api_service",
+      "claim": "Authenticates API requests with JWT bearer tokens.",
+      "expected_paths": ["src/auth.py"],
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical"],
+      "supported": true
+    },
+    {
+      "id": "api-ci-lint",
+      "repository": "api_service",
+      "claim": "Runs Ruff lint checks in continuous integration.",
+      "expected_paths": [".github/workflows/ci.yml"],
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical", "repeated-snippets"],
+      "supported": true
+    },
+    {
+      "id": "api-readme-provenance",
+      "repository": "api_service",
+      "claim": "Uses pytest for automated authentication testing.",
+      "expected_paths": ["tests/test_auth.py"],
+      "excluded_source_paths": ["README.md"],
+      "case_tags": ["provenance-exclusion", "exact-lexical"],
+      "supported": true
+    },
+    {
+      "id": "api-unsupported-postgresql",
+      "repository": "api_service",
+      "claim": "Persists user profiles in PostgreSQL.",
+      "expected_paths": [],
+      "excluded_source_paths": [],
+      "case_tags": ["unsupported", "hard-distractor"],
+      "supported": false,
+      "hard_negative_paths": ["docs/database.md"]
+    },
+    {
+      "id": "worker-synonym-background",
+      "repository": "worker_service",
       "claim": "Processes deferred jobs with a background worker.",
-      "expected_paths": ["src/tasks.py"]
+      "expected_paths": ["src/tasks.py"],
+      "excluded_source_paths": [],
+      "case_tags": ["synonym", "hard-distractor"],
+      "supported": true,
+      "hard_negative_paths": [".github/workflows/ci.yml"]
     },
     {
-      "id": "distracted-release-signing",
+      "id": "worker-celery-broker",
+      "repository": "worker_service",
+      "claim": "Configures a Celery task queue broker.",
+      "expected_paths": ["config/celery.toml"],
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical"],
+      "supported": true
+    },
+    {
+      "id": "worker-retry-tests",
+      "repository": "worker_service",
+      "claim": "Tests job retry limits with pytest.",
+      "expected_paths": ["tests/test_tasks.py"],
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical", "repeated-snippets"],
+      "supported": true
+    },
+    {
+      "id": "worker-periodic-scheduler",
+      "repository": "worker_service",
+      "claim": "Schedules periodic tasks using cron.",
+      "expected_paths": ["src/scheduler.py"],
+      "excluded_source_paths": [],
+      "case_tags": ["paraphrase"],
+      "supported": true
+    },
+    {
+      "id": "worker-deployment",
+      "repository": "worker_service",
+      "claim": "Deploys two replicas of the Celery worker.",
+      "expected_paths": ["deploy/worker.yaml"],
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical"],
+      "supported": true
+    },
+    {
+      "id": "worker-unsupported-rabbitmq",
+      "repository": "worker_service",
+      "claim": "Uses RabbitMQ as the production message broker.",
+      "expected_paths": [],
+      "excluded_source_paths": [],
+      "case_tags": ["unsupported", "hard-distractor"],
+      "supported": false,
+      "hard_negative_paths": ["docs/queue.md"]
+    },
+    {
+      "id": "worker-readme-provenance",
+      "repository": "worker_service",
+      "claim": "Uses Redis as the Celery task broker.",
+      "expected_paths": ["config/celery.toml"],
+      "excluded_source_paths": ["README.md"],
+      "case_tags": ["provenance-exclusion", "paraphrase"],
+      "supported": true
+    },
+    {
+      "id": "worker-distributed-queue",
+      "repository": "worker_service",
+      "claim": "Runs queued work through a Redis-backed Celery worker.",
+      "expected_paths": ["config/celery.toml", "src/tasks.py"],
+      "excluded_source_paths": [],
+      "case_tags": ["distributed-evidence", "paraphrase"],
+      "supported": true,
+      "required_evidence_groups": [
+        ["config/celery.toml"],
+        ["src/tasks.py"]
+      ]
+    },
+    {
+      "id": "worker-repeated-retries",
+      "repository": "worker_service",
+      "claim": "Implements job retry behavior.",
+      "expected_paths": ["tests/test_tasks.py"],
+      "excluded_source_paths": [],
+      "case_tags": ["repeated-snippets", "exact-lexical"],
+      "supported": true
+    },
+    {
+      "id": "worker-multiple-valid",
+      "repository": "worker_service",
+      "claim": "Provides a Celery task queue worker process.",
+      "expected_paths": ["src/tasks.py", "deploy/worker.yaml"],
+      "excluded_source_paths": [],
+      "case_tags": ["multiple-valid-files", "exact-lexical"],
+      "supported": true
+    },
+    {
+      "id": "data-csv-extraction",
+      "repository": "data_pipeline",
+      "claim": "Extracts rows from CSV input.",
+      "expected_paths": ["src/extract.py"],
+      "excluded_source_paths": [],
+      "case_tags": ["paraphrase"],
+      "supported": true
+    },
+    {
+      "id": "data-record-normalization",
+      "repository": "data_pipeline",
+      "claim": "Normalizes event records during transformation.",
+      "expected_paths": ["src/transform.py"],
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical"],
+      "supported": true
+    },
+    {
+      "id": "data-warehouse-load",
+      "repository": "data_pipeline",
+      "claim": "Bulk loads transformed records into a warehouse.",
+      "expected_paths": ["src/load.py"],
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical"],
+      "supported": true
+    },
+    {
+      "id": "data-scheduled-pipeline",
+      "repository": "data_pipeline",
+      "claim": "Runs the pipeline on a cron schedule.",
+      "expected_paths": ["workflows/pipeline.yml"],
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical", "repeated-snippets"],
+      "supported": true
+    },
+    {
+      "id": "data-pandas-dependency",
+      "repository": "data_pipeline",
+      "claim": "Declares pandas as a project dependency.",
+      "expected_paths": ["pyproject.toml"],
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical"],
+      "supported": true
+    },
+    {
+      "id": "data-event-schema",
+      "repository": "data_pipeline",
+      "claim": "Defines a schema for event records.",
+      "expected_paths": ["schema/events.sql"],
+      "excluded_source_paths": [],
+      "case_tags": ["paraphrase", "ineligible-extension"],
+      "supported": true
+    },
+    {
+      "id": "data-distributed-etl",
+      "repository": "data_pipeline",
+      "claim": "The scheduled pipeline extracts, transforms, and loads records.",
+      "expected_paths": [
+        "src/extract.py",
+        "src/transform.py",
+        "src/load.py"
+      ],
+      "excluded_source_paths": [],
+      "case_tags": ["distributed-evidence", "paraphrase"],
+      "supported": true,
+      "required_evidence_groups": [
+        ["src/extract.py"],
+        ["src/transform.py"],
+        ["src/load.py"]
+      ]
+    },
+    {
+      "id": "data-readme-provenance",
+      "repository": "data_pipeline",
+      "claim": "Writes event batches to PostgreSQL.",
+      "expected_paths": ["config/postgres.ini"],
+      "excluded_source_paths": ["README.md"],
+      "case_tags": ["provenance-exclusion", "paraphrase"],
+      "supported": true
+    },
+    {
+      "id": "data-unsupported-kafka",
+      "repository": "data_pipeline",
+      "claim": "Streams events through Kafka.",
+      "expected_paths": [],
+      "excluded_source_paths": [],
+      "case_tags": ["unsupported", "hard-distractor"],
+      "supported": false,
+      "hard_negative_paths": ["docs/alternatives.md"]
+    },
+    {
+      "id": "data-synonym-relational-store",
+      "repository": "data_pipeline",
+      "claim": "Uses a relational datastore for durable event persistence.",
+      "expected_paths": ["config/postgres.ini"],
+      "excluded_source_paths": [],
+      "case_tags": ["synonym"],
+      "supported": true
+    },
+    {
+      "id": "release-sigstore-signing",
+      "repository": "release_tool",
+      "claim": "Signs release packages with Sigstore.",
+      "expected_paths": [".github/workflows/release.yml"],
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical"],
+      "supported": true
+    },
+    {
+      "id": "release-sha256",
+      "repository": "release_tool",
+      "claim": "Computes a SHA256 checksum before publication.",
+      "expected_paths": ["src/checksum.py"],
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical"],
+      "supported": true
+    },
+    {
+      "id": "release-semantic-version",
+      "repository": "release_tool",
+      "claim": "Applies semantic version increments to releases.",
+      "expected_paths": ["src/versioning.py"],
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical"],
+      "supported": true
+    },
+    {
+      "id": "release-build-multiple-valid",
+      "repository": "release_tool",
+      "claim": "Builds Python release packages with Hatchling.",
+      "expected_paths": ["pyproject.toml", ".github/workflows/release.yml"],
+      "excluded_source_paths": [],
+      "case_tags": ["multiple-valid-files", "paraphrase"],
+      "supported": true
+    },
+    {
+      "id": "release-readme-provenance",
+      "repository": "release_tool",
       "claim": "Signs release artifacts with Sigstore.",
-      "expected_paths": [".github/workflows/release.yml"]
+      "expected_paths": [".github/workflows/release.yml"],
+      "excluded_source_paths": ["README.md"],
+      "case_tags": ["provenance-exclusion", "exact-lexical"],
+      "supported": true
+    },
+    {
+      "id": "release-repeated-distractor",
+      "repository": "release_tool",
+      "claim": "Signs release artifacts before publication.",
+      "expected_paths": [".github/workflows/release.yml"],
+      "excluded_source_paths": [],
+      "case_tags": ["repeated-snippets", "hard-distractor"],
+      "supported": true,
+      "hard_negative_paths": ["notes/release.txt"]
+    },
+    {
+      "id": "release-distributed-build-sign",
+      "repository": "release_tool",
+      "claim": "Builds and signs Python release packages.",
+      "expected_paths": ["pyproject.toml", ".github/workflows/release.yml"],
+      "excluded_source_paths": [],
+      "case_tags": ["distributed-evidence", "paraphrase"],
+      "supported": true,
+      "required_evidence_groups": [
+        ["pyproject.toml"],
+        [".github/workflows/release.yml"]
+      ]
+    },
+    {
+      "id": "release-helm-chart",
+      "repository": "release_tool",
+      "claim": "Includes a Helm deployment chart.",
+      "expected_paths": ["deploy/helm/Chart.yaml"],
+      "excluded_source_paths": [],
+      "case_tags": ["exact-lexical"],
+      "supported": true
+    },
+    {
+      "id": "release-unsupported-npm",
+      "repository": "release_tool",
+      "claim": "Publishes packages to the npm registry.",
+      "expected_paths": [],
+      "excluded_source_paths": [],
+      "case_tags": ["unsupported", "hard-distractor"],
+      "supported": false,
+      "hard_negative_paths": ["docs/npm.md"]
+    },
+    {
+      "id": "release-synonym-integrity-digest",
+      "repository": "release_tool",
+      "claim": "Produces a cryptographic digest for each package.",
+      "expected_paths": ["src/checksum.py"],
+      "excluded_source_paths": [],
+      "case_tags": ["synonym"],
+      "supported": true
     }
   ]
 }

@@ -42,8 +42,8 @@ For a discovered claim, `app.py` retains the selected README's repository-relati
 | `repo_witness/models.py` | Pydantic evidence, claim-audit, and audit-report models plus the verdict enum. |
 | `repo_witness/export.py` | Evidence-linked Markdown report generation. |
 | `repo_witness/benchmark.py` | Deterministic runner and metrics for the checked-in lexical retrieval benchmark. |
-| `benchmarks/lexical_evidence/cases.json` | Synthetic benchmark claims, expected repository-relative evidence paths, and optional excluded source paths. |
-| `benchmarks/lexical_evidence/repository/` | Checked-in synthetic repository used only by the lexical retrieval benchmark. |
+| `benchmarks/lexical_evidence/cases.json` | Synthetic benchmark claims, fixture identifiers, expected and excluded paths, case tags, support labels, and optional hard negatives and evidence groups. |
+| `benchmarks/lexical_evidence/repositories/` | Four checked-in synthetic repositories used only by the lexical retrieval benchmark. |
 | `sample_repo/` | Bundled synthetic repository available from the Streamlit interface. |
 | `tests/` | Automated coverage for ingestion, retrieval, provenance, claim discovery, analysis behavior, export, and benchmark evaluation. |
 
@@ -123,23 +123,64 @@ Static text inspection avoids granting an untrusted repository an execution path
 
 ## Retrieval benchmark
 
-The checked-in evaluation is a 12-case synthetic benchmark for the production lexical evidence retriever.
+The checked-in evaluation runs the unchanged production lexical retriever against 40 claims in four small synthetic repositories. Its 36 supported cases and four unsupported cases cover exact lexical matches, synonyms, paraphrases, hard lexical distractors, repeated same-file results, alternative valid files, evidence distributed across files, README provenance exclusions, and one separately tagged ineligible-extension case. Cases may label hard-negative paths and may define required evidence groups whose members are alternatives within a group. No fixture is downloaded or private.
 
-| Metric | Result |
-| --- | ---: |
-| Cases | 12 |
-| Recall@1 | 75.0% |
-| Recall@3 | 91.7% |
-| Recall@5 | 91.7% |
-| MRR | 0.833 |
-
-This is a small synthetic benchmark, and several cases have strong lexical overlap between the claim and expected evidence. One synonym-only case is intentionally missed. The results do not demonstrate semantic understanding, verdict accuracy, or real-world generalization. Ranking currently operates at snippet level, not unique-file level, so multiple matching snippets from one file can occupy multiple ranks.
-
-Run the benchmark from the repository root with:
+Run the deterministic, API-key-free benchmark from the repository root with:
 
 ```bash
 python -m repo_witness.benchmark
 ```
+
+### Metric definitions
+
+| Metric | Definition and denominator |
+| --- | --- |
+| Recall@K | Fraction of the 36 supported cases whose evaluation rank is at most K. For an ordinary case, evaluation rank is the first expected snippet. For a distributed case, it is the rank at which every required evidence group has appeared; missing any group is a miss. |
+| MRR | Mean reciprocal evaluation rank over the same 36 supported cases. A miss contributes zero. Unsupported cases are excluded from Recall and MRR. |
+| Unique-file Recall@K | Recall after retaining only the first occurrence of each repository-relative path. Repeated snippets from one file therefore occupy one file rank. The denominator is 36 supported cases. |
+| Repeated-file occupancy rate | Number of returned result positions whose repository-relative file path appeared earlier for that case, divided by all 133 returned result positions across all 40 cases. Distinct lines from one file are not called duplicate snippets. |
+| Evidence-group coverage@K | Required groups represented by at least one member path in the top K, divided by seven groups across three distributed cases. |
+| All-required-groups success@K | Distributed cases with every required group represented in the top K, divided by three distributed cases. |
+| Hard-negative retrieval rate@K | Cases with at least one labeled hard-negative path in the top K, divided by eight cases carrying hard-negative labels. This includes supported and unsupported cases. |
+| Unsupported-claim retrieval rate@K | Unsupported cases returning any snippet in the top K, divided by four unsupported cases. It measures retrieval activity, not verdict correctness. |
+| Provenance-exclusion violations | Count of returned snippets whose normalized, case-insensitive path equals a case's excluded source path. |
+| Per-category Recall@3 and MRR | The same supported-case definitions restricted to each tag. The case count includes unsupported cases, while `recall_eligible_cases` states the supported denominator. |
+
+`first_expected_rank` in the output remains the first rank of any expected path. `evaluation_rank` differs only for distributed cases, where it records completion of all required groups. Both have unique-file counterparts.
+
+### Current lexical baseline
+
+These results were produced by the command above against the checked-in fixtures.
+
+| Metric | @1 | @3 | @5 |
+| --- | ---: | ---: | ---: |
+| Recall | 52.8% | 77.8% | 83.3% |
+| Unique-file Recall | 52.8% | 83.3% | 83.3% |
+| Evidence-group coverage | 0.0% | 28.6% | 28.6% |
+| All-required-groups success | 0.0% | 0.0% | 0.0% |
+| Hard-negative retrieval rate | 50.0% | 75.0% | 75.0% |
+| Unsupported-claim retrieval rate | 50.0% | 50.0% | 50.0% |
+
+MRR is `0.651`, the repeated-file occupancy rate is `30.1%`, and provenance-exclusion violations are `0`. There are 40 total cases, of which 36 contribute to Recall and MRR.
+
+| Category | Cases | Recall-eligible | Recall@3 | MRR |
+| --- | ---: | ---: | ---: | ---: |
+| Exact lexical | 23 | 23 | 95.7% | 0.793 |
+| Synonym | 3 | 3 | 33.3% | 0.167 |
+| Paraphrase | 9 | 9 | 55.6% | 0.500 |
+| Hard distractor | 8 | 4 | 50.0% | 0.300 |
+| Repeated snippets | 7 | 7 | 85.7% | 0.790 |
+| Multiple valid files | 2 | 2 | 100.0% | 0.417 |
+| Distributed evidence | 3 | 3 | 0.0% | 0.000 |
+| Provenance exclusion | 4 | 4 | 75.0% | 0.812 |
+| Ineligible extension | 1 | 1 | 0.0% | 0.000 |
+| Unsupported | 4 | 0 | n/a | n/a |
+
+Important failures expose the intended pressure points. `worker-synonym-background` misses `src/tasks.py` because its claim uses “deferred jobs” and “background worker” while the implementation uses queue/task language. `release-synonym-integrity-digest` misses `src/checksum.py` because lexical overlap is insufficient. None of the three distributed cases retrieves every required group in the top five.
+
+`data-event-schema` is tagged `ineligible-extension` because its expected `schema/events.sql` file is outside the production retriever's current candidate-file allowlist. It measures candidate-file coverage, not lexical-versus-semantic ranking. The all-supported headline metrics above include it so candidate coverage remains visible. A future comparison of lexical and semantic ranking over the same candidate boundary must report this case separately and exclude it when deciding whether semantic ranking improved over lexical ranking. That comparison view has 35 eligible cases; the current lexical baseline is Recall@1 `54.3%`, Recall@3 `80.0%`, Recall@5 `85.7%`, and MRR `0.670`. This benchmark does not make `.sql` eligible.
+
+This benchmark is deliberately more challenging than the original 12-case fixture, but it remains small and synthetic. Several exact-match cases still have strong lexical overlap. Hand-authored fixtures cannot establish representativeness, and hard-negative labels cover only selected distractors. Results do not demonstrate semantic understanding, evidence entailment, verdict accuracy, or real-world generalization. Ranking operates at snippet level; the separately reported unique-file metrics only remove repeated occurrences of a file during evaluation and do not change production retrieval.
 
 ## Known limitations
 

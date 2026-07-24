@@ -1,0 +1,4 @@
+name: signed release
+steps:
+  - run: python -m build
+  - run: sigstore sign dist/package.whl
