@@ -9,6 +9,7 @@ independent, repository-relative evidence—without executing uploaded code.
 
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.40%2B-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![OpenAI API](https://img.shields.io/badge/OpenAI%20API-Optional-412991?logo=openai&logoColor=white)](https://platform.openai.com/docs/)
 [![Pydantic v2](https://img.shields.io/badge/Pydantic-v2-E92063?logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
 [![Tests](https://img.shields.io/badge/Tests-56%20passing-2EA44F?logo=pytest&logoColor=white)](#testing)
 [![Benchmark](https://img.shields.io/badge/Benchmark-40%20cases-6F42C1)](#retrieval-evaluation)
