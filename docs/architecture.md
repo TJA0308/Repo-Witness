@@ -47,6 +47,10 @@ For a discovered claim, `app.py` retains the selected README's repository-relati
 | `sample_repo/` | Bundled synthetic repository available from the Streamlit interface. |
 | `tests/` | Automated coverage for ingestion, retrieval, provenance, claim discovery, analysis behavior, export, and benchmark evaluation. |
 
+### Internal retrieval strategy seam
+
+Lexical retrieval remains the production default, and existing application and benchmark callers continue to call `repo_witness.evidence.retrieve_evidence` directly. The internal `repo_witness.retrieval` package defines a small developer-facing strategy contract for future experiments. Its lexical adapter delegates to the existing retriever without reproducing its logic, and the strategy entry point only forwards retrieval arguments. Semantic and hybrid retrieval are not implemented, and this seam does not change application, analyzer, or benchmark behavior.
+
 ## Trust boundaries and data flow
 
 ### Untrusted repository input

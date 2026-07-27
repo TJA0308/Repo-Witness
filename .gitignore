@@ -6,3 +6,6 @@ __pycache__/
 .streamlit/secrets.toml
 *.pyc
 sample_repo.zip
+
+# Pytest temporary directories
+.pytest-*
