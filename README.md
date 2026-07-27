@@ -1,108 +1,243 @@
+<div align="center">
+
 # Repo Witness
 
-Repo Witness is a focused repository claim auditor for OpenAI Build Week's Developer Tools track. Upload a repository ZIP, discover candidate technical claims from its README or enter claims manually, and receive evidence-linked verdicts with supporting excerpts and cautious corrected wording.
+### Provenance-aware technical claim auditing for software repositories
 
-## Supported platforms
+Repo Witness checks claims from project documentation or manual input against
+independent, repository-relative evidence—without executing uploaded code.
 
-Repo Witness targets Python 3.11 and runs on Windows, macOS, Linux, and Streamlit Community Cloud. It uses `pathlib` and standard-library ZIP handling; no machine-specific paths or external system packages are required.
+[![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.40%2B-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Pydantic v2](https://img.shields.io/badge/Pydantic-v2-E92063?logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
+[![Tests](https://img.shields.io/badge/Tests-56%20passing-2EA44F?logo=pytest&logoColor=white)](#testing)
+[![Benchmark](https://img.shields.io/badge/Benchmark-40%20cases-6F42C1)](#retrieval-evaluation)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Installation
+[Quick start](#quick-start) ·
+[How it works](#how-it-works) ·
+[Architecture](docs/architecture.md) ·
+[Evaluation](#retrieval-evaluation) ·
+[Security](#security-boundary)
+
+</div>
+
+## Overview
+
+Repository documentation can drift away from implementation. Repo Witness keeps
+those two sources separate:
+
+- A README or manually entered statement is treated as a **claim**.
+- Source code, tests, manifests, workflows, and configuration are treated as
+  potential **independent evidence**.
+- The originating README is excluded from evidence retrieval for claims
+  discovered from that README.
+- Missing evidence produces `INSUFFICIENT_EVIDENCE`; it is not automatically
+  treated as a contradiction.
+
+The result is an evidence-linked audit that remains reviewable by a human.
+
+## What it provides
+
+| Capability | Current behavior |
+| --- | --- |
+| Safe repository intake | Accepts repository ZIPs through bounded extraction and filtering. |
+| Claim discovery | Deterministically suggests implementation-oriented README statements for user review. |
+| Manual claims | Supports editable, manually entered technical claims. |
+| Provenance tracking | Retains the originating README path and excludes it from independent evidence. |
+| Evidence retrieval | Uses deterministic lexical ranking over eligible repository text files. |
+| Analysis | Runs in deterministic demo mode or optional OpenAI-assisted mode. |
+| Structured results | Validates verdicts and evidence with existing Pydantic models. |
+| Export | Produces a repository-relative Markdown audit report. |
+| Evaluation | Includes a deterministic 40-case synthetic lexical retrieval benchmark. |
+
+Semantic and hybrid retrieval are not implemented. An internal strategy seam is
+present for future evaluated retrieval work, while every current production path
+continues to use the original lexical retriever.
+
+## How it works
+
+```text
+Repository ZIP
+    ↓
+Safe extraction and filtering
+    ↓
+README claim discovery or manual claim entry
+    ↓
+Provenance-aware lexical evidence retrieval
+    ↓
+Deterministic or OpenAI-assisted analysis
+    ↓
+Pydantic-validated verdict
+    ↓
+Streamlit results and Markdown export
+```
+
+For the verified component map, trust boundaries, controls, and full Mermaid
+flowchart, see [docs/architecture.md](docs/architecture.md).
+
+## Quick start
+
+Repo Witness targets Python 3.11 and runs on Windows, macOS, Linux, and
+Streamlit Community Cloud.
 
 ```bash
+git clone https://github.com/TJA0308/Repo-Witness.git
+cd Repo-Witness
 python -m venv .venv
 pip install -r requirements-dev.txt
 ```
 
-Activate the environment on Windows with `.venv\Scripts\activate`, or on macOS/Linux with `source .venv/bin/activate`.
+Activate the virtual environment:
 
-## Run locally
+```powershell
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+```
+
+```bash
+# macOS or Linux
+source .venv/bin/activate
+```
+
+Start the application:
 
 ```bash
 streamlit run app.py
 ```
 
-No API key is required. Without `OPENAI_API_KEY`, the app starts in deterministic demo mode. Click **Load sample repository**, then **Find README claims**, to review suggestions from the bundled `sample_repo/`. You can also upload a ZIP and enter claims manually.
+No API key is required. Select **Load sample repository**, then
+**Find README claims**, to try the deterministic workflow with the bundled
+synthetic fixture.
 
-## README claim discovery
+## Analysis modes
 
-After uploading or loading a repository, click **Find README claims**. Repo Witness prefers a root-level `README.md`, `README.rst`, `README.txt`, or `README`, and offers a selector when several are available. It deterministically suggests concise implementation-oriented statements while excluding headings, badges, code fences, commands, URLs, contribution text, license text, and obvious duplicates. Claim discovery makes no OpenAI API request.
+| Mode | Activation | Behavior |
+| --- | --- | --- |
+| Deterministic demo | Default when no API key is present | Uses fixed, reproducible heuristics over retrieved lexical evidence. |
+| OpenAI-assisted | Set `OPENAI_API_KEY` | Requests a structured `ClaimAudit` using only the bounded evidence candidates. |
 
-Discovered claims are suggestions, not verdicts. Select the useful suggestions, apply them to the editable claim list, add or remove wording as needed, and run the audit only after review. Manual claim entry remains available throughout; no discovered claim is audited automatically.
-
-## Optional OpenAI mode
-
-Set `OPENAI_API_KEY` to enable model-assisted analysis. Set `OPENAI_MODEL` to choose the model; the default is `gpt-5.1`.
-
-PowerShell:
+Set the optional model explicitly with `OPENAI_MODEL`; the current default is
+`gpt-5.1`.
 
 ```powershell
+# Windows PowerShell
 $env:OPENAI_API_KEY="your-key"
 $env:OPENAI_MODEL="gpt-5.1"
 streamlit run app.py
 ```
 
-macOS/Linux:
-
 ```bash
+# macOS or Linux
 export OPENAI_API_KEY="your-key"
 export OPENAI_MODEL="gpt-5.1"
 streamlit run app.py
 ```
 
-For Streamlit Community Cloud, add these values as root-level secrets in the app's Advanced settings. Never commit API keys or `.streamlit/secrets.toml`.
+For Streamlit Community Cloud, configure these as root-level secrets. Never
+commit API keys or `.streamlit/secrets.toml`.
 
-## Testing
+Both analysis modes require human review. Deterministic verdicts are heuristic,
+and model-assisted verdicts can be wrong.
 
-Install development dependencies, then run the documented suite:
+## Retrieval evaluation
 
-```bash
-python -m pytest -q --basetemp .pytest-tmp
-```
-
-The tests cover ZIP safety, filtering, size limits, temporary cleanup, README discovery and extraction, empty claims, deterministic evidence retrieval, manual claims, the bundled sample, and Markdown export.
-
-## Evaluation
-
-RepoWitness includes a deterministic synthetic evaluation of the production lexical evidence retriever. See the [lexical retrieval benchmark](#lexical-retrieval-benchmark) for the command, metrics, and limitations.
-
-## Lexical retrieval benchmark
-
-The checked-in benchmark measures the production lexical evidence retriever on 40 claims across four small synthetic repositories. It includes exact matches, synonyms and paraphrases, hard distractors, repeated same-file results, multiple valid files, evidence distributed across files, README provenance exclusions, unsupported claims, and one separately tagged candidate-file coverage case whose `.sql` evidence is ineligible for the current retriever. The fixtures under `benchmarks/lexical_evidence/` use no private or downloaded repository and require no API key.
-
-Run it from the repository root:
+The checked-in benchmark evaluates the unchanged production lexical retriever
+on 40 claims across four small synthetic repositories. It requires no network
+access or API key.
 
 ```bash
 python -m repo_witness.benchmark
 ```
 
-The current lexical baseline has 40 total cases: 36 supported cases used for ordinary retrieval metrics and four unsupported cases measured separately. Recall@1 is `52.8%`, Recall@3 is `77.8%`, Recall@5 is `83.3%`, and MRR is `0.651`. The command also reports unique-file recall, repeated-file occupancy, evidence-group coverage and complete-group success, hard-negative and unsupported-claim retrieval rates, provenance violations, category results, and every case's ranks and repository-relative paths. Metric definitions, denominators, full baseline tables, and failure examples are in the [retrieval benchmark architecture notes](docs/architecture.md#retrieval-benchmark).
+### Current lexical baseline
 
-This remains a small synthetic benchmark. It characterizes lexical ranking and source exclusion; it does not demonstrate semantic understanding, real-world generalization, evidence entailment, verdict quality, or runtime behavior.
+| Metric | Result |
+| --- | ---: |
+| Total cases | 40 |
+| Recall@1 | 52.8% |
+| Recall@3 | 77.8% |
+| Recall@5 | 83.3% |
+| Mean reciprocal rank | 0.651 |
+| Repeated-file occupancy | 30.1% |
+| Provenance-exclusion violations | 0 |
 
-## Architecture
+Of the 40 cases, 36 supported cases contribute to ordinary Recall and MRR;
+four unsupported cases are measured separately. The dataset includes exact
+matches, synonyms, paraphrases, distractors, multiple valid paths, distributed
+evidence, provenance exclusions, unsupported claims, and one separately tagged
+ineligible-extension case.
 
-RepoWitness separates untrusted repository ingestion, claim provenance, bounded lexical retrieval, structured analysis, and presentation. See the [technical architecture](docs/architecture.md) for the verified system flow, component map, trust boundaries, exact security controls, analysis modes, design decisions, benchmark context, and limitations.
+This is a small synthetic benchmark. It characterizes deterministic lexical
+retrieval behavior; it does not demonstrate semantic understanding, evidence
+entailment, verdict accuracy, runtime behavior, or real-world generalization.
+See the [full metric definitions and category results](docs/architecture.md#retrieval-benchmark).
 
-Repository evidence is kept separate from analysis. Missing evidence is never treated as contradiction.
+## Security boundary
 
-### Evidence authority and provenance
+Uploaded repositories are untrusted. Repo Witness inspects eligible text but
+does not import, build, test, invoke, or otherwise execute uploaded code.
 
-For README-discovered claims, the selected README is tracked as the **claim source** and excluded from supporting **repository evidence**. A claim source explains what the project asserts; it cannot prove that assertion. Implementation verdicts require independent technical artifacts such as source code, tests, dependency manifests, CI workflows, Docker or deployment configuration, migrations, schemas, infrastructure-as-code, or executable configuration. When no independent evidence remains, the verdict is `INSUFFICIENT_EVIDENCE`.
+Current ingestion limits:
 
-General documentation, project descriptions, comments, and unexecuted examples are contextual and lower-authority than implementation artifacts. Repo Witness displays the originating README path separately and never includes that file as evidence for its discovered claim.
+| Control | Limit |
+| --- | ---: |
+| Uploaded ZIP | 25 MiB |
+| Total eligible extracted data | 25 MiB |
+| Individual file | 1 MiB |
+| Archive entries | 5,000 |
 
-## Limitations
+Extraction rejects or skips unsafe paths, symbolic links, oversized files,
+configured dependency/build directories, common binary formats, and selected
+secret-bearing names and extensions. These controls reduce risk but do not
+provide complete secret or binary detection. Temporary cleanup is best-effort,
+and hosting-provider infrastructure remains outside the application boundary.
 
-README discovery is deterministic and heuristic, not semantic understanding or universal Markdown parsing. It intentionally favors a few explicit implementation statements and may miss claims, especially when prose spans several lines or uses unusual wording. Originating README statements are excluded from implementation evidence, but users must still review the authority and relevance of every independent snippet.
+## Project layout
 
-Demo mode is deterministic but intentionally heuristic: lexical matches can miss synonyms and do not prove runtime or production behavior. The app does not execute uploaded code. Model-assisted classifications can still be wrong and require human review.
+```text
+Repo-Witness/
+├── app.py                         # Streamlit application
+├── repo_witness/
+│   ├── analyzer.py                # Analysis orchestration
+│   ├── benchmark.py               # Deterministic retrieval evaluation
+│   ├── evidence.py                # Production lexical retriever
+│   ├── ingest.py                  # Safe ZIP extraction and filtering
+│   ├── models.py                  # Pydantic result models
+│   ├── readme_claims.py           # README discovery and claim suggestions
+│   └── retrieval/                 # Internal retrieval strategy seam
+├── benchmarks/lexical_evidence/  # Synthetic evaluation data
+├── docs/architecture.md           # Architecture and trust boundaries
+├── sample_repo/                   # Bundled synthetic repository
+└── tests/                         # Automated test suite
+```
 
-Uploads are limited to 25 MB, 5,000 archive entries, 25 MiB of eligible extracted text, and 1 MiB per individual file. Uploaded repositories are processed in a temporary workspace and are not intentionally retained. Cleanup is best-effort, and deployment-provider infrastructure is outside this application's control. In model-assisted mode, only retrieved evidence snippets are sent to OpenAI; demo mode makes no OpenAI API request.
+## Testing
 
-## How Codex with GPT-5.6 was used
+Install development dependencies, then run:
 
-Codex with GPT-5.6 was used to design and implement the secure ingestion, evidence retrieval, structured analysis, Streamlit UI, Markdown export, synthetic fixture, and verification workflow. Codex assisted implementation; repository evidence remains the source of truth for every audit.
+```bash
+python -m pytest -q --basetemp .pytest-tmp
+```
+
+The current suite contains 56 passing tests covering ingestion safety, size
+limits, cleanup, README discovery, lexical characterization, claim provenance,
+analysis behavior, Markdown export, benchmark validation, metrics, deterministic
+output, and retrieval-strategy parity.
+
+## Known limitations
+
+- Lexical matching can miss synonyms and retrieve irrelevant lexical overlap.
+- Evidence distributed across multiple files is difficult to rank within a
+  small candidate limit.
+- Deterministic demo verdicts are heuristic.
+- Model-assisted analysis depends on API and model availability.
+- Secret detection and temporary cleanup are best-effort.
+- Uploaded code is never executed, so runtime and deployment behavior remain
+  outside the proof boundary.
+- The retrieval benchmark is synthetic and has not established real-world
+  generalization.
 
 ## License
 
-Repo Witness is open source under the [MIT License](LICENSE).
+Repo Witness is available under the [MIT License](LICENSE).
