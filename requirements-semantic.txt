@@ -1,0 +1,8 @@
+# Optional dependencies for the experimental semantic retrieval strategy.
+# Not required by the Streamlit application, which remains lexical-only.
+# Install with: pip install -r requirements-semantic.txt
+-r requirements-dev.txt
+# Pinned to the exact version used to produce the published Phase 4 benchmark.
+# Batching and tokenizer behavior differ between releases, so a different
+# version may not reproduce the recorded results bit-for-bit.
+sentence-transformers==5.7.0

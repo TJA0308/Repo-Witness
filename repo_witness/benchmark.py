@@ -7,7 +7,9 @@ from collections.abc import Iterable, Sequence
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
-from .evidence import retrieve_evidence
+from .evidence import MAX_CANDIDATES, retrieve_evidence
+from .retrieval.base import RetrievalStrategy
+from .retrieval.embeddings import DEFAULT_EMBEDDING_MODEL
 
 PROJECT_ROOT = Path(__file__).parents[1]
 DEFAULT_DATASET = PROJECT_ROOT / "benchmarks" / "lexical_evidence" / "cases.json"
@@ -297,15 +299,30 @@ def _per_category_metrics(case_results: list[dict[str, Any]]) -> dict[str, dict[
 def run_benchmark(
     dataset_path: Path = DEFAULT_DATASET,
     repository_root: Path = DEFAULT_REPOSITORY,
+    strategy: RetrievalStrategy | None = None,
 ) -> dict[str, Any]:
+    """Evaluate a retrieval strategy over the frozen benchmark cases.
+
+    Passing no strategy keeps the established lexical behavior and output
+    unchanged. A strategy is used exactly as given; no strategy ever falls back
+    to another one.
+    """
     case_results: list[dict[str, Any]] = []
     for case in load_cases(dataset_path, repository_root):
         expected_paths = set(case["expected_paths"])
-        evidence = retrieve_evidence(
-            repository_root / case["repository"],
-            case["claim"],
-            excluded_paths=case["excluded_source_paths"],
-        )
+        if strategy is None:
+            evidence = retrieve_evidence(
+                repository_root / case["repository"],
+                case["claim"],
+                excluded_paths=case["excluded_source_paths"],
+            )
+        else:
+            evidence = strategy.retrieve(
+                repository_root / case["repository"],
+                case["claim"],
+                limit=MAX_CANDIDATES,
+                excluded_paths=case["excluded_source_paths"],
+            )
         retrieved_paths = [snippet.path for snippet in evidence]
         unique_paths = _unique_paths(retrieved_paths)
         case_results.append(
@@ -419,12 +436,37 @@ def format_results(results: dict[str, Any]) -> str:
     return json.dumps(results, indent=2, sort_keys=True) + "\n"
 
 
+def build_strategy(name: str, embedding_model: str) -> RetrievalStrategy | None:
+    """Return the strategy for a CLI name, or None for the lexical default.
+
+    An unknown name is an error; no strategy silently falls back to another.
+    """
+    if name == "lexical":
+        return None
+    if name == "semantic":
+        from .retrieval import (
+            SemanticRetrievalStrategy,
+            SentenceTransformerEmbeddingProvider,
+        )
+
+        return SemanticRetrievalStrategy(
+            SentenceTransformerEmbeddingProvider(embedding_model)
+        )
+    raise ValueError(f"Unknown retrieval strategy: {name!r}")
+
+
 def main(argv: Sequence[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Evaluate the lexical evidence retriever")
+    parser = argparse.ArgumentParser(description="Evaluate a repository evidence retriever")
     parser.add_argument("--dataset", type=Path, default=DEFAULT_DATASET)
     parser.add_argument("--repository", type=Path, default=DEFAULT_REPOSITORY)
+    parser.add_argument("--strategy", choices=("lexical", "semantic"), default="lexical")
+    parser.add_argument("--embedding-model", default=DEFAULT_EMBEDDING_MODEL)
     args = parser.parse_args(argv)
-    print(format_results(run_benchmark(args.dataset, args.repository)), end="")
+    strategy = build_strategy(args.strategy, args.embedding_model)
+    print(
+        format_results(run_benchmark(args.dataset, args.repository, strategy)),
+        end="",
+    )
     return 0
 
 
