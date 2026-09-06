@@ -10,7 +10,7 @@ independent, repository-relative evidence—without executing uploaded code.
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.40%2B-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![Pydantic v2](https://img.shields.io/badge/Pydantic-v2-E92063?logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
-[![Tests](https://img.shields.io/badge/Tests-56%20passing-2EA44F?logo=pytest&logoColor=white)](#testing)
+[![Tests](https://img.shields.io/badge/Tests-126%20passing-2EA44F?logo=pytest&logoColor=white)](#testing)
 [![Benchmark](https://img.shields.io/badge/Benchmark-40%20cases-6F42C1)](#retrieval-evaluation)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -46,14 +46,16 @@ The result is an evidence-linked audit that remains reviewable by a human.
 | Manual claims | Supports editable, manually entered technical claims. |
 | Provenance tracking | Retains the originating README path and excludes it from independent evidence. |
 | Evidence retrieval | Uses deterministic lexical ranking over eligible repository text files. |
+| Experimental retrieval | Provides an evaluation-only semantic strategy using local embeddings, not used in production. |
 | Analysis | Runs in deterministic demo mode or optional OpenAI-assisted mode. |
 | Structured results | Validates verdicts and evidence with existing Pydantic models. |
 | Export | Produces a repository-relative Markdown audit report. |
-| Evaluation | Includes a deterministic 40-case synthetic lexical retrieval benchmark. |
+| Evaluation | Includes a deterministic 40-case synthetic retrieval benchmark, runnable against either strategy. |
 
-Semantic and hybrid retrieval are not implemented. An internal strategy seam is
-present for future evaluated retrieval work, while every current production path
-continues to use the original lexical retriever.
+Every production path continues to use the original lexical retriever. A
+semantic retrieval strategy exists behind an internal strategy seam for
+evaluation only; it is not wired into the application, and hybrid retrieval is
+not implemented.
 
 ## How it works
 
@@ -110,6 +112,14 @@ No API key is required. Select **Load sample repository**, then
 **Find README claims**, to try the deterministic workflow with the bundled
 synthetic fixture.
 
+The application needs nothing beyond `requirements-dev.txt`. The optional
+semantic evaluation extra is installed separately and only when you want to run
+that benchmark:
+
+```bash
+pip install -r requirements-semantic.txt
+```
+
 ## Analysis modes
 
 | Mode | Activation | Behavior |
@@ -142,25 +152,43 @@ and model-assisted verdicts can be wrong.
 
 ## Retrieval evaluation
 
-The checked-in benchmark evaluates the unchanged production lexical retriever
-on 40 claims across four small synthetic repositories. It requires no network
-access or API key.
+The checked-in benchmark evaluates retrieval on 40 claims across four small
+synthetic repositories. The default run uses the unchanged production lexical
+retriever and requires no network access or API key.
 
 ```bash
 python -m repo_witness.benchmark
 ```
 
-### Current lexical baseline
+A strategy can be selected explicitly. Semantic evaluation needs the optional
+extra above, and downloads a small embedding model once on first use:
 
-| Metric | Result |
-| --- | ---: |
-| Total cases | 40 |
-| Recall@1 | 52.8% |
-| Recall@3 | 77.8% |
-| Recall@5 | 83.3% |
-| Mean reciprocal rank | 0.651 |
-| Repeated-file occupancy | 30.1% |
-| Provenance-exclusion violations | 0 |
+```bash
+python -m repo_witness.benchmark --strategy semantic
+```
+
+Lexical is the default, no strategy silently falls back to another, and the
+benchmark cases and labels are identical for both.
+
+### Lexical baseline and semantic comparison
+
+| Metric | Lexical (production) | Semantic (experimental) |
+| --- | ---: | ---: |
+| Total cases | 40 | 40 |
+| Recall@1 | 52.8% | 69.4% |
+| Recall@3 | 77.8% | 88.9% |
+| Recall@5 | 83.3% | 91.7% |
+| Mean reciprocal rank | 0.651 | 0.788 |
+| Synonym Recall@3 | 33.3% | 66.7% |
+| Paraphrase Recall@3 | 55.6% | 66.7% |
+| Provenance-exclusion violations | 0 | 0 |
+| Unsupported-claim retrieval@3 | 50.0% | 100.0% |
+
+Semantic ranking improved every recall and MRR figure on these fixtures, and
+provenance-exclusion violations stayed at zero for both. Precision moved the
+other way: semantic retrieval applies no acceptance threshold, so a claim the
+repository does not support now always receives topically plausible evidence.
+That is why lexical remains the production default.
 
 Of the 40 cases, 36 supported cases contribute to ordinary Recall and MRR;
 four unsupported cases are measured separately. The dataset includes exact
@@ -168,9 +196,10 @@ matches, synonyms, paraphrases, distractors, multiple valid paths, distributed
 evidence, provenance exclusions, unsupported claims, and one separately tagged
 ineligible-extension case.
 
-This is a small synthetic benchmark. It characterizes deterministic lexical
-retrieval behavior; it does not demonstrate semantic understanding, evidence
-entailment, verdict accuracy, runtime behavior, or real-world generalization.
+This is a small synthetic benchmark. It characterizes retrieval ranking
+behavior only. It does not demonstrate evidence entailment, verdict accuracy,
+runtime behavior, or real-world generalization, and a higher Recall@K does not
+mean better verdict accuracy.
 See the [full metric definitions and category results](docs/architecture.md#retrieval-benchmark).
 
 ## Security boundary
@@ -205,9 +234,12 @@ Repo-Witness/
 │   ├── ingest.py                  # Safe ZIP extraction and filtering
 │   ├── models.py                  # Pydantic result models
 │   ├── readme_claims.py           # README discovery and claim suggestions
-│   └── retrieval/                 # Internal retrieval strategy seam
-├── benchmarks/lexical_evidence/  # Synthetic evaluation data
+│   └── retrieval/                 # Strategy seam: lexical adapter,
+│                                  #   experimental semantic strategy,
+│                                  #   embedding providers and cache
+├── benchmarks/lexical_evidence/   # Synthetic evaluation data
 ├── docs/architecture.md           # Architecture and trust boundaries
+├── requirements-semantic.txt      # Optional semantic evaluation extra
 ├── sample_repo/                   # Bundled synthetic repository
 └── tests/                         # Automated test suite
 ```
@@ -220,10 +252,14 @@ Install development dependencies, then run:
 python -m pytest -q --basetemp .pytest-tmp
 ```
 
-The current suite contains 56 passing tests covering ingestion safety, size
+The current suite contains 126 passing tests covering ingestion safety, size
 limits, cleanup, README discovery, lexical characterization, claim provenance,
 analysis behavior, Markdown export, benchmark validation, metrics, deterministic
-output, and retrieval-strategy parity.
+output, retrieval-strategy parity, semantic candidate construction and ranking,
+embedding-cache behavior, and lexical-versus-semantic file-eligibility parity.
+
+Semantic tests use a deterministic fake embedding provider, so the suite runs
+offline and never downloads a model.
 
 ## Known limitations
 
@@ -237,6 +273,13 @@ output, and retrieval-strategy parity.
   outside the proof boundary.
 - The retrieval benchmark is synthetic and has not established real-world
   generalization.
+- Semantic retrieval is experimental and evaluation-only. It applies no
+  acceptance threshold, so unsupported claims still receive plausible-looking
+  evidence, and semantic similarity is topical rather than evidential.
+- Retrieval metrics measure ranking, not verdict correctness. Evidence
+  classification remains future work.
+- Semantic determinism was verified in a single environment; cross-machine
+  byte-identical output is not guaranteed.
 
 ## License
 
