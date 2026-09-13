@@ -2,9 +2,18 @@ import sys
 from pathlib import Path
 from types import SimpleNamespace
 
-from repo_witness.analyzer import analyze_demo, analyze_openai
+from repo_witness.analyzer import (
+    EVIDENCE_DELIMITER,
+    MODEL_ERROR_REASON,
+    MODEL_REFUSAL_REASON,
+    MODEL_UNPARSED_REASON,
+    OPENAI_TIMEOUT_SECONDS,
+    UNTRUSTED_EVIDENCE_NOTICE,
+    analyze_demo,
+    analyze_openai,
+)
 from repo_witness.export import markdown_report
-from repo_witness.models import Verdict
+from repo_witness.models import ClaimAudit, Verdict
 from repo_witness.readme_claims import discover_readmes, extract_candidate_claims
 
 
@@ -35,12 +44,14 @@ def test_independent_configuration_can_verify_discovered_claim(tmp_path):
     assert {evidence.path for evidence in audit.evidence} == {"Dockerfile"}
 
 
-def test_manual_claims_keep_existing_behavior(tmp_path):
+def test_manual_claim_supported_only_by_documentation_is_insufficient(tmp_path):
+    """A manual claim keeps its retrieved evidence, but prose alone cannot verify it."""
     claim = "Uses pytest for automated testing."
     (tmp_path / "README.md").write_text(f"- {claim}\n", encoding="utf-8")
     audit = analyze_demo(tmp_path, [claim]).audits[0]
-    assert audit.verdict == Verdict.VERIFIED
+    assert audit.verdict == Verdict.INSUFFICIENT_EVIDENCE
     assert audit.evidence[0].path == "README.md"
+    assert audit.evidence[0].relevance.endswith("evidence category: mention_only")
 
 
 def test_export_and_evidence_keep_relative_paths_without_source_proof(tmp_path):
@@ -81,3 +92,128 @@ def test_model_assisted_path_does_not_classify_without_independent_evidence(tmp_
     audit = analyze_openai(tmp_path, [claim], claim_sources={claim: "README.md"}).audits[0]
     assert audit.verdict == Verdict.INSUFFICIENT_EVIDENCE
     assert audit.evidence == []
+
+
+def _install_fake_openai(monkeypatch, parse, captured_client_kwargs=None):
+    class Responses:
+        def parse(self, **kwargs):
+            return parse(**kwargs)
+
+    client = SimpleNamespace(responses=Responses())
+
+    def build_client(**kwargs):
+        if captured_client_kwargs is not None:
+            captured_client_kwargs.update(kwargs)
+        return client
+
+    monkeypatch.setitem(sys.modules, "openai", SimpleNamespace(OpenAI=build_client))
+    return client
+
+
+def _two_claim_repository(tmp_path):
+    (tmp_path / "test_app.py").write_text("import pytest\n", encoding="utf-8")
+    (tmp_path / "cache.py").write_text("redis_client = Redis()\n", encoding="utf-8")
+    return ["Uses pytest for automated testing.", "Uses Redis for caching."]
+
+
+def _model_audit(claim):
+    return ClaimAudit(
+        claim="ignored",
+        verdict=Verdict.VERIFIED,
+        confidence=0.9,
+        evidence=[],
+        reasoning="model reasoning",
+        corrected_wording=claim,
+    )
+
+
+def test_model_assisted_success_keeps_locally_retrieved_evidence_and_the_model_verdict(
+    tmp_path, monkeypatch
+):
+    claim = "Uses pytest for automated testing."
+    (tmp_path / "test_app.py").write_text("import pytest\n", encoding="utf-8")
+    _install_fake_openai(
+        monkeypatch,
+        lambda **kwargs: SimpleNamespace(output_parsed=_model_audit(claim), output=[]),
+    )
+
+    audit = analyze_openai(tmp_path, [claim]).audits[0]
+
+    assert audit.verdict == Verdict.VERIFIED
+    assert audit.reasoning == "model reasoning"
+    assert audit.claim == claim
+    assert [item.path for item in audit.evidence] == ["test_app.py"]
+
+
+def test_model_failure_degrades_one_claim_without_discarding_the_other_audits(
+    tmp_path, monkeypatch
+):
+    claims = _two_claim_repository(tmp_path)
+    calls = []
+
+    def parse(**kwargs):
+        calls.append(kwargs)
+        if len(calls) == 2:
+            raise RuntimeError("connection reset")
+        return SimpleNamespace(output_parsed=_model_audit(claims[0]), output=[])
+
+    _install_fake_openai(monkeypatch, parse)
+    audits = analyze_openai(tmp_path, claims).audits
+
+    assert len(audits) == 2
+    assert audits[0].verdict == Verdict.VERIFIED
+    assert audits[1].verdict == Verdict.INSUFFICIENT_EVIDENCE
+    assert audits[1].reasoning == MODEL_ERROR_REASON
+    assert audits[1].evidence, "a degraded claim keeps the evidence that was retrieved for it"
+
+
+def test_missing_structured_output_degrades_to_insufficient_evidence(tmp_path, monkeypatch):
+    claim = "Uses pytest for automated testing."
+    (tmp_path / "test_app.py").write_text("import pytest\n", encoding="utf-8")
+    _install_fake_openai(
+        monkeypatch, lambda **kwargs: SimpleNamespace(output_parsed=None, output=[])
+    )
+
+    audit = analyze_openai(tmp_path, [claim]).audits[0]
+
+    assert audit.verdict == Verdict.INSUFFICIENT_EVIDENCE
+    assert audit.reasoning == MODEL_UNPARSED_REASON
+
+
+def test_model_refusal_is_reported_as_a_refusal_rather_than_a_parse_failure(
+    tmp_path, monkeypatch
+):
+    claim = "Uses pytest for automated testing."
+    (tmp_path / "test_app.py").write_text("import pytest\n", encoding="utf-8")
+    refusal = SimpleNamespace(content=[SimpleNamespace(type="refusal")])
+    _install_fake_openai(
+        monkeypatch,
+        lambda **kwargs: SimpleNamespace(output_parsed=None, output=[refusal]),
+    )
+
+    audit = analyze_openai(tmp_path, [claim]).audits[0]
+
+    assert audit.verdict == Verdict.INSUFFICIENT_EVIDENCE
+    assert audit.reasoning == MODEL_REFUSAL_REASON
+
+
+def test_repository_evidence_is_delimited_as_untrusted_data_and_the_client_has_a_timeout(
+    tmp_path, monkeypatch
+):
+    claim = "Uses pytest for automated testing."
+    (tmp_path / "test_app.py").write_text("import pytest\n", encoding="utf-8")
+    client_kwargs = {}
+    parsed = []
+
+    def parse(**kwargs):
+        parsed.append(kwargs)
+        return SimpleNamespace(output_parsed=_model_audit(claim), output=[])
+
+    _install_fake_openai(monkeypatch, parse, client_kwargs)
+    analyze_openai(tmp_path, [claim])
+
+    assert client_kwargs["timeout"] == OPENAI_TIMEOUT_SECONDS
+    user_message = parsed[0]["input"][1]["content"]
+    assert user_message.count(EVIDENCE_DELIMITER) == 2
+    assert UNTRUSTED_EVIDENCE_NOTICE in user_message
+    assert user_message.index(UNTRUSTED_EVIDENCE_NOTICE) < user_message.index(EVIDENCE_DELIMITER)

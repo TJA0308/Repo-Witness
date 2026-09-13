@@ -10,7 +10,7 @@ independent, repository-relative evidence—without executing uploaded code.
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.40%2B-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![Pydantic v2](https://img.shields.io/badge/Pydantic-v2-E92063?logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
-[![Tests](https://img.shields.io/badge/Tests-126%20passing-2EA44F?logo=pytest&logoColor=white)](#testing)
+[![Tests](https://img.shields.io/badge/Tests-198%20passing-2EA44F?logo=pytest&logoColor=white)](#testing)
 [![Benchmark](https://img.shields.io/badge/Benchmark-40%20cases-6F42C1)](#retrieval-evaluation)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -48,9 +48,10 @@ The result is an evidence-linked audit that remains reviewable by a human.
 | Evidence retrieval | Uses deterministic lexical ranking over eligible repository text files. |
 | Experimental retrieval | Provides an evaluation-only semantic strategy using local embeddings, not used in production. |
 | Analysis | Runs in deterministic demo mode or optional OpenAI-assisted mode. |
+| Evidence classification | Sorts each retrieved snippet into supporting, contradicting, speculative, or mention-only evidence before reaching a verdict. |
 | Structured results | Validates verdicts and evidence with existing Pydantic models. |
 | Export | Produces a repository-relative Markdown audit report. |
-| Evaluation | Includes a deterministic 40-case synthetic retrieval benchmark, runnable against either strategy. |
+| Evaluation | Includes a deterministic 40-case synthetic retrieval benchmark, runnable against either strategy, and a 31-case synthetic labelled verdict benchmark. |
 
 Every production path continues to use the original lexical retriever. A
 semantic retrieval strategy exists behind an internal strategy seam for
@@ -222,6 +223,44 @@ secret-bearing names and extensions. These controls reduce risk but do not
 provide complete secret or binary detection. Temporary cleanup is best-effort,
 and hosting-provider infrastructure remains outside the application boundary.
 
+## Verdict evaluation
+
+Retrieval finding text *about* a claim is not the same as that text *supporting*
+the claim. Retrieved snippets are sorted into four evidence categories —
+supporting, contradicting, speculative, and mention-only — and aggregated into a
+verdict. Documentation-only mentions, comment-only mentions, and planned work all
+return `INSUFFICIENT_EVIDENCE`: retrieving a snippet is not by itself support.
+
+A separate dataset of 31 synthetic labelled cases measures whether that produces
+the right conclusion.
+
+```bash
+python -m repo_witness.verdict_benchmark
+```
+
+| Metric over the 31 synthetic cases | Before | After |
+| --- | ---: | ---: |
+| Overall accuracy | 38.7% | 83.9% |
+| **False-verification rate** | **66.7%** | **5.3%** |
+
+The false-verification rate is the headline: the share of cases *not* labelled
+`VERIFIED` that are nonetheless called `VERIFIED`. Labels describe what a careful
+reviewer would conclude and were never adjusted to match either implementation.
+
+Read the accuracy figure with care. The dataset was authored by the same person as
+the rules. Twenty-six cases are ordinary and all twenty-six pass, which measures
+internal consistency rather than capability; the other five were written
+specifically to defeat the approach and all five fail. Each failure is kept in the
+dataset, tagged `known-hard`, and explained in
+[the architecture notes](docs/architecture.md#verdict-evaluation-benchmark).
+
+This is a conservative deterministic rule baseline, not natural-language
+entailment and not hallucination detection. The cases are synthetic and
+hand-authored, and the dataset's evidence is inline rather than retrieved, so the
+figures describe the classifier alone on those 31 cases. **No real-repository
+verdict accuracy and no end-to-end accuracy across retrieval and classification
+together have been established.**
+
 ## Project layout
 
 ```text
@@ -234,10 +273,13 @@ Repo-Witness/
 │   ├── ingest.py                  # Safe ZIP extraction and filtering
 │   ├── models.py                  # Pydantic result models
 │   ├── readme_claims.py           # README discovery and claim suggestions
+│   ├── verdict_benchmark.py       # Deterministic verdict evaluation
+│   ├── verdicts.py                # Evidence classification and aggregation
 │   └── retrieval/                 # Strategy seam: lexical adapter,
 │                                  #   experimental semantic strategy,
 │                                  #   embedding providers and cache
-├── benchmarks/lexical_evidence/   # Synthetic evaluation data
+├── benchmarks/lexical_evidence/   # Synthetic retrieval evaluation data
+├── benchmarks/verdict_cases/      # Synthetic labelled verdict cases
 ├── docs/architecture.md           # Architecture and trust boundaries
 ├── requirements-semantic.txt      # Optional semantic evaluation extra
 ├── sample_repo/                   # Bundled synthetic repository
@@ -252,11 +294,13 @@ Install development dependencies, then run:
 python -m pytest -q --basetemp .pytest-tmp
 ```
 
-The current suite contains 126 passing tests covering ingestion safety, size
+The current suite contains 198 passing tests covering ingestion safety, size
 limits, cleanup, README discovery, lexical characterization, claim provenance,
 analysis behavior, Markdown export, benchmark validation, metrics, deterministic
 output, retrieval-strategy parity, semantic candidate construction and ranking,
-embedding-cache behavior, and lexical-versus-semantic file-eligibility parity.
+embedding-cache behavior, lexical-versus-semantic file-eligibility parity,
+evidence classification, verdict aggregation, verdict-benchmark validation, and
+model-failure handling.
 
 Semantic tests use a deterministic fake embedding provider, so the suite runs
 offline and never downloads a model.

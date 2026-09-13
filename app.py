@@ -102,8 +102,11 @@ def render_results(report, claim_sources: dict[str, str] | None = None) -> None:
 
             st.markdown("**Analysis conclusion**")
             st.write(audit.reasoning)
-            st.markdown("**Suggested corrected wording**")
-            st.info(audit.corrected_wording)
+            if audit.corrected_wording.strip() != audit.claim.strip():
+                st.markdown("**Suggested corrected wording**")
+                st.info(audit.corrected_wording)
+            else:
+                st.caption("The claim matches what the evidence supports; no rewording is suggested.")
 
             evidence_count = len(audit.evidence)
             with st.expander(f"Repository evidence · {evidence_count} item{'s' if evidence_count != 1 else ''}"):
@@ -130,7 +133,7 @@ def render_results(report, claim_sources: dict[str, str] | None = None) -> None:
 
     with st.expander("Limitations"):
         st.write(
-            "Deterministic demo mode uses lexical evidence retrieval and fixed heuristics. It can miss synonyms, cannot prove runtime behavior, and should not replace human review. Uploaded code is inspected as text and is never executed."
+            "Deterministic demo mode uses lexical evidence retrieval and fixed rules that sort each snippet into supporting, contradicting, speculative, or mention-only evidence. Those rules are regular expressions, not language understanding: they miss paraphrased contradictions and can misread a negation that sits near an unrelated term. Retrieval can miss synonyms, runtime behavior cannot be proven from static text, and every verdict needs human review. Uploaded code is inspected as text and is never executed."
         )
 
 

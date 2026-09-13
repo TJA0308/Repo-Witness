@@ -1,0 +1,493 @@
+{
+  "version": 2,
+  "cases": [
+    {
+      "id": "support-pytest-test-file",
+      "claim": "Uses pytest for automated testing.",
+      "evidence": [
+        {
+          "path": "tests/test_auth.py",
+          "start_line": 1,
+          "end_line": 3,
+          "excerpt": "1: import pytest\n2: \n3: def test_login_rejects_expired_token():"
+        }
+      ],
+      "expected_verdict": "VERIFIED",
+      "case_tags": ["implementation-support", "test-evidence"],
+      "rationale": "A test module imports pytest and defines a test function; this is direct implementation evidence."
+    },
+    {
+      "id": "support-dockerfile-config",
+      "claim": "Includes a Docker image based on Python 3.11.",
+      "evidence": [
+        {
+          "path": "Dockerfile",
+          "start_line": 1,
+          "end_line": 2,
+          "excerpt": "1: FROM python:3.11-slim\n2: COPY . /app"
+        }
+      ],
+      "expected_verdict": "VERIFIED",
+      "case_tags": ["implementation-support", "config-evidence"],
+      "rationale": "The build file pins the claimed base image; configuration is executable intent, not prose."
+    },
+    {
+      "id": "support-real-implementation-identifier",
+      "claim": "Authenticates requests with JWT bearer tokens.",
+      "evidence": [
+        {
+          "path": "src/auth.py",
+          "start_line": 12,
+          "end_line": 14,
+          "excerpt": "12: def verify_jwt_bearer(token: str) -> bool:\n13:     header, payload, signature = token.split(\".\")\n14:     return _check_signature(header, payload, signature)"
+        }
+      ],
+      "expected_verdict": "VERIFIED",
+      "case_tags": ["implementation-support", "real-identifier"],
+      "rationale": "A named function implements the claimed mechanism in executable code."
+    },
+    {
+      "id": "support-ci-workflow",
+      "claim": "Runs Ruff lint checks in continuous integration.",
+      "evidence": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "start_line": 8,
+          "end_line": 9,
+          "excerpt": "8:       - run: pip install ruff\n9:       - run: ruff check ."
+        }
+      ],
+      "expected_verdict": "VERIFIED",
+      "case_tags": ["implementation-support", "config-evidence"],
+      "rationale": "The CI workflow actually invokes the claimed tool."
+    },
+    {
+      "id": "support-makefile-target",
+      "claim": "Provides a Makefile lint target.",
+      "evidence": [
+        {
+          "path": "Makefile",
+          "start_line": 4,
+          "end_line": 5,
+          "excerpt": "4: lint:\n5: \truff check ."
+        }
+      ],
+      "expected_verdict": "VERIFIED",
+      "case_tags": ["implementation-support", "config-evidence"],
+      "rationale": "The named target exists in the build file."
+    },
+    {
+      "id": "support-corroborated-across-files",
+      "claim": "Uses Celery for background task processing.",
+      "evidence": [
+        {
+          "path": "src/tasks.py",
+          "start_line": 1,
+          "end_line": 2,
+          "excerpt": "1: from celery import Celery\n2: celery_app = Celery(\"worker\")"
+        },
+        {
+          "path": "config/celery.toml",
+          "start_line": 1,
+          "end_line": 2,
+          "excerpt": "1: [celery]\n2: worker_concurrency = 4"
+        }
+      ],
+      "expected_verdict": "VERIFIED",
+      "case_tags": ["implementation-support", "corroborated"],
+      "rationale": "Two independent files, code and configuration, support the same claim."
+    },
+    {
+      "id": "contradiction-explicit-negation-in-code",
+      "claim": "Uses PostgreSQL for persistent storage.",
+      "evidence": [
+        {
+          "path": "src/storage.py",
+          "start_line": 3,
+          "end_line": 3,
+          "excerpt": "3: STORAGE_POLICY = \"This service does not use PostgreSQL; records exist only in memory.\""
+        }
+      ],
+      "expected_verdict": "CONTRADICTED",
+      "case_tags": ["contradiction", "negation"],
+      "rationale": "The repository explicitly denies the claim. The denial sits in a string literal inside code, not in prose."
+    },
+    {
+      "id": "contradiction-negation-in-comment",
+      "claim": "Sends telemetry to an external collector.",
+      "evidence": [
+        {
+          "path": "src/app.py",
+          "start_line": 7,
+          "end_line": 7,
+          "excerpt": "7: # This build does not send telemetry anywhere."
+        }
+      ],
+      "expected_verdict": "CONTRADICTED",
+      "case_tags": ["contradiction", "negation"],
+      "rationale": "A comment directly denies the claimed behavior."
+    },
+    {
+      "id": "contradiction-rejected-alternative-comment",
+      "claim": "Uses Redis as the cache backend.",
+      "evidence": [
+        {
+          "path": "src/cache.py",
+          "start_line": 4,
+          "end_line": 5,
+          "excerpt": "4: # We evaluated Redis and selected Memcached instead.\n5: cache = MemcachedClient()"
+        }
+      ],
+      "expected_verdict": "CONTRADICTED",
+      "case_tags": ["contradiction", "rejected-alternative"],
+      "rationale": "The claimed technology is named as the option that was considered and not taken."
+    },
+    {
+      "id": "contradiction-rejected-alternative-docs",
+      "claim": "Streams events through Kafka.",
+      "evidence": [
+        {
+          "path": "docs/alternatives.md",
+          "start_line": 11,
+          "end_line": 11,
+          "excerpt": "11: Kafka was rejected in favour of a simple Postgres queue."
+        }
+      ],
+      "expected_verdict": "CONTRADICTED",
+      "case_tags": ["contradiction", "rejected-alternative"],
+      "rationale": "Documentation records the claimed technology as explicitly rejected."
+    },
+    {
+      "id": "speculative-todo-comment",
+      "claim": "Uses PostgreSQL for storage.",
+      "evidence": [
+        {
+          "path": "src/db.py",
+          "start_line": 2,
+          "end_line": 2,
+          "excerpt": "2: # TODO: consider PostgreSQL someday"
+        }
+      ],
+      "expected_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": ["speculative", "todo"],
+      "rationale": "A TODO records an intention. It neither implements nor denies the claim."
+    },
+    {
+      "id": "speculative-future-plan-docs",
+      "claim": "Deploys to Kubernetes.",
+      "evidence": [
+        {
+          "path": "docs/roadmap.md",
+          "start_line": 4,
+          "end_line": 4,
+          "excerpt": "4: We might use Kubernetes in the future."
+        }
+      ],
+      "expected_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": ["speculative", "future-plan"],
+      "rationale": "A roadmap statement about future intent is not present-tense implementation evidence."
+    },
+    {
+      "id": "speculative-fixme-not-yet-wired",
+      "claim": "Validates uploaded files with ClamAV.",
+      "evidence": [
+        {
+          "path": "src/upload.py",
+          "start_line": 9,
+          "end_line": 9,
+          "excerpt": "9: # FIXME: ClamAV scanning is not yet wired up."
+        }
+      ],
+      "expected_verdict": "CONTRADICTED",
+      "case_tags": ["speculative", "todo", "negation", "known-hard"],
+      "rationale": "A careful reviewer reads 'not yet wired up' as denying the claim outright, not merely as an unfulfilled intention. Labelled by that reading, not by what the heuristic returns."
+    },
+    {
+      "id": "mention-only-contrastive-comment",
+      "claim": "Uses GraphQL for the public API.",
+      "evidence": [
+        {
+          "path": "src/api.py",
+          "start_line": 21,
+          "end_line": 22,
+          "excerpt": "21: # Unlike GraphQL, this handler returns a fixed response shape.\n22: def get_user(request):"
+        }
+      ],
+      "expected_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": ["mention-only", "comment-mention"],
+      "rationale": "The technology is named only as a contrast. Mentioning a thing is not using it."
+    },
+    {
+      "id": "mention-only-documentation-aside",
+      "claim": "Uses Terraform to provision infrastructure.",
+      "evidence": [
+        {
+          "path": "docs/faq.md",
+          "start_line": 30,
+          "end_line": 30,
+          "excerpt": "30: Terraform is a common choice for provisioning in this ecosystem."
+        }
+      ],
+      "expected_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": ["mention-only", "documentation-only"],
+      "rationale": "General prose about a technology says nothing about this repository's implementation."
+    },
+    {
+      "id": "mention-only-readme-restates-claim",
+      "claim": "Publishes signed release artifacts.",
+      "evidence": [
+        {
+          "path": "README.md",
+          "start_line": 9,
+          "end_line": 9,
+          "excerpt": "9: - Publishes signed release artifacts."
+        }
+      ],
+      "expected_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": ["mention-only", "documentation-only"],
+      "rationale": "Documentation repeating the claim is not independent evidence for it."
+    },
+    {
+      "id": "partial-unproven-scope",
+      "claim": "Provides a health endpoint with production-scale reliability.",
+      "evidence": [
+        {
+          "path": "src/health.py",
+          "start_line": 1,
+          "end_line": 2,
+          "excerpt": "1: def health():\n2:     return {\"status\": \"ok\"}"
+        }
+      ],
+      "expected_verdict": "PARTIALLY_VERIFIED",
+      "case_tags": ["partial", "unproven-scope"],
+      "rationale": "The endpoint exists, but 'production-scale reliability' is a runtime property static evidence cannot establish."
+    },
+    {
+      "id": "partial-mixed-support-and-contradiction",
+      "claim": "Uses Redis for caching and session storage.",
+      "evidence": [
+        {
+          "path": "src/cache.py",
+          "start_line": 3,
+          "end_line": 3,
+          "excerpt": "3: redis_client = Redis(host=\"localhost\", port=6379)"
+        },
+        {
+          "path": "docs/sessions.md",
+          "start_line": 5,
+          "end_line": 5,
+          "excerpt": "5: Session storage does not use Redis; sessions are held in process memory."
+        }
+      ],
+      "expected_verdict": "PARTIALLY_VERIFIED",
+      "case_tags": ["partial", "mixed-signals"],
+      "rationale": "One half of the compound claim is implemented and the other half is explicitly denied."
+    },
+    {
+      "id": "partial-implementation-incomplete",
+      "claim": "Encrypts data at rest and in transit.",
+      "evidence": [
+        {
+          "path": "src/transport.py",
+          "start_line": 6,
+          "end_line": 6,
+          "excerpt": "6: transit_encryption = ssl.create_default_context()"
+        },
+        {
+          "path": "docs/security.md",
+          "start_line": 14,
+          "end_line": 14,
+          "excerpt": "14: Disk contents are not encrypted at rest."
+        }
+      ],
+      "expected_verdict": "PARTIALLY_VERIFIED",
+      "case_tags": ["partial", "mixed-signals"],
+      "rationale": "Transit encryption is supported; at-rest encryption is explicitly denied."
+    },
+    {
+      "id": "mixed-supporting-outweighs-mention",
+      "claim": "Uses pytest and coverage reporting in CI.",
+      "evidence": [
+        {
+          "path": "tests/test_api.py",
+          "start_line": 1,
+          "end_line": 1,
+          "excerpt": "1: import pytest"
+        },
+        {
+          "path": ".github/workflows/ci.yml",
+          "start_line": 11,
+          "end_line": 11,
+          "excerpt": "11:       - run: pytest --cov=src --cov-report=term"
+        },
+        {
+          "path": "README.md",
+          "start_line": 6,
+          "end_line": 6,
+          "excerpt": "6: We use pytest and coverage reporting."
+        }
+      ],
+      "expected_verdict": "VERIFIED",
+      "case_tags": ["mixed-signals", "implementation-support"],
+      "rationale": "Two independent implementation sources support the claim; the README mention adds nothing but does not weaken it."
+    },
+    {
+      "id": "no-relevant-evidence",
+      "claim": "Streams events through Kafka.",
+      "evidence": [],
+      "expected_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": ["no-evidence"],
+      "rationale": "Retrieval returned nothing. Absence of evidence is not evidence of contradiction."
+    },
+    {
+      "id": "substring-annotations-contains-not",
+      "claim": "Provides type annotations for public functions.",
+      "evidence": [
+        {
+          "path": "src/introspect.py",
+          "start_line": 4,
+          "end_line": 5,
+          "excerpt": "4: annotations = get_type_hints(parse_record)\n5: return annotations"
+        }
+      ],
+      "expected_verdict": "VERIFIED",
+      "case_tags": ["substring-edge-case"],
+      "rationale": "The word 'annotations' contains the substring 'not'. A substring negation check wrongly marks this CONTRADICTED."
+    },
+    {
+      "id": "substring-notification-contains-not",
+      "claim": "Includes notification support via email.",
+      "evidence": [
+        {
+          "path": "src/notify.py",
+          "start_line": 2,
+          "end_line": 2,
+          "excerpt": "2: notification_queue = Queue(\"email\")"
+        }
+      ],
+      "expected_verdict": "VERIFIED",
+      "case_tags": ["substring-edge-case"],
+      "rationale": "'notification' contains 'not'; the claim is positive and supported."
+    },
+    {
+      "id": "substring-notion-contains-not",
+      "claim": "Supports Notion export.",
+      "evidence": [
+        {
+          "path": "src/export.py",
+          "start_line": 18,
+          "end_line": 19,
+          "excerpt": "18: def export_to_notion(document):\n19:     return _notion_client.pages.create(document)"
+        }
+      ],
+      "expected_verdict": "VERIFIED",
+      "case_tags": ["substring-edge-case"],
+      "rationale": "'Notion' contains 'not'; the claim is positive and supported."
+    },
+    {
+      "id": "substring-mono-contains-no-space",
+      "claim": "Runs on the Mono runtime.",
+      "evidence": [
+        {
+          "path": "src/runtime.py",
+          "start_line": 3,
+          "end_line": 3,
+          "excerpt": "3: mono_runtime = MonoRuntime(profile=\"server\")"
+        }
+      ],
+      "expected_verdict": "VERIFIED",
+      "case_tags": ["substring-edge-case"],
+      "rationale": "'Mono ' contains the substring 'no '; the claim is positive and supported."
+    },
+    {
+      "id": "negated-claim-absence-cannot-be-proven",
+      "claim": "Does not collect user analytics.",
+      "evidence": [
+        {
+          "path": "src/app.py",
+          "start_line": 5,
+          "end_line": 5,
+          "excerpt": "5: TELEMETRY_ENABLED = False"
+        }
+      ],
+      "expected_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": ["negated-claim"],
+      "rationale": "The claim asserts an absence. Bounded lexical retrieval over at most six snippets cannot establish that something is absent from a repository."
+    },
+    {
+      "id": "adversarial-paraphrased-rejection",
+      "claim": "Uses MySQL for relational storage.",
+      "evidence": [
+        {
+          "path": "docs/database.md",
+          "start_line": 8,
+          "end_line": 8,
+          "excerpt": "8: The team abandoned MySQL during the 2023 platform migration."
+        }
+      ],
+      "expected_verdict": "CONTRADICTED",
+      "case_tags": ["adversarial", "paraphrase", "known-hard"],
+      "rationale": "A reviewer reads 'abandoned' as a rejection. The cue list has no entry for it, so a fixed vocabulary of rejection words cannot generalise to paraphrase."
+    },
+    {
+      "id": "adversarial-negation-beyond-proximity-window",
+      "claim": "Uses Redis for caching.",
+      "evidence": [
+        {
+          "path": "src/cache.py",
+          "start_line": 2,
+          "end_line": 2,
+          "excerpt": "2: # Redis was the original plan for this subsystem, but it is not used anywhere today."
+        }
+      ],
+      "expected_verdict": "CONTRADICTED",
+      "case_tags": ["adversarial", "negation", "known-hard"],
+      "rationale": "The negation is real but sits far more than three words from the claim term, so a proximity window cannot connect them."
+    },
+    {
+      "id": "adversarial-false-contradiction-from-unrelated-negation",
+      "claim": "Uses Docker for containerised builds.",
+      "evidence": [
+        {
+          "path": "src/build.py",
+          "start_line": 4,
+          "end_line": 5,
+          "excerpt": "4: # Docker builds do not run on the Windows CI runner.\n5: subprocess.run([\"docker\", \"build\", \"-t\", \"app\", \".\"])"
+        }
+      ],
+      "expected_verdict": "VERIFIED",
+      "case_tags": ["adversarial", "negation", "known-hard"],
+      "rationale": "The repository plainly uses Docker. The negation concerns one CI platform, not the claim, but proximity matching cannot tell the difference and reports a contradiction."
+    },
+    {
+      "id": "adversarial-inline-trailing-comment-rejection",
+      "claim": "Uses SQLite for local storage.",
+      "evidence": [
+        {
+          "path": "src/config.py",
+          "start_line": 7,
+          "end_line": 7,
+          "excerpt": "7: DATABASE_CHOICES = [\"postgres\", \"mysql\"]  # sqlite was dropped in v2"
+        }
+      ],
+      "expected_verdict": "CONTRADICTED",
+      "case_tags": ["adversarial", "rejected-alternative", "known-hard"],
+      "rationale": "The rejection lives in a trailing comment on a code line. Context detection only recognises whole-line comments, so the line reads as code and the term reads as support."
+    },
+    {
+      "id": "adversarial-absence-claim-that-is-refutable",
+      "claim": "Does not bundle any telemetry client.",
+      "evidence": [
+        {
+          "path": "src/telemetry.py",
+          "start_line": 3,
+          "end_line": 3,
+          "excerpt": "3: telemetry_client = TelemetryClient(endpoint=TELEMETRY_URL)"
+        }
+      ],
+      "expected_verdict": "CONTRADICTED",
+      "case_tags": ["adversarial", "negated-claim", "known-hard"],
+      "rationale": "Absence cannot be confirmed, but it can sometimes be refuted: this repository demonstrably does bundle a telemetry client. The blanket insufficient-evidence policy for absence claims gives up that one direction, and this case measures the cost of that choice."
+    }
+  ]
+}
