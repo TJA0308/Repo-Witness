@@ -38,7 +38,10 @@ For a discovered claim, `app.py` retains the selected README's repository-relati
 | `repo_witness/ingest.py` | ZIP size validation, safe member-path handling, filtering, bounded extraction, temporary-directory creation, and best-effort cleanup. |
 | `repo_witness/readme_claims.py` | README discovery and deterministic claim-suggestion extraction. |
 | `repo_witness/evidence.py` | Deterministic lexical line scoring, source-path exclusion, excerpt construction, and bounded evidence selection. |
-| `repo_witness/analyzer.py` | Provenance-aware retrieval orchestration, deterministic verdict heuristics, OpenAI-assisted structured analysis, and analysis-mode selection. |
+| `repo_witness/analyzer.py` | Provenance-aware retrieval orchestration, OpenAI-assisted structured analysis with per-claim failure containment, and analysis-mode selection. |
+| `repo_witness/verdicts.py` | Deterministic evidence categorization, verdict aggregation, and the confidence and corrected-wording tables. |
+| `repo_witness/verdict_benchmark.py` | Loader, metrics, and runner for the labelled verdict evaluation. |
+| `benchmarks/verdict_cases/cases.json` | Labelled verdict cases with inline evidence snippets, expected verdicts, tags, and per-case rationales. |
 | `repo_witness/models.py` | Pydantic evidence, claim-audit, and audit-report models plus the verdict enum. |
 | `repo_witness/export.py` | Evidence-linked Markdown report generation. |
 | `repo_witness/benchmark.py` | Deterministic runner and metrics for the checked-in retrieval benchmark, with explicit strategy selection. |
@@ -212,12 +215,148 @@ ZIPs that yield no eligible text files are rejected. When extraction into an app
 | --- | --- | --- |
 | Selection | Used when `OPENAI_API_KEY` is absent. | Used when `OPENAI_API_KEY` is present. |
 | Retrieval | Uses the same provenance-aware lexical retriever and bounded evidence candidates. | Uses the same provenance-aware lexical retriever and bounded evidence candidates. |
-| Analysis | Applies fixed rules for missing evidence, explicit negative conflicts, broad or absolute claims, negative claims, and otherwise matched evidence. | Sends the claim and retrieved candidates to `client.responses.parse` using `ClaimAudit` as the structured response type. |
+| Analysis | Sorts each snippet into an evidence category and aggregates the categories into a verdict. See [Evidence classification and verdict aggregation](#evidence-classification-and-verdict-aggregation). | Sends the claim and retrieved candidates to `client.responses.parse` using `ClaimAudit` as the structured response type. Evidence is delimited and marked as untrusted data. |
 | No-evidence behavior | Returns `INSUFFICIENT_EVIDENCE`; missing evidence is not contradiction. | Falls back to the same deterministic insufficient-evidence result without model classification. |
-| External request | None. | Requires an API key and model availability; the default model name is `gpt-5.1` unless `OPENAI_MODEL` is set. |
+| Weak-evidence behavior | Documentation-only, comment-only, and planned-work mentions return `INSUFFICIENT_EVIDENCE`. Retrieving a snippet is not by itself support. | Unchanged: the model receives the retrieved candidates and decides. |
+| Model failure behavior | Not applicable. | A transport error, timeout, refusal, or missing structured output degrades that one claim to `INSUFFICIENT_EVIDENCE` with a stated reason. Other claims in the same run are unaffected, and the rule classifier is never substituted under the model's name. |
+| External request | None. | Requires an API key and model availability; the default model name is `gpt-5.1` unless `OPENAI_MODEL` is set. Requests carry a 30-second timeout. |
 | Interpretation | Deterministic and reproducible, but heuristic; verdicts can be wrong. | Structured model output can still be wrong and requires human review. |
 
 Both paths produce Pydantic `ClaimAudit` objects inside an `AuditReport`. Pydantic constrains verdicts to the defined enum, confidence to the inclusive range zero through one, and evidence line numbers to positive integers.
+
+## Evidence classification and verdict aggregation
+
+Retrieval finds text that is *about* a claim. It does not establish that the text *supports* the claim. `repo_witness/verdicts.py` is the separation between those two ideas. It is a conservative rule baseline over regular expressions: no model, no embedding, no network call, and no attempt at general natural-language entailment.
+
+### Evidence categories
+
+Every retrieved snippet is sorted into exactly one category.
+
+| Category | Meaning |
+| --- | --- |
+| `supporting` | A claim term appears in an implementation context: code, configuration, or a test. |
+| `contradicting` | A negation cue sits within a few words of a claim term, or prose records the claimed approach as one that was not taken. |
+| `speculative` | A claim term appears in prose or a comment alongside planning language such as `TODO`, `might`, or `in the future`. |
+| `mention_only` | A claim term appears, but only in documentation or a comment with no cue, or no term matches on a word boundary at all. |
+
+A snippet takes the strongest category any of its lines produced, in the order `contradicting` > `supporting` > `speculative` > `mention_only`. That precedence is required by the bundled sample, where one excerpt window contains both a negated `PostgreSQL` and a supporting `health-check`.
+
+### Line contexts
+
+| Context | Rule |
+| --- | --- |
+| `comment` | The line matches a comment prefix, tested first so a comment inside any file type is treated as natural language. |
+| `prose` | Suffix in `.md`, `.txt`, `.rst`. |
+| `test` | A path segment is `test`/`tests`/`spec`/`specs`/`testing`/`__tests__`, or the filename starts `test_` or ends `_test`. |
+| `config` | Suffix in `.yml`, `.yaml`, `.toml`, `.ini`, `.cfg`, `.json`, or the name is `Dockerfile` or `Makefile`. |
+| `code` | Everything else. |
+
+Retrieval renders every excerpt line as `"{number}: {text}"`, in both `evidence.py` and `retrieval/semantic.py`. That prefix is stripped before context detection and before term matching. Without stripping it every line begins with a digit, no line can ever look like a comment, and a line number could be mistaken for a claim term.
+
+### Why negation is context-free and rejection language is not
+
+This asymmetry is the core of the design and it is load-bearing.
+
+**Negation cues apply in every context.** The bundled sample's only contradiction lives at `sample_repo/app.py:3`, inside a Python string literal: `STORAGE_POLICY = "This service does not use PostgreSQL; ..."`. Its context is `code`. A first draft of this module restricted negation to prose and comments and silently lost that verdict. Negation is matched per claim term, within a window of three words on either side, so a cue and a term must actually be near one another.
+
+**Rejection cues apply only in prose and comments.** Words such as `chose`, `selected`, `evaluated`, and `deprecated` are ordinary identifiers in source code. `SELECTED_FIELDS = ["redis", "host"]` is not a rejection of Redis. Restricting these cues to natural-language contexts is what prevents that false contradiction. The same restriction applies to speculative cues, for the same reason.
+
+### Word boundaries
+
+Terms are matched with `(?<![a-z0-9])term(?![a-z0-9])`. The boundary class deliberately excludes the underscore, so `endpoint` still matches inside `HEALTH_CHECK_ENDPOINT` — snake_case identifiers are real evidence — while `not` can never match inside `annotations` and `mono` can never match inside `monolith`. A plain word boundary is unusable here because claim terms legitimately contain `+`, `#`, `.`, and `-`.
+
+The claim tokenizer also strips trailing punctuation, which `repo_witness.evidence` does not. A claim ending "... uses Kafka." yields the term `kafka.` in the retriever and can never match `Kafka` in a file. The retriever is frozen and keeps that behavior; classification does not inherit it. The two tokenizers are small and are allowed to diverge.
+
+### Aggregation
+
+Evaluated in order. The first matching rule wins.
+
+| Condition | Outcome | Verdict |
+| --- | --- | --- |
+| The claim asserts an absence | `absence_claim` | `INSUFFICIENT_EVIDENCE` |
+| No snippets were retrieved | `no_evidence` | `INSUFFICIENT_EVIDENCE` |
+| Both contradicting and supporting evidence | `mixed` | `PARTIALLY_VERIFIED` |
+| Any contradicting evidence | `contradicted` | `CONTRADICTED` |
+| Supporting evidence, and the claim carries a scope word | `scoped_support` | `PARTIALLY_VERIFIED` |
+| Supporting evidence | `supported` | `VERIFIED` |
+| Only speculative or mention-only evidence | `weak_evidence` | `INSUFFICIENT_EVIDENCE` |
+
+Absence is tested before emptiness so an absence claim always explains itself as unprovable rather than as a retrieval miss; both return the same verdict. Scope words are `always`, `100%`, `production-scale`, `fully`, `every`, and `all`. `never` is deliberately absent from that list: it makes a claim an absence claim, which is checked earlier and outranks it.
+
+The decisive change from the previous behavior is the last row. Retrieving a snippet no longer removes `INSUFFICIENT_EVIDENCE` from consideration.
+
+### Confidence
+
+| Outcome | Confidence |
+| --- | ---: |
+| `supported`, two or more distinct supporting files | 0.80 |
+| `supported`, one supporting file | 0.70 |
+| `contradicted` | 0.70 |
+| `mixed`, `scoped_support` | 0.55 |
+| `weak_evidence` | 0.30 |
+| `no_evidence`, `absence_claim` | 0.20 |
+
+These are fixed labels of rule strength. **They are not calibrated probabilities**, and nothing in this repository estimates a probability. They replace the previous hard-coded values, which had no stated basis.
+
+### Why the category is carried in `relevance`
+
+`EvidenceSnippet.relevance` is an existing free-text field, so the category is appended to it rather than added as a new model field. No public schema changes, `export.py` and the Streamlit results view render it with no edit, and the retriever's own relevance string — pinned byte-for-byte by `tests/test_evidence_characterization.py` — is untouched, because classification annotates copies rather than mutating the snippets it is given.
+
+### Absence claims
+
+A claim such as "Does not collect user analytics" always returns `INSUFFICIENT_EVIDENCE`. Bounded lexical retrieval over at most six snippets can show what a repository contains; it cannot show that something is missing.
+
+This is a deliberate and slightly costly choice. Absence can never be *confirmed*, but it can sometimes be *refuted*: a repository that plainly instantiates a telemetry client does contradict the claim. The blanket policy gives up that one direction. The verdict dataset carries a case measuring exactly that cost, tagged `known-hard`.
+
+## Verdict evaluation benchmark
+
+```bash
+python -m repo_witness.verdict_benchmark
+```
+
+Evidence in this dataset is **inline**, authored into `benchmarks/verdict_cases/cases.json` rather than retrieved from fixture repositories. That isolates verdict accuracy from retrieval quality: a change in ranking cannot move these numbers, and a classifier failure cannot be blamed on a retriever miss. The dataset lives in a sibling directory of `lexical_evidence/`, never inside it, because `tests/test_retrieval_parity.py` treats every directory under `lexical_evidence/repositories` as a parity fixture.
+
+### Metric definitions
+
+| Metric | Definition and denominator |
+| --- | --- |
+| Overall accuracy | Cases whose predicted verdict equals the labelled verdict, over all cases. |
+| False-verification rate | Cases predicted `VERIFIED` whose label is **not** `VERIFIED`, over all cases not labelled `VERIFIED`. This is the headline number: it counts the failure the tool exists to prevent. |
+| Per-class precision | Correct predictions of a verdict, over all predictions of that verdict. `null` when the verdict was never predicted. |
+| Per-class recall | Correct predictions of a verdict, over all cases labelled with it. `null` when no case carries that label. |
+| Confusion matrix | All sixteen expected-by-predicted cells, always present, zero-filled. |
+| Per-tag accuracy | The same accuracy restricted to each case tag. |
+
+Rates over a defined population are `0.0` when empty; a metric that is undefined because its class has no eligible case is `null`. That matches the convention already used by the retrieval benchmark.
+
+### Results
+
+| Metric | Before this phase | After |
+| --- | ---: | ---: |
+| Labelled cases | 31 | 31 |
+| Overall accuracy | 38.7% | 83.9% |
+| **False-verification rate** | **66.7%** | **5.3%** |
+| `VERIFIED` precision | 41.2% | 91.7% |
+| `CONTRADICTED` recall | 20.0% | 55.6% |
+| `INSUFFICIENT_EVIDENCE` recall | 14.3% | 100.0% |
+
+The "before" column is the previous classifier measured against the same unchanged labels. Labels were written from what a careful reviewer would conclude, and were never adjusted to match either implementation.
+
+### How to read these numbers, and how not to
+
+**The dataset was written by the same author as the rules.** That is the central caveat. Twenty-six of the thirty-one cases are ordinary, and the classifier gets all twenty-six right — which measures internal consistency, not capability. The remaining five are adversarial cases authored specifically to defeat the approach, and the classifier fails all five. Overall accuracy is therefore best read as "correct on the cases the author thought of, and wrong on the cases the author designed to break it".
+
+The five known failures, each kept in the dataset and tagged `known-hard`:
+
+| Case | Labelled | Returned | Why it fails |
+| --- | --- | --- | --- |
+| `adversarial-paraphrased-rejection` | `CONTRADICTED` | `INSUFFICIENT_EVIDENCE` | "abandoned" is not in the cue list. A fixed vocabulary cannot generalise to paraphrase. |
+| `adversarial-negation-beyond-proximity-window` | `CONTRADICTED` | `INSUFFICIENT_EVIDENCE` | The negation is real but more than three words from the term. |
+| `adversarial-false-contradiction-from-unrelated-negation` | `VERIFIED` | `CONTRADICTED` | A comment about one CI platform sits near the claim term. Proximity cannot tell what a negation is about. |
+| `adversarial-inline-trailing-comment-rejection` | `CONTRADICTED` | `VERIFIED` | Context detection only recognises whole-line comments, so a trailing comment reads as code. This is the single remaining false verification. |
+| `adversarial-absence-claim-that-is-refutable` | `CONTRADICTED` | `INSUFFICIENT_EVIDENCE` | The documented cost of never verdicting on absence claims. |
+
+Thirty-one hand-authored cases over synthetic snippets cannot establish real-world accuracy. Because the evidence is inline, these numbers measure the classifier alone: **end-to-end accuracy, retrieval and classification together, is still unmeasured.**
 
 ## Design decisions
 
@@ -353,8 +492,8 @@ Every metric above measures **whether the right file was ranked highly**. None o
 
 - **Semantic similarity is not evidence entailment.** Cosine similarity measures topical proximity. A chunk that discusses the claim's subject scores highly whether it supports the claim, contradicts it, describes a rejected alternative, or merely mentions it in a comment. Retrieval finds material about the topic; deciding what that material proves is a separate problem this phase does not touch.
 - **Semantic retrieval has no acceptance threshold.** It always returns its nearest candidates, ordered by similarity, whatever the similarity values are. There is no minimum score below which it declines to answer. No threshold was introduced in this phase, because any threshold chosen against these 40 cases would measure fitting to the fixture rather than retrieval quality.
-- **Unsupported claims therefore remain a serious false-verification risk.** The unsupported-claim retrieval rate@3 rose from 50% to 100%: for a claim the repository does not support, semantic retrieval now always supplies confident-looking, topically related evidence. If a downstream verdict step treats "evidence was retrieved" as support, semantic retrieval makes false verification *more* likely, not less. The current deterministic analyzer returns `INSUFFICIENT_EVIDENCE` only when retrieval returns nothing, so this risk is real and not hypothetical.
-- **Evidence classification and verdict evaluation remain future work.** This benchmark contains no verdict labels and measures no verdict outcome. Nothing here establishes that RepoWitness reaches correct conclusions.
+- **Unsupported claims therefore remain a serious false-verification risk.** The unsupported-claim retrieval rate@3 rose from 50% to 100%: for a claim the repository does not support, semantic retrieval now always supplies confident-looking, topically related evidence. If a downstream verdict step treats "evidence was retrieved" as support, semantic retrieval makes false verification *more* likely, not less. The deterministic analyzer used to behave exactly that way: it returned `INSUFFICIENT_EVIDENCE` only when retrieval returned nothing. It no longer does — see [Evidence classification and verdict aggregation](#evidence-classification-and-verdict-aggregation) — but the underlying warning stands, because retrieval breadth and evidential support remain different things.
+- **This benchmark still measures no verdict outcome.** It contains no verdict labels, and nothing in it establishes that RepoWitness reaches correct conclusions. Verdict accuracy is measured separately, against its own labelled dataset, in [Verdict evaluation benchmark](#verdict-evaluation-benchmark).
 
 #### Reading the precision signals together
 
@@ -376,7 +515,15 @@ This benchmark is deliberately more challenging than the original 12-case fixtur
 
 - Lexical substring matching can miss synonyms and can retrieve text that shares terms without supporting the claim.
 - Relevant support or contradiction may be distributed across lines or files, while retrieval scores individual matching lines and returns a small candidate set.
-- Deterministic demo verdicts use fixed heuristics and do not establish semantic or runtime correctness.
+- Deterministic verdicts use fixed regular-expression rules and do not establish semantic or runtime correctness.
+- Evidence classification cue lists are fixed and English-only. A paraphrased rejection such as "abandoned" or "ruled out" is not recognised, and no cue list can generalise to paraphrase.
+- Negation is matched by proximity, so a claim term near an unrelated negation can still produce a false `CONTRADICTED`. The verdict dataset carries a measured example.
+- Context detection recognises only whole-line comments. A rejection written as a trailing comment on a code line reads as supporting evidence, and is the one remaining false verification in the verdict benchmark.
+- The classifier only ever sees the retriever's bounded excerpt windows, so a contradiction that lies outside those lines is invisible to it.
+- Absence claims are never verdicted beyond `INSUFFICIENT_EVIDENCE`, which gives up the cases where an absence could in principle be refuted.
+- The verdict benchmark uses inline evidence, so it measures the classifier alone. End-to-end accuracy across retrieval and classification together is not measured anywhere.
+- The verdict dataset was authored by the same person as the classification rules, so its headline accuracy reflects internal consistency at least as much as capability.
+- Delimiting repository evidence and instructing the model to ignore instructions inside it reduces prompt-injection exposure. It does not eliminate it.
 - Secret detection is limited to the configured names and suffixes; it cannot identify every credential or sensitive value.
 - Temporary-directory cleanup ignores removal errors and is therefore best-effort.
 - OpenAI-assisted analysis depends on a configured API key, model availability, and the external service, and its classifications require human review.
