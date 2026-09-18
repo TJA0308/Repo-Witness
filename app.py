@@ -53,7 +53,7 @@ def run_repository_audit(root: Path, claims: list[str], claim_sources: dict[str,
 
 def render_header() -> None:
     model = os.environ.get("OPENAI_MODEL", "gpt-5.1")
-    mode = f"OpenAI-assisted analysis · {escape(model)}" if os.environ.get("OPENAI_API_KEY") else "Deterministic local analysis"
+    mode = f"OpenAI-assisted analysis · {escape(model)}" if os.environ.get("OPENAI_API_KEY") else "Deterministic analysis · No external AI API"
     st.markdown(
         f"""
         <header class="rw-header">
@@ -67,7 +67,6 @@ def render_header() -> None:
               <p class="rw-tagline">Catch documentation drift before you ship.</p>
             </div>
           </div>
-          <p class="rw-supporting">RepoWitness audits technical README claims against independent code, test, workflow, and configuration evidence, with repository-relative file and line citations.</p>
         </header>
         """,
         unsafe_allow_html=True,
@@ -375,7 +374,7 @@ with claims_col:
             height=220,
             key="claims_editor",
             on_change=clear_report,
-            placeholder="Uses pytest for automated testing\nIncludes Docker deployment configuration\nUses PostgreSQL for persistent storage",
+            placeholder="Enter one technical claim per line…",
         )
         claims = [line.strip() for line in claims_text.splitlines() if line.strip()]
         if st.session_state.get("claims_source_path") and any(claim not in current_claim_sources(claims) for claim in claims):

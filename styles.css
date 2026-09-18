@@ -75,15 +75,6 @@
   margin: 0.2rem 0 0;
 }
 
-.rw-supporting {
-  color: var(--rw-muted);
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin: 0;
-  max-width: 430px;
-  text-align: right;
-}
-
 .rw-mode-badge,
 .rw-verdict {
   border-radius: 999px;
@@ -197,6 +188,14 @@ div.stButton > button[kind="primary"]:hover {
   border-color: var(--rw-brand-dark);
 }
 
+div.stButton > button[kind="primary"]:disabled,
+div.stButton > button[kind="primary"]:disabled:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+  color: #475569;
+  opacity: 1;
+}
+
 button:focus-visible,
 textarea:focus-visible,
 input:focus-visible,
@@ -269,11 +268,6 @@ input:focus-visible,
     gap: 0.65rem;
   }
 
-  .rw-supporting {
-    max-width: none;
-    text-align: left;
-  }
-
   .rw-workflow {
     grid-template-columns: 1fr;
     gap: 0.5rem;
@@ -291,7 +285,7 @@ input:focus-visible,
     flex-direction: column;
   }
 
-  [data-testid="column"] {
+  [data-testid="stColumn"] {
     flex: 1 1 auto !important;
     min-width: 100% !important;
     width: 100% !important;
