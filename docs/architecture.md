@@ -543,19 +543,19 @@ This benchmark is deliberately more challenging than the original 12-case fixtur
 
 RepoWitness is framed as **Catch documentation drift before you ship.** It audits technical README claims against independent code, test, workflow, and configuration evidence, with repository-relative file and line citations. It is static repository evidence analysis and does not execute or functionally test software.
 
-The polish branch starts at main commit `1e328d9`, which merged Phase 5 verdict safety in PR #5. Production retrieval, analysis, verdict rules, benchmark fixtures, sample files, and dependencies are unchanged. Presentation helpers format labels and hide visibly duplicate excerpts without mutating reports or retrieval ranking. Identical excerpts or same-file ranges overlapping by at least 80% of the shorter range are hidden; different known evidence classifications remain visible. Markdown export retains all underlying evidence.
+Final interface polish is merged into main through PR #6, following Phase 5 verdict safety in PR #5. Production retrieval, analysis, verdict rules, benchmark fixtures, sample files, and dependencies are unchanged. Presentation helpers format labels and hide visibly duplicate excerpts without mutating reports or retrieval ranking. Identical excerpts or same-file ranges overlapping by at least 80% of the shorter range are hidden; different known evidence classifications remain visible. Markdown export retains all underlying evidence.
 
 Confidence remains the existing uncalibrated numeric field internally. UI and export show Low (<0.5), Moderate (0.5–<0.8), or High (≥0.8), explicitly described as heuristic strength rather than probability. Empty corrections or changes only to case, whitespace, or terminal punctuation are hidden. Source mapping is preserved only for exact discovered text; edits clear stale results.
 
 ### Verified checks
 
 - Baseline: 198 tests passed. Final: 207 offline tests passed, including Streamlit AppTest checks for the complete demo, all four verdicts, provenance, editor state, explicit selection, empty discovery, invalid ZIP recovery, model failure, citations, and the stored Markdown download payload.
-- Python compilation and `git diff --check` passed. Local execution used Python 3.13.6 on Windows. CI is configured for the documented Python 3.11; that hosted job has not run because this branch is not committed or pushed.
-- Streamlit startup and HTTP health check passed before and after polish. No live deployment URL was verified.
+- Python compilation and `git diff --check` passed. Local execution used Python 3.13.6 on Windows. The offline GitHub Actions workflow ran successfully on Python 3.11.
+- Streamlit startup and HTTP health check passed before and after polish. Deployed-application verification remains outstanding; no live deployment URL was verified.
 - Lexical, real-model semantic, and verdict benchmarks were each run twice before and after polish. Outputs matched within each pair and across the baseline and final runs. Semantic evaluation used the cached `sentence-transformers/all-MiniLM-L6-v2` model in offline mode after initial remote metadata checks were blocked by the sandbox.
 - Lexical Recall@3: 77.8%; MRR: 0.651. Semantic Recall@3: 88.9%; MRR: 0.788 (evaluation-only). Both reported zero provenance-exclusion violations. Verdict accuracy: 26/31 (83.9%); false-verification rate: 1/19 (5.3%). Historical baseline: 38.7% and 66.7%, respectively.
 - The safe sample remains unchanged: two Verified, one Partially verified, one Contradicted, one Insufficient evidence. Its README is never used as evidence for its discovered claims. Useful corrections appear for only the three non-verified claims.
-- Browser skill setup and discovery were attempted, but no browser session was available. No desktop screenshots or visual verification are claimed. AppTest confirms behavior and rendered element content, not browser appearance.
+- Browser-based visual inspection remains outstanding because no browser session was available. No desktop screenshots or visual verification are claimed. AppTest confirms behavior and rendered element content, not browser appearance.
 
 ### Benchmark output fingerprints
 
