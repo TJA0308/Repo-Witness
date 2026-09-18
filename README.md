@@ -1,330 +1,121 @@
-<div align="center">
+# RepoWitness
 
-# Repo Witness
+**Catch documentation drift before you ship.**
 
-### Provenance-aware technical claim auditing for software repositories
+RepoWitness audits technical README claims against independent code, test, workflow, and configuration evidence, with repository-relative file and line citations.
 
-Repo Witness checks claims from project documentation or manual input against
-independent, repository-relative evidence—without executing uploaded code.
-
-[![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.40%2B-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
-[![Pydantic v2](https://img.shields.io/badge/Pydantic-v2-E92063?logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
-[![Tests](https://img.shields.io/badge/Tests-198%20passing-2EA44F?logo=pytest&logoColor=white)](#testing)
-[![Benchmark](https://img.shields.io/badge/Benchmark-40%20cases-6F42C1)](#retrieval-evaluation)
+[![Offline checks](https://github.com/TJA0308/Repo-Witness/actions/workflows/tests.yml/badge.svg)](https://github.com/TJA0308/Repo-Witness/actions/workflows/tests.yml)
+[![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-[Quick start](#quick-start) ·
-[How it works](#how-it-works) ·
-[Architecture](docs/architecture.md) ·
-[Evaluation](#retrieval-evaluation) ·
-[Security](#security-boundary)
+Fast-moving and AI-assisted development can leave documentation describing features that were planned, replaced, partially implemented, or removed. RepoWitness helps identify those mismatches before a project is released, submitted, or reviewed. It is a small developer tool for maintainers, students preparing submissions, and developers reviewing a project before sharing it.
 
-</div>
-
-## Overview
-
-Repository documentation can drift away from implementation. Repo Witness keeps
-those two sources separate:
-
-- A README or manually entered statement is treated as a **claim**.
-- Source code, tests, manifests, workflows, and configuration are treated as
-  potential **independent evidence**.
-- The originating README is excluded from evidence retrieval for claims
-  discovered from that README.
-- Missing evidence produces `INSUFFICIENT_EVIDENCE`; it is not automatically
-  treated as a contradiction.
-
-The result is an evidence-linked audit that remains reviewable by a human.
-
-## What it provides
-
-| Capability | Current behavior |
-| --- | --- |
-| Safe repository intake | Accepts repository ZIPs through bounded extraction and filtering. |
-| Claim discovery | Deterministically suggests implementation-oriented README statements for user review. |
-| Manual claims | Supports editable, manually entered technical claims. |
-| Provenance tracking | Retains the originating README path and excludes it from independent evidence. |
-| Evidence retrieval | Uses deterministic lexical ranking over eligible repository text files. |
-| Experimental retrieval | Provides an evaluation-only semantic strategy using local embeddings, not used in production. |
-| Analysis | Runs in deterministic demo mode or optional OpenAI-assisted mode. |
-| Evidence classification | Sorts each retrieved snippet into supporting, contradicting, speculative, or mention-only evidence before reaching a verdict. |
-| Structured results | Validates verdicts and evidence with existing Pydantic models. |
-| Export | Produces a repository-relative Markdown audit report. |
-| Evaluation | Includes a deterministic 40-case synthetic retrieval benchmark, runnable against either strategy, and a 31-case synthetic labelled verdict benchmark. |
-
-Every production path continues to use the original lexical retriever. A
-semantic retrieval strategy exists behind an internal strategy seam for
-evaluation only; it is not wired into the application, and hybrid retrieval is
-not implemented.
+This is **static repository evidence analysis**. It does not execute or functionally test the software, and static evidence does not prove runtime correctness. Results are prompts for human review.
 
 ## How it works
 
-```text
-Repository ZIP
-    ↓
-Safe extraction and filtering
-    ↓
-README claim discovery or manual claim entry
-    ↓
-Provenance-aware lexical evidence retrieval
-    ↓
-Deterministic or OpenAI-assisted analysis
-    ↓
-Pydantic-validated verdict
-    ↓
-Streamlit results and Markdown export
-```
+1. **Add repository:** upload a ZIP or load the safe bundled synthetic example.
+2. **Review claims:** discover README suggestions, select them, and edit the claim list; manual entry is also supported.
+3. **Inspect audit:** review verdicts, explanations, and collapsible file/line evidence; download a Markdown report.
 
-For the verified component map, trust boundaries, controls, and full Mermaid
-flowchart, see [docs/architecture.md](docs/architecture.md).
+The application uses deterministic **lexical retrieval**. For an unchanged discovered claim, its originating README is excluded from retrieval so it cannot verify itself. Edited and manual claims have no source mapping; the interface warns when edits lose that exclusion. Documentation and comment mentions alone cannot verify a claim under the local rules.
 
-## Quick start
+| Analysis mode | Behavior |
+| --- | --- |
+| Deterministic local analysis (default) | Fixed rules classify evidence as Supporting, Contradicting, Speculative, or Mention only, then produce a verdict. No API key or model is needed. |
+| OpenAI-assisted analysis (optional) | Sends only bounded retrieved snippets for structured analysis; failed requests return insufficient evidence for the affected claim. Uses the same lexical retrieval. |
 
-Repo Witness targets Python 3.11 and runs on Windows, macOS, Linux, and
-Streamlit Community Cloud.
+Verdicts are **Verified**, **Partially verified**, **Contradicted**, and **Insufficient evidence**. Missing evidence is not a contradiction. Confidence labels describe uncalibrated heuristic strength, not probabilities of correctness.
+
+Semantic retrieval exists only for evaluation and is **not enabled in the application**. No hybrid retrieval is implemented. See [architecture and methodology](docs/architecture.md) for details.
+
+## Try the demo
+
+Click **Load sample repository → Find README claims → Run repository audit**. The unchanged bundled example produces:
+
+| README claim | Local verdict |
+| --- | --- |
+| Uses pytest for automated health-check testing | Verified |
+| Includes Docker deployment configuration based on Python 3.11 | Verified |
+| Provides a health-check endpoint with production-scale reliability | Partially verified |
+| Uses PostgreSQL for persistent health-check storage | Contradicted |
+| Publishes signed release artifacts through an automated delivery pipeline | Insufficient evidence |
+
+Open evidence to inspect repository-relative citations. The README is excluded; the reliability claim has limited static support, and the release claim has no independent evidence. Suggested wording appears only when it differs from the claim. The exported report retains verdicts, explanations, source attribution, and evidence paths and line ranges.
+
+## Run locally
+
+Use Python **3.11**:
 
 ```bash
 git clone https://github.com/TJA0308/Repo-Witness.git
 cd Repo-Witness
 python -m venv .venv
-pip install -r requirements-dev.txt
 ```
 
-Activate the virtual environment:
-
-```powershell
-# Windows PowerShell
-.\.venv\Scripts\Activate.ps1
-```
+Activate with `.\.venv\Scripts\Activate.ps1` on Windows PowerShell, or `source .venv/bin/activate` on macOS/Linux. Then:
 
 ```bash
-# macOS or Linux
-source .venv/bin/activate
+python -m pip install -r requirements-dev.txt
+python -m streamlit run app.py
 ```
 
-Start the application:
+For application-only installation, use `requirements.txt`. No API key is required. To enable optional OpenAI analysis, set `OPENAI_API_KEY` in the environment; `OPENAI_MODEL` optionally overrides the current `gpt-5.1` default. Retrieved snippets leave the host in this mode: review sensitive content before using it. Never commit keys or `.streamlit/secrets.toml`.
 
-```bash
-streamlit run app.py
-```
+### Deploy to Streamlit Community Cloud
 
-No API key is required. Select **Load sample repository**, then
-**Find README claims**, to try the deterministic workflow with the bundled
-synthetic fixture.
+After reviewing and merging the changes, select this repository's `main` branch, `app.py`, and Python 3.11 in Community Cloud. It installs `requirements.txt`; the heavy semantic extra is unnecessary. Leave the API key unset for the reproducible local demo, or configure optional root-level `OPENAI_API_KEY` and `OPENAI_MODEL` secrets. Verify the bundled workflow and report download after deployment.
 
-The application needs nothing beyond `requirements-dev.txt`. The optional
-semantic evaluation extra is installed separately and only when you want to run
-that benchmark:
+**No live deployment URL is currently documented or verified.** CI checks the app but does not deploy it.
 
-```bash
-pip install -r requirements-semantic.txt
-```
-
-## Analysis modes
-
-| Mode | Activation | Behavior |
-| --- | --- | --- |
-| Deterministic demo | Default when no API key is present | Uses fixed, reproducible heuristics over retrieved lexical evidence. |
-| OpenAI-assisted | Set `OPENAI_API_KEY` | Requests a structured `ClaimAudit` using only the bounded evidence candidates. |
-
-Set the optional model explicitly with `OPENAI_MODEL`; the current default is
-`gpt-5.1`.
-
-```powershell
-# Windows PowerShell
-$env:OPENAI_API_KEY="your-key"
-$env:OPENAI_MODEL="gpt-5.1"
-streamlit run app.py
-```
-
-```bash
-# macOS or Linux
-export OPENAI_API_KEY="your-key"
-export OPENAI_MODEL="gpt-5.1"
-streamlit run app.py
-```
-
-For Streamlit Community Cloud, configure these as root-level secrets. Never
-commit API keys or `.streamlit/secrets.toml`.
-
-Both analysis modes require human review. Deterministic verdicts are heuristic,
-and model-assisted verdicts can be wrong.
-
-## Retrieval evaluation
-
-The checked-in benchmark evaluates retrieval on 40 claims across four small
-synthetic repositories. The default run uses the unchanged production lexical
-retriever and requires no network access or API key.
-
-```bash
-python -m repo_witness.benchmark
-```
-
-A strategy can be selected explicitly. Semantic evaluation needs the optional
-extra above, and downloads a small embedding model once on first use:
-
-```bash
-python -m repo_witness.benchmark --strategy semantic
-```
-
-Lexical is the default, no strategy silently falls back to another, and the
-benchmark cases and labels are identical for both.
-
-### Lexical baseline and semantic comparison
-
-| Metric | Lexical (production) | Semantic (experimental) |
-| --- | ---: | ---: |
-| Total cases | 40 | 40 |
-| Recall@1 | 52.8% | 69.4% |
-| Recall@3 | 77.8% | 88.9% |
-| Recall@5 | 83.3% | 91.7% |
-| Mean reciprocal rank | 0.651 | 0.788 |
-| Synonym Recall@3 | 33.3% | 66.7% |
-| Paraphrase Recall@3 | 55.6% | 66.7% |
-| Provenance-exclusion violations | 0 | 0 |
-| Unsupported-claim retrieval@3 | 50.0% | 100.0% |
-
-Semantic ranking improved every recall and MRR figure on these fixtures, and
-provenance-exclusion violations stayed at zero for both. Precision moved the
-other way: semantic retrieval applies no acceptance threshold, so a claim the
-repository does not support now always receives topically plausible evidence.
-That is why lexical remains the production default.
-
-Of the 40 cases, 36 supported cases contribute to ordinary Recall and MRR;
-four unsupported cases are measured separately. The dataset includes exact
-matches, synonyms, paraphrases, distractors, multiple valid paths, distributed
-evidence, provenance exclusions, unsupported claims, and one separately tagged
-ineligible-extension case.
-
-This is a small synthetic benchmark. It characterizes retrieval ranking
-behavior only. It does not demonstrate evidence entailment, verdict accuracy,
-runtime behavior, or real-world generalization, and a higher Recall@K does not
-mean better verdict accuracy.
-See the [full metric definitions and category results](docs/architecture.md#retrieval-benchmark).
-
-## Security boundary
-
-Uploaded repositories are untrusted. Repo Witness inspects eligible text but
-does not import, build, test, invoke, or otherwise execute uploaded code.
-
-Current ingestion limits:
-
-| Control | Limit |
-| --- | ---: |
-| Uploaded ZIP | 25 MiB |
-| Total eligible extracted data | 25 MiB |
-| Individual file | 1 MiB |
-| Archive entries | 5,000 |
-
-Extraction rejects or skips unsafe paths, symbolic links, oversized files,
-configured dependency/build directories, common binary formats, and selected
-secret-bearing names and extensions. These controls reduce risk but do not
-provide complete secret or binary detection. Temporary cleanup is best-effort,
-and hosting-provider infrastructure remains outside the application boundary.
-
-## Verdict evaluation
-
-Retrieval finding text *about* a claim is not the same as that text *supporting*
-the claim. Retrieved snippets are sorted into four evidence categories —
-supporting, contradicting, speculative, and mention-only — and aggregated into a
-verdict. Documentation-only mentions, comment-only mentions, and planned work all
-return `INSUFFICIENT_EVIDENCE`: retrieving a snippet is not by itself support.
-
-A separate dataset of 31 synthetic labelled cases measures whether that produces
-the right conclusion.
-
-```bash
-python -m repo_witness.verdict_benchmark
-```
-
-| Metric over the 31 synthetic cases | Before | After |
-| --- | ---: | ---: |
-| Overall accuracy | 38.7% | 83.9% |
-| **False-verification rate** | **66.7%** | **5.3%** |
-
-The false-verification rate is the headline: the share of cases *not* labelled
-`VERIFIED` that are nonetheless called `VERIFIED`. Labels describe what a careful
-reviewer would conclude and were never adjusted to match either implementation.
-
-Read the accuracy figure with care. The dataset was authored by the same person as
-the rules. Twenty-six cases are ordinary and all twenty-six pass, which measures
-internal consistency rather than capability; the other five were written
-specifically to defeat the approach and all five fail. Each failure is kept in the
-dataset, tagged `known-hard`, and explained in
-[the architecture notes](docs/architecture.md#verdict-evaluation-benchmark).
-
-This is a conservative deterministic rule baseline, not natural-language
-entailment and not hallucination detection. The cases are synthetic and
-hand-authored, and the dataset's evidence is inline rather than retrieved, so the
-figures describe the classifier alone on those 31 cases. **No real-repository
-verdict accuracy and no end-to-end accuracy across retrieval and classification
-together have been established.**
-
-## Project layout
-
-```text
-Repo-Witness/
-├── app.py                         # Streamlit application
-├── repo_witness/
-│   ├── analyzer.py                # Analysis orchestration
-│   ├── benchmark.py               # Deterministic retrieval evaluation
-│   ├── evidence.py                # Production lexical retriever
-│   ├── ingest.py                  # Safe ZIP extraction and filtering
-│   ├── models.py                  # Pydantic result models
-│   ├── readme_claims.py           # README discovery and claim suggestions
-│   ├── verdict_benchmark.py       # Deterministic verdict evaluation
-│   ├── verdicts.py                # Evidence classification and aggregation
-│   └── retrieval/                 # Strategy seam: lexical adapter,
-│                                  #   experimental semantic strategy,
-│                                  #   embedding providers and cache
-├── benchmarks/lexical_evidence/   # Synthetic retrieval evaluation data
-├── benchmarks/verdict_cases/      # Synthetic labelled verdict cases
-├── docs/architecture.md           # Architecture and trust boundaries
-├── requirements-semantic.txt      # Optional semantic evaluation extra
-├── sample_repo/                   # Bundled synthetic repository
-└── tests/                         # Automated test suite
-```
-
-## Testing
-
-Install development dependencies, then run:
+## Tests and benchmarks
 
 ```bash
 python -m pytest -q --basetemp .pytest-tmp
+python -m compileall -q app.py repo_witness tests
+python -m repo_witness.benchmark
+python -m repo_witness.verdict_benchmark
 ```
 
-The current suite contains 198 passing tests covering ingestion safety, size
-limits, cleanup, README discovery, lexical characterization, claim provenance,
-analysis behavior, Markdown export, benchmark validation, metrics, deterministic
-output, retrieval-strategy parity, semantic candidate construction and ranking,
-embedding-cache behavior, lexical-versus-semantic file-eligibility parity,
-evidence classification, verdict aggregation, verdict-benchmark validation, and
-model-failure handling.
+The offline suite covers ingestion, provenance, retrieval parity, verdict safety, model-failure handling, export, and the Streamlit demo workflow. GitHub Actions runs these checks on pushes and pull requests to main using Python 3.11, without API keys or the semantic dependency. Deterministic output guards fail on lexical or verdict benchmark drift. The status badge reflects Actions; it becomes meaningful once this workflow is pushed and runs.
 
-Semantic tests use a deterministic fake embedding provider, so the suite runs
-offline and never downloads a model.
+Optional semantic evaluation:
 
-## Known limitations
+```bash
+python -m pip install -r requirements-semantic.txt
+python -m repo_witness.benchmark --strategy semantic
+```
 
-- Lexical matching can miss synonyms and retrieve irrelevant lexical overlap.
-- Evidence distributed across multiple files is difficult to rank within a
-  small candidate limit.
-- Deterministic demo verdicts are heuristic.
-- Model-assisted analysis depends on API and model availability.
-- Secret detection and temporary cleanup are best-effort.
-- Uploaded code is never executed, so runtime and deployment behavior remain
-  outside the proof boundary.
-- The retrieval benchmark is synthetic and has not established real-world
-  generalization.
-- Semantic retrieval is experimental and evaluation-only. It applies no
-  acceptance threshold, so unsupported claims still receive plausible-looking
-  evidence, and semantic similarity is topical rather than evidential.
-- Retrieval metrics measure ranking, not verdict correctness. Evidence
-  classification remains future work.
-- Semantic determinism was verified in a single environment; cross-machine
-  byte-identical output is not guaranteed.
+It uses a local CPU embedding model downloaded on first use. Tests use a fake provider and do not download a model. With the real model already cached, set `HF_HUB_OFFLINE=1` and `TRANSFORMERS_OFFLINE=1` to evaluate offline.
 
-## License
+## What was measured
 
-Repo Witness is available under the [MIT License](LICENSE).
+| Check | Verified result |
+| --- | --- |
+| Complete offline suite | 207 passing tests |
+| Lexical retrieval Recall@3 (production strategy) | 77.8% |
+| Semantic retrieval Recall@3 (evaluation-only) | 88.9% |
+| Verdict accuracy, before → conservative rules | 38.7% → 83.9% |
+| False-verification rate, before → conservative rules | 66.7% → 5.3% |
+| Retrieval provenance-exclusion violations | 0 for both strategies |
+
+Retrieval uses **40 synthetic cases** across four small repositories; Recall@3 measures 36 supported cases. Verdict evaluation uses **31 synthetic cases with inline evidence**, independently of retrieval. The verdict dataset and rules share an author, so these results have author bias. Five adversarial failures remain visible. Before/after figures describe the earlier baseline and merged Phase 5 rules; final polish does not change the rules.
+
+Both strategies and the verdict benchmark were run twice before and after polish with identical outputs within this environment. **No real-repository or end-to-end accuracy has been established.** Retrieval recall is not verdict accuracy; higher semantic recall also retrieves plausible snippets for every unsupported fixture claim. Detailed metric definitions, historical results, failure cases, and final verification hashes are in [docs/architecture.md](docs/architecture.md).
+
+## Limits and security boundary
+
+- Lexical matching misses synonyms and can retrieve irrelevant overlap; evidence distributed across files is difficult to rank.
+- Local verdict rules can miss paraphrased contradictions, misread nearby negation, and cannot establish absence or broad guarantees. OpenAI-assisted verdicts can also be wrong or unavailable.
+- Uploaded code is never imported, built, tested, or executed. Runtime correctness and deployment behavior remain outside the evidence boundary.
+- ZIP limits: **25 MiB uploaded**, **25 MiB extracted text**, **1 MiB per file**, **5,000 entries**. Unsafe paths, symlinks, oversized files, common binaries, dependency/build folders, and selected secret-bearing files are skipped. Invalid, empty, or over-limit archives fail with a user-facing message.
+- Secret/binary filtering and temporary cleanup are best-effort. Do not upload sensitive repositories; there is no complete secret scanner.
+- Synthetic measurements do not establish generalization. Semantic evaluation determinism was checked in one environment, not across machines.
+
+RepoWitness is a review aid for documentation drift, not a guarantee of truth or general code correctness.
+
+## Project map
+
+`app.py` and `styles.css` provide the Streamlit interface. `repo_witness/` contains ZIP intake, claim discovery, lexical retrieval, analysis, verdict rules, display formatting, and export. `sample_repo/` is the safe demo; `benchmarks/` holds synthetic evaluation fixtures; `tests/` contains offline checks. [docs/architecture.md](docs/architecture.md) explains the implementation and tradeoffs.
+
+Available under the [MIT License](LICENSE).

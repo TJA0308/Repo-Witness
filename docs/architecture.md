@@ -27,7 +27,7 @@ flowchart TD
     VALIDATED --> EXPORT["Markdown export"]
 ```
 
-For a discovered claim, `app.py` retains the selected README's repository-relative path and passes a claim-to-source mapping to the analyzer. The analyzer passes that source path to the lexical retriever as an exclusion. A manually entered claim has no originating README exclusion unless it remains associated with reviewed README suggestions in the current claim workflow.
+For an unchanged discovered claim, `app.py` retains the selected README's repository-relative path and passes a claim-to-source mapping to the analyzer. The analyzer passes that source path to the lexical retriever as an exclusion. Edited and manual claims have no originating README exclusion unless their exact text matches a discovered suggestion from the selected source. The interface warns when editor content has lost that mapping.
 
 ## Component map
 
@@ -531,10 +531,46 @@ This benchmark is deliberately more challenging than the original 12-case fixtur
 - The semantic embedding cache is in-memory and process-local, so every new process re-embeds every chunk. Retrieval itself costs about eleven times the lexical run over 40 cases; the larger wall-clock gap is a one-time ~23.6 s model load.
 - `all-MiniLM-L6-v2` is a general-English sentence model with a 256-token limit; it is not trained on source code and truncates long chunks.
 - Semantic similarity is topical, not evidential: a chunk about the claim's subject ranks highly whether it supports or contradicts the claim.
-- Semantic retrieval applies no acceptance threshold and always returns its nearest candidates, so an unsupported claim still receives plausible-looking evidence. Retrieval metrics say nothing about verdict correctness, and evidence classification remains future work.
+- Semantic retrieval applies no acceptance threshold and always returns its nearest candidates, so an unsupported claim still receives plausible-looking evidence. Retrieval metrics say nothing about verdict correctness. Production lexical evidence is classified by the Phase 5 rules; end-to-end semantic verdict evaluation remains unmeasured.
 - Semantic determinism was verified on one machine only; cross-machine byte-identical output is not guaranteed.
 - `repeated_file_occupancy_rate` is not directly comparable between line-level lexical results and ten-line semantic chunks.
 - Lexical and semantic candidate discovery duplicate their eligibility rules, and semantic is deliberately stricter on ignored paths, oversized files and binary content.
 - Fixed ten-line windows can split a construct across chunks, and the shared candidate-file allowlist still excludes extensions such as `.sql` from both strategies.
 - The checked-in benchmark has no real-world repository validation and is too small and synthetic to establish general performance.
 - Uploaded code is never executed, so runtime behavior, deployment state, and operational reliability are outside the audit's proof boundary.
+
+## Final portfolio polish verification
+
+RepoWitness is framed as **Catch documentation drift before you ship.** It audits technical README claims against independent code, test, workflow, and configuration evidence, with repository-relative file and line citations. It is static repository evidence analysis and does not execute or functionally test software.
+
+The polish branch starts at main commit `1e328d9`, which merged Phase 5 verdict safety in PR #5. Production retrieval, analysis, verdict rules, benchmark fixtures, sample files, and dependencies are unchanged. Presentation helpers format labels and hide visibly duplicate excerpts without mutating reports or retrieval ranking. Identical excerpts or same-file ranges overlapping by at least 80% of the shorter range are hidden; different known evidence classifications remain visible. Markdown export retains all underlying evidence.
+
+Confidence remains the existing uncalibrated numeric field internally. UI and export show Low (<0.5), Moderate (0.5–<0.8), or High (≥0.8), explicitly described as heuristic strength rather than probability. Empty corrections or changes only to case, whitespace, or terminal punctuation are hidden. Source mapping is preserved only for exact discovered text; edits clear stale results.
+
+### Verified checks
+
+- Baseline: 198 tests passed. Final: 207 offline tests passed, including Streamlit AppTest checks for the complete demo, all four verdicts, provenance, editor state, explicit selection, empty discovery, invalid ZIP recovery, model failure, citations, and the stored Markdown download payload.
+- Python compilation and `git diff --check` passed. Local execution used Python 3.13.6 on Windows. CI is configured for the documented Python 3.11; that hosted job has not run because this branch is not committed or pushed.
+- Streamlit startup and HTTP health check passed before and after polish. No live deployment URL was verified.
+- Lexical, real-model semantic, and verdict benchmarks were each run twice before and after polish. Outputs matched within each pair and across the baseline and final runs. Semantic evaluation used the cached `sentence-transformers/all-MiniLM-L6-v2` model in offline mode after initial remote metadata checks were blocked by the sandbox.
+- Lexical Recall@3: 77.8%; MRR: 0.651. Semantic Recall@3: 88.9%; MRR: 0.788 (evaluation-only). Both reported zero provenance-exclusion violations. Verdict accuracy: 26/31 (83.9%); false-verification rate: 1/19 (5.3%). Historical baseline: 38.7% and 66.7%, respectively.
+- The safe sample remains unchanged: two Verified, one Partially verified, one Contradicted, one Insufficient evidence. Its README is never used as evidence for its discovered claims. Useful corrections appear for only the three non-verified claims.
+- Browser skill setup and discovery were attempted, but no browser session was available. No desktop screenshots or visual verification are claimed. AppTest confirms behavior and rendered element content, not browser appearance.
+
+### Benchmark output fingerprints
+
+SHA-256 below covers the complete CLI JSON output, including metrics and case results. Raw output uses Windows CRLF; canonical fingerprints normalize CRLF to LF and are the portable form used by CI's lexical/verdict guards. No other normalization is applied. Each raw fingerprint is unchanged from baseline to final.
+
+| Benchmark | Raw Windows stdout SHA-256 |
+| --- | --- |
+| Lexical | `bf6aad59c495e2b55fb19d21f984a2df717ed36842c89d6bf70ab19ecd19ce4e` |
+| Semantic | `630f59cda49c8165e9d6d25d4fd0d7ff4398356b1406e21f48f2df83f212a87b` |
+| Verdict | `3917c8973ab6e70efbbaae2830bd19f07619be475a6a7bd8b8d4c9417c0843f3` |
+
+| Benchmark | Canonical LF SHA-256 |
+| --- | --- |
+| Lexical | `ed2933432a61b51fc34553360852d4032b94c73884d5cef9b34d3422a6a1eb2b` |
+| Semantic | `f5d95dc9acdb1ed4eaa06f13062dfea9f69e15c704036df7017da27f4b3ca53b` |
+| Verdict | `314028531c9e73052bcfd91638c773f40cadb484e01e21a0971aa4d32c82ac2e` |
+
+These fingerprints establish output stability on the checked-in synthetic fixtures, not accuracy on real repositories. No real-repository or end-to-end accuracy has been established. No live OpenAI request was made during verification.
