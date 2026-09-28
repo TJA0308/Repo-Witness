@@ -27,7 +27,7 @@ def test_originating_readme_cannot_verify_its_own_claim(tmp_path):
 
 
 def test_independent_source_code_can_verify_discovered_claim(tmp_path):
-    claim = "Uses pytest for automated testing."
+    claim = "Imports pytest in Python tests."
     (tmp_path / "README.md").write_text(f"- {claim}\n", encoding="utf-8")
     (tmp_path / "test_app.py").write_text("import pytest\n", encoding="utf-8")
     audit = analyze_demo(tmp_path, [claim], {claim: "README.md"}).audits[0]
@@ -46,7 +46,7 @@ def test_independent_configuration_can_verify_discovered_claim(tmp_path):
 
 def test_manual_claim_supported_only_by_documentation_is_insufficient(tmp_path):
     """A manual claim keeps its retrieved evidence, but prose alone cannot verify it."""
-    claim = "Uses pytest for automated testing."
+    claim = "Imports pytest in Python tests."
     (tmp_path / "README.md").write_text(f"- {claim}\n", encoding="utf-8")
     audit = analyze_demo(tmp_path, [claim]).audits[0]
     assert audit.verdict == Verdict.INSUFFICIENT_EVIDENCE
@@ -130,7 +130,7 @@ def _model_audit(claim):
 def test_model_assisted_success_keeps_locally_retrieved_evidence_and_the_model_verdict(
     tmp_path, monkeypatch
 ):
-    claim = "Uses pytest for automated testing."
+    claim = "Imports pytest in Python tests."
     (tmp_path / "test_app.py").write_text("import pytest\n", encoding="utf-8")
     _install_fake_openai(
         monkeypatch,
@@ -168,7 +168,7 @@ def test_model_failure_degrades_one_claim_without_discarding_the_other_audits(
 
 
 def test_missing_structured_output_degrades_to_insufficient_evidence(tmp_path, monkeypatch):
-    claim = "Uses pytest for automated testing."
+    claim = "Imports pytest in Python tests."
     (tmp_path / "test_app.py").write_text("import pytest\n", encoding="utf-8")
     _install_fake_openai(
         monkeypatch, lambda **kwargs: SimpleNamespace(output_parsed=None, output=[])
@@ -183,7 +183,7 @@ def test_missing_structured_output_degrades_to_insufficient_evidence(tmp_path, m
 def test_model_refusal_is_reported_as_a_refusal_rather_than_a_parse_failure(
     tmp_path, monkeypatch
 ):
-    claim = "Uses pytest for automated testing."
+    claim = "Imports pytest in Python tests."
     (tmp_path / "test_app.py").write_text("import pytest\n", encoding="utf-8")
     refusal = SimpleNamespace(content=[SimpleNamespace(type="refusal")])
     _install_fake_openai(
@@ -200,7 +200,7 @@ def test_model_refusal_is_reported_as_a_refusal_rather_than_a_parse_failure(
 def test_repository_evidence_is_delimited_as_untrusted_data_and_the_client_has_a_timeout(
     tmp_path, monkeypatch
 ):
-    claim = "Uses pytest for automated testing."
+    claim = "Imports pytest in Python tests."
     (tmp_path / "test_app.py").write_text("import pytest\n", encoding="utf-8")
     client_kwargs = {}
     parsed = []

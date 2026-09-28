@@ -36,7 +36,7 @@ def _numbered(path, *lines, relevance=""):
     return _snippet(path, excerpt, relevance=relevance)
 
 
-def test_claim_terms_strip_trailing_punctuation_that_the_retriever_keeps():
+def test_claim_terms_strip_trailing_punctuation():
     assert claim_terms("Streams events through Kafka.") == ["streams", "events", "through", "kafka"]
     assert "3.11" in claim_terms("Builds on Python 3.11.")
     assert claim_terms("Uses the API for testing") == ["api", "testing"]
@@ -113,7 +113,7 @@ def test_speculative_words_are_ignored_outside_prose_and_comment_lines():
 )
 def test_claim_words_containing_negation_substrings_are_never_contradicted(claim, path, line):
     audit = classify_claim(claim, [_numbered(path, line)])
-    assert audit.verdict == Verdict.VERIFIED
+    assert audit.verdict == Verdict.INSUFFICIENT_EVIDENCE
 
 
 def test_word_boundaries_allow_underscores_so_identifiers_still_count_as_evidence():
@@ -189,7 +189,7 @@ def test_only_documentation_or_planned_evidence_returns_insufficient_evidence():
 
 def test_evidence_category_is_appended_to_the_existing_relevance_string():
     original = _numbered("tests/test_a.py", "import pytest", relevance="Matched: pytest; score 11")
-    audit = classify_claim("Uses pytest for testing.", [original])
+    audit = classify_claim("Imports pytest in Python tests.", [original])
     assert audit.evidence[0].relevance == "Matched: pytest; score 11; evidence category: supporting"
 
 
@@ -200,15 +200,15 @@ def test_category_is_the_whole_relevance_string_when_the_retriever_supplied_none
 
 def test_classification_returns_copies_and_never_mutates_the_retrieved_snippets():
     original = _numbered("tests/test_a.py", "import pytest", relevance="Matched: pytest; score 11")
-    classify_claim("Uses pytest for testing.", [original])
+    classify_claim("Imports pytest in Python tests.", [original])
     assert original.relevance == "Matched: pytest; score 11"
 
 
 def test_confidence_comes_from_the_outcome_table_and_rises_only_when_corroborated():
-    single = classify_claim("Uses pytest for testing.", [_numbered("tests/test_a.py", "import pytest")])
+    single = classify_claim("Imports pytest in Python tests.", [_numbered("tests/test_a.py", "import pytest")])
     corroborated = classify_claim(
-        "Uses pytest for testing.",
-        [_numbered("tests/test_a.py", "import pytest"), _numbered("ci.yml", "- run: pytest")],
+        "Imports pytest in Python tests.",
+        [_numbered("tests/test_a.py", "import pytest"), _numbered("tests/test_b.py", "import pytest")],
     )
     assert single.confidence == 0.70
     assert corroborated.confidence == 0.80
@@ -216,7 +216,7 @@ def test_confidence_comes_from_the_outcome_table_and_rises_only_when_corroborate
 
 
 def test_corrected_wording_repeats_the_claim_only_when_the_verdict_is_verified():
-    claim = "Uses pytest for testing."
+    claim = "Imports pytest in Python tests."
     assert corrected_wording(claim, Verdict.VERIFIED) == claim
     assert corrected_wording(claim, Verdict.CONTRADICTED).startswith("Repository evidence conflicts")
     assert claim.rstrip(".") in corrected_wording(claim, Verdict.PARTIALLY_VERIFIED)
@@ -234,7 +234,7 @@ def test_contradicted_wording_does_not_describe_the_repository_as_supporting_the
 
 def test_insufficient_audit_bypasses_the_rule_classifier_and_keeps_the_evidence():
     evidence = [_numbered("tests/test_a.py", "import pytest")]
-    audit = insufficient_audit("Uses pytest for testing.", evidence, "model unavailable")
+    audit = insufficient_audit("Imports pytest in Python tests.", evidence, "model unavailable")
     assert audit.verdict == Verdict.INSUFFICIENT_EVIDENCE
     assert audit.reasoning == "model unavailable"
     assert [item.path for item in audit.evidence] == ["tests/test_a.py"]

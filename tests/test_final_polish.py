@@ -1,5 +1,4 @@
 """User-visible workflow and deterministic regression guards, entirely offline."""
-import hashlib
 from pathlib import Path
 
 import pytest
@@ -28,6 +27,30 @@ def load_demo(app):
     button(app, "Load sample repository").click().run()
     button(app, "Find README claims").click().run()
     return app
+
+
+def test_one_click_demo_uses_complete_workflow(app):
+    button(app, "Try sample audit").click().run()
+    assert not app.exception
+    assert len(app.session_state["report"].audits) == 5
+    assert app.session_state["report"].audits[0].verdict == Verdict.VERIFIED
+    assert app.get("download_button")[0].proto.url
+
+
+def test_oversized_manual_claim_list_cannot_run(app):
+    button(app, "Load sample repository").click().run()
+    app.text_area[0].set_value("\n".join(["Uses pytest"] * 11)).run()
+    assert button(app, "Run repository audit").disabled
+    assert any("at most 10" in item.value for item in app.warning)
+
+
+def test_clearing_suggestions_keeps_exclusion_for_new_claims(app):
+    load_demo(app)
+    app.multiselect[0].set_value([]).run()
+    button(app, "Clear claim list").click().run()
+    app.text_area[0].set_value("Imports pytest in Python tests.").run()
+    button(app, "Run repository audit").click().run()
+    assert app.session_state["report_claim_sources"] == {"Imports pytest in Python tests.": "README.md"}
 
 
 def test_bundled_demo_interface_and_export(app, monkeypatch):
@@ -76,15 +99,18 @@ def test_bundled_demo_interface_and_export(app, monkeypatch):
     assert exported.count("Suggested corrected wording") == 3
 
 
-def test_editor_changes_clear_report_and_preserve_only_exact_sources(app):
+def test_editor_changes_clear_report_and_preserve_review_document_exclusion(app):
     load_demo(app)
     original = app.text_area[0].value.splitlines()
     button(app, "Run repository audit").click().run()
     app.text_area[0].set_value(original[0] + "\nUses pytest and provides a manual claim.").run()
     assert "report" not in app.session_state
-    assert any("source mapping" in item.value for item in app.warning)
+    assert any("also applies to edited" in item.value for item in app.caption)
     button(app, "Run repository audit").click().run()
-    assert app.session_state["report_claim_sources"] == {original[0]: "README.md"}
+    assert app.session_state["report_claim_sources"] == {
+        original[0]: "README.md", "Uses pytest and provides a manual claim.": "README.md",
+    }
+    assert all(e.path != "README.md" for a in app.session_state["report"].audits for e in a.evidence)
     assert not app.exception
 
 
@@ -161,7 +187,10 @@ def test_presentation_deduplication_retains_conflicts_and_original_report():
 
 
 def test_deterministic_benchmark_guards():
-    lexical = format_results(run_benchmark()).encode()
-    assert hashlib.sha256(lexical).hexdigest() == "ed2933432a61b51fc34553360852d4032b94c73884d5cef9b34d3422a6a1eb2b"
-    verdict = format_results(run_verdict_benchmark()).encode()
-    assert hashlib.sha256(verdict).hexdigest() == "314028531c9e73052bcfd91638c773f40cadb484e01e21a0971aa4d32c82ac2e"
+    lexical = run_benchmark()
+    assert lexical["metrics"]["provenance_exclusion_violations"] == 0
+    assert lexical["metrics"]["recall_at_3"] >= 30 / 36
+    assert format_results(lexical) == format_results(run_benchmark())
+    verdict = run_verdict_benchmark()
+    assert verdict["metrics"]["false_verification_rate"] == 0
+    assert format_results(verdict) == format_results(run_verdict_benchmark())

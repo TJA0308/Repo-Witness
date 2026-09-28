@@ -13,7 +13,7 @@ def markdown_report(report: AuditReport, claim_sources: Mapping[str, str] | None
         out += [f"## {i}. {audit.claim}", "", f"- Verdict: **{VERDICT_LABELS[audit.verdict]}**",
                 f"- Confidence: {confidence_label(audit.confidence)} (heuristic strength)",
                 f"- Explanation: {audit.reasoning}",
-                f"- Claim source: {claim_sources.get(audit.claim, 'Manual entry') if claim_sources else 'Manual entry'}",
+                f"- Excluded review document: {claim_sources.get(audit.claim, 'None (manual entry)') if claim_sources else 'None (manual entry)'}",
                 f"- Evidence count: {len(audit.evidence)}"]
         if useful_correction(audit.claim, audit.corrected_wording):
             out.append(f"- Suggested corrected wording: {audit.corrected_wording}")

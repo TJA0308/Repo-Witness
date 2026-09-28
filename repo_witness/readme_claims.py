@@ -10,13 +10,14 @@ from .ingest import MAX_FILE_BYTES, should_ignore
 
 README_NAMES = {"readme", "readme.md", "readme.rst", "readme.txt"}
 IMPLEMENTATION_VERBS = re.compile(
-    r"\b(uses?|supports?|includes?|provides?|implements?|deploys?|stores?|caches?|publishes?|validates?|runs?|integrates?|built with)\b",
+    r"\b(declares?|imports?|requires?|uses?|supports|includes?|provides?|implements|deploys?|stores?|caches?|publishes?|validates?|runs?|integrates?|built with)\b",
     re.IGNORECASE,
 )
-TECHNICAL_SECTIONS = re.compile(r"\b(features?|architecture|technology|technologies|capabilities|what it does|design)\b", re.IGNORECASE)
-EXCLUDED_SECTIONS = re.compile(r"\b(installation|install|setup|getting started|contributing|contribution|license|development)\b", re.IGNORECASE)
+TECHNICAL_SECTIONS = re.compile(r"\b(features?|architecture|technology|technologies|capabilities|what it does|design|highlights|in three points)\b", re.IGNORECASE)
+EXCLUDED_SECTIONS = re.compile(r"\b(installation|install|setup|getting started|contributing|contribution|license|development|donate|sponsor)\b", re.IGNORECASE)
 COMMAND_PREFIXES = re.compile(r"^(\$|>|pip\s+install|npm\s+(install|run)|yarn\s+|pnpm\s+|git\s+clone|docker\s+run|python\s+-m|streamlit\s+run)", re.IGNORECASE)
 VAGUE_MARKETING = re.compile(r"\b(revolutionary|game[- ]changing|best[- ]in[- ]class|cutting[- ]edge|next[- ]generation|world[- ]class)\b", re.IGNORECASE)
+NON_CLAIM_LANGUAGE = re.compile(r"\b(aims? to|hopes? to|plans? to|intends? to)\b", re.IGNORECASE)
 MAX_CLAIMS = 10
 
 
@@ -54,7 +55,7 @@ def extract_candidate_claims(text: str, limit: int = MAX_CLAIMS) -> list[str]:
     if not text.strip():
         return []
 
-    lines = text.splitlines()
+    lines = _join_wrapped_prose(text.splitlines())
     candidates: list[tuple[int, int, str]] = []
     in_fence = False
     current_section = ""
@@ -76,7 +77,12 @@ def extract_candidate_claims(text: str, limit: int = MAX_CLAIMS) -> list[str]:
             continue
         if re.fullmatch(r"[=\-~^]{3,}", stripped):
             continue
-        if EXCLUDED_SECTIONS.search(current_section):
+
+        if stripped.endswith(":") and TECHNICAL_SECTIONS.search(stripped):
+            current_section = stripped
+            continue
+        version_claim = bool(re.search(r"\b(?:requires|officially supports)\s+python\s+\d+\.\d+\+", stripped, re.I))
+        if EXCLUDED_SECTIONS.search(current_section) and not version_claim:
             continue
         if _is_excluded_line(raw_line, stripped):
             continue
@@ -84,11 +90,17 @@ def extract_candidate_claims(text: str, limit: int = MAX_CLAIMS) -> list[str]:
         bullet = bool(re.match(r"^(?:[-*+]\s+|\d+[.)]\s+)", stripped))
         cleaned = re.sub(r"^(?:[-*+]\s+|\d+[.)]\s+)", "", stripped)
         cleaned = _clean_markdown(cleaned)
+        generated = False
+        if bullet and TECHNICAL_SECTIONS.search(current_section) and not IMPLEMENTATION_VERBS.search(cleaned):
+            rewritten = _feature_bullet_claim(cleaned)
+            generated = rewritten != cleaned
+            cleaned = rewritten
         for sentence in re.split(r"(?<=[.!?])\s+", cleaned):
             claim = sentence.strip(" \t-*_")
             if not _is_candidate(claim, bullet, current_section):
                 continue
-            score = 3 if IMPLEMENTATION_VERBS.search(claim) else 1
+            score = 1 if generated else 3 if IMPLEMENTATION_VERBS.search(claim) else 1
+            score += 3 if version_claim else 0
             score += 1 if bullet else 0
             score += 1 if TECHNICAL_SECTIONS.search(current_section) else 0
             candidates.append((score, index, claim))
@@ -108,7 +120,7 @@ def _is_excluded_line(raw_line: str, stripped: str) -> bool:
     lower = stripped.lower()
     if raw_line.startswith("    ") or COMMAND_PREFIXES.search(stripped):
         return True
-    if "http://" in lower or "https://" in lower or "www." in lower:
+    if re.match(r"^(?:https?://|www\.|\[[^]]+\]:\s*https?://)", lower):
         return True
     if "![" in stripped or "[![" in stripped or "<img" in lower or "shields.io" in lower:
         return True
@@ -123,17 +135,57 @@ def _clean_markdown(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip()
 
 
+def _feature_bullet_claim(value: str) -> str:
+    """Turn short feature labels into reviewable suggestions, never verdicts."""
+    label = value.rstrip(" .")
+    if len(label.split()) < 3 or "://" in label:
+        return value
+    if label.lower().startswith(("fully ", "100% ", "elegant ", "familiar ")):
+        return value
+    label = label.lower()
+    for word in ("http", "ssl", "tls", "url", "api", "wsgi", "asgi"):
+        label = re.sub(rf"\b{word}\b", word.upper(), label)
+    support = re.fullmatch(r"(.+?)\s+support", label, re.I)
+    if support:
+        return f"Supports {support.group(1)}."
+    if label.startswith("automatic "):
+        return f"Provides {label}."
+    return f"Supports {label}."
+
+
 def _is_candidate(claim: str, bullet: bool, section: str) -> bool:
     if len(claim) < 24 or len(claim) > 220:
         return False
     words = re.findall(r"[A-Za-z0-9][A-Za-z0-9+#.-]*", claim)
     if len(words) < 4 or len(words) > 36:
         return False
-    if VAGUE_MARKETING.search(claim):
+    if (VAGUE_MARKETING.search(claim) or NON_CLAIM_LANGUAGE.search(claim)
+            or re.match(r"^(which\b|there\b.*\bno need\b)", claim, re.I)):
         return False
     has_implementation_verb = bool(IMPLEMENTATION_VERBS.search(claim))
     in_technical_section = bool(TECHNICAL_SECTIONS.search(section))
-    return has_implementation_verb or (bullet and in_technical_section and len(words) >= 5)
+    return has_implementation_verb
+
+
+def _join_wrapped_prose(lines: list[str]) -> list[str]:
+    """Rejoin Markdown prose wrapped across lines without joining list items."""
+    joined: list[str] = []
+
+    def prose(line: str) -> bool:
+        stripped = line.strip()
+        return bool(stripped) and not (
+            line.startswith("    ") or stripped.startswith(("#", "- ", "* ", "+ ", ">", "|", "<", "```", "~~~"))
+            or re.match(r"^\d+[.)]\s", stripped)
+            or re.fullmatch(r"[=\-~^]{3,}", stripped)
+            or COMMAND_PREFIXES.search(stripped)
+        )
+
+    for line in lines:
+        if joined and prose(joined[-1]) and prose(line):
+            joined[-1] += " " + line.strip()
+        else:
+            joined.append(line)
+    return joined
 
 
 def _near_duplicate(left: str, right: str) -> bool:

@@ -1,0 +1,1346 @@
+{
+  "cases": [
+    {
+      "case_tags": [
+        "exact-lexical",
+        "hard-distractor"
+      ],
+      "claim": "Uses pytest for automated authentication testing.",
+      "evaluation_rank": 2,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "tests/test_auth.py"
+      ],
+      "first_expected_rank": 2,
+      "first_expected_unique_file_rank": 2,
+      "hard_negative_paths": [
+        "README.md"
+      ],
+      "id": "api-pytest-auth",
+      "repository": "api_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "README.md",
+        "tests/test_auth.py",
+        "src/auth.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 2,
+      "unique_retrieved_paths": [
+        "README.md",
+        "tests/test_auth.py",
+        "src/auth.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "exact-lexical",
+        "repeated-snippets"
+      ],
+      "claim": "Includes Docker configuration based on Python 3.11.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "Dockerfile"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "api-docker-python",
+      "repository": "api_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "Dockerfile"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "Dockerfile"
+      ]
+    },
+    {
+      "case_tags": [
+        "exact-lexical",
+        "hard-distractor"
+      ],
+      "claim": "Uses Redis as the cache backend.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "config/cache.toml"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [
+        "docs/README.md"
+      ],
+      "id": "api-redis-cache",
+      "repository": "api_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "config/cache.toml",
+        "docs/README.md"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "config/cache.toml",
+        "docs/README.md"
+      ]
+    },
+    {
+      "case_tags": [
+        "exact-lexical"
+      ],
+      "claim": "Stores application records in SQLite.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "src/storage.py"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "api-sqlite-storage",
+      "repository": "api_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "src/storage.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "src/storage.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "exact-lexical",
+        "repeated-snippets"
+      ],
+      "claim": "Configures a Kubernetes health probe.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "deploy/k8s.yaml"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "api-kubernetes-health",
+      "repository": "api_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "deploy/k8s.yaml"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "deploy/k8s.yaml"
+      ]
+    },
+    {
+      "case_tags": [
+        "exact-lexical"
+      ],
+      "claim": "Exports Prometheus request metrics.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "src/metrics.py"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "api-prometheus-metrics",
+      "repository": "api_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "src/metrics.py",
+        "src/auth.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "src/metrics.py",
+        "src/auth.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "exact-lexical"
+      ],
+      "claim": "Authenticates API requests with JWT bearer tokens.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "src/auth.py"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "api-jwt-authentication",
+      "repository": "api_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "src/auth.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "src/auth.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "exact-lexical",
+        "repeated-snippets"
+      ],
+      "claim": "Runs Ruff lint checks in continuous integration.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        ".github/workflows/ci.yml"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "api-ci-lint",
+      "repository": "api_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        ".github/workflows/ci.yml",
+        "notes/release_distractor.txt"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        ".github/workflows/ci.yml",
+        "notes/release_distractor.txt"
+      ]
+    },
+    {
+      "case_tags": [
+        "provenance-exclusion",
+        "exact-lexical"
+      ],
+      "claim": "Uses pytest for automated authentication testing.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [
+        "README.md"
+      ],
+      "expected_paths": [
+        "tests/test_auth.py"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "api-readme-provenance",
+      "repository": "api_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "tests/test_auth.py",
+        "src/auth.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "tests/test_auth.py",
+        "src/auth.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "unsupported",
+        "hard-distractor"
+      ],
+      "claim": "Persists user profiles in PostgreSQL.",
+      "evaluation_rank": null,
+      "excluded_source_paths": [],
+      "expected_paths": [],
+      "first_expected_rank": null,
+      "first_expected_unique_file_rank": null,
+      "hard_negative_paths": [
+        "docs/database.md"
+      ],
+      "id": "api-unsupported-postgresql",
+      "repository": "api_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "docs/database.md"
+      ],
+      "supported": false,
+      "unique_file_evaluation_rank": null,
+      "unique_retrieved_paths": [
+        "docs/database.md"
+      ]
+    },
+    {
+      "case_tags": [
+        "synonym",
+        "hard-distractor"
+      ],
+      "claim": "Processes deferred jobs with a background worker.",
+      "evaluation_rank": null,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "src/tasks.py"
+      ],
+      "first_expected_rank": null,
+      "first_expected_unique_file_rank": null,
+      "hard_negative_paths": [
+        ".github/workflows/ci.yml"
+      ],
+      "id": "worker-synonym-background",
+      "repository": "worker_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "README.md",
+        ".github/workflows/ci.yml",
+        "deploy/worker.yaml"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": null,
+      "unique_retrieved_paths": [
+        "README.md",
+        ".github/workflows/ci.yml",
+        "deploy/worker.yaml"
+      ]
+    },
+    {
+      "case_tags": [
+        "exact-lexical"
+      ],
+      "claim": "Configures a Celery task queue broker.",
+      "evaluation_rank": 2,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "config/celery.toml"
+      ],
+      "first_expected_rank": 2,
+      "first_expected_unique_file_rank": 2,
+      "hard_negative_paths": [],
+      "id": "worker-celery-broker",
+      "repository": "worker_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "README.md",
+        "config/celery.toml",
+        "src/tasks.py",
+        "deploy/worker.yaml",
+        "docs/queue.md",
+        "src/scheduler.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 2,
+      "unique_retrieved_paths": [
+        "README.md",
+        "config/celery.toml",
+        "src/tasks.py",
+        "deploy/worker.yaml",
+        "docs/queue.md",
+        "src/scheduler.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "exact-lexical",
+        "repeated-snippets"
+      ],
+      "claim": "Tests job retry limits with pytest.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "tests/test_tasks.py"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "worker-retry-tests",
+      "repository": "worker_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "tests/test_tasks.py",
+        "tests/test_tasks.py",
+        ".github/workflows/ci.yml"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "tests/test_tasks.py",
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "case_tags": [
+        "paraphrase"
+      ],
+      "claim": "Schedules periodic tasks using cron.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "src/scheduler.py"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "worker-periodic-scheduler",
+      "repository": "worker_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "src/scheduler.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "src/scheduler.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "exact-lexical"
+      ],
+      "claim": "Deploys two replicas of the Celery worker.",
+      "evaluation_rank": 2,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "deploy/worker.yaml"
+      ],
+      "first_expected_rank": 2,
+      "first_expected_unique_file_rank": 2,
+      "hard_negative_paths": [],
+      "id": "worker-deployment",
+      "repository": "worker_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "README.md",
+        "deploy/worker.yaml",
+        ".github/workflows/ci.yml",
+        "config/celery.toml",
+        "src/tasks.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 2,
+      "unique_retrieved_paths": [
+        "README.md",
+        "deploy/worker.yaml",
+        ".github/workflows/ci.yml",
+        "config/celery.toml",
+        "src/tasks.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "unsupported",
+        "hard-distractor"
+      ],
+      "claim": "Uses RabbitMQ as the production message broker.",
+      "evaluation_rank": null,
+      "excluded_source_paths": [],
+      "expected_paths": [],
+      "first_expected_rank": null,
+      "first_expected_unique_file_rank": null,
+      "hard_negative_paths": [
+        "docs/queue.md"
+      ],
+      "id": "worker-unsupported-rabbitmq",
+      "repository": "worker_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "docs/queue.md",
+        "README.md",
+        "config/celery.toml"
+      ],
+      "supported": false,
+      "unique_file_evaluation_rank": null,
+      "unique_retrieved_paths": [
+        "docs/queue.md",
+        "README.md",
+        "config/celery.toml"
+      ]
+    },
+    {
+      "case_tags": [
+        "provenance-exclusion",
+        "paraphrase"
+      ],
+      "claim": "Uses Redis as the Celery task broker.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [
+        "README.md"
+      ],
+      "expected_paths": [
+        "config/celery.toml"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "worker-readme-provenance",
+      "repository": "worker_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "config/celery.toml",
+        "src/tasks.py",
+        "deploy/worker.yaml",
+        "docs/queue.md",
+        "src/scheduler.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "config/celery.toml",
+        "src/tasks.py",
+        "deploy/worker.yaml",
+        "docs/queue.md",
+        "src/scheduler.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "distributed-evidence",
+        "paraphrase"
+      ],
+      "claim": "Runs queued work through a Redis-backed Celery worker.",
+      "evaluation_rank": 5,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "config/celery.toml",
+        "src/tasks.py"
+      ],
+      "first_expected_rank": 4,
+      "first_expected_unique_file_rank": 4,
+      "hard_negative_paths": [],
+      "id": "worker-distributed-queue",
+      "repository": "worker_service",
+      "required_evidence_groups": [
+        [
+          "config/celery.toml"
+        ],
+        [
+          "src/tasks.py"
+        ]
+      ],
+      "retrieved_paths": [
+        "README.md",
+        "deploy/worker.yaml",
+        ".github/workflows/ci.yml",
+        "config/celery.toml",
+        "src/tasks.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 5,
+      "unique_retrieved_paths": [
+        "README.md",
+        "deploy/worker.yaml",
+        ".github/workflows/ci.yml",
+        "config/celery.toml",
+        "src/tasks.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "repeated-snippets",
+        "exact-lexical"
+      ],
+      "claim": "Implements job retry behavior.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "tests/test_tasks.py"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "worker-repeated-retries",
+      "repository": "worker_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "tests/test_tasks.py",
+        "tests/test_tasks.py",
+        ".github/workflows/ci.yml"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "tests/test_tasks.py",
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "case_tags": [
+        "multiple-valid-files",
+        "exact-lexical"
+      ],
+      "claim": "Provides a Celery task queue worker process.",
+      "evaluation_rank": 2,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "src/tasks.py",
+        "deploy/worker.yaml"
+      ],
+      "first_expected_rank": 2,
+      "first_expected_unique_file_rank": 2,
+      "hard_negative_paths": [],
+      "id": "worker-multiple-valid",
+      "repository": "worker_service",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "README.md",
+        "src/tasks.py",
+        "config/celery.toml",
+        "deploy/worker.yaml",
+        ".github/workflows/ci.yml",
+        "src/scheduler.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 2,
+      "unique_retrieved_paths": [
+        "README.md",
+        "src/tasks.py",
+        "config/celery.toml",
+        "deploy/worker.yaml",
+        ".github/workflows/ci.yml",
+        "src/scheduler.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "paraphrase"
+      ],
+      "claim": "Extracts rows from CSV input.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "src/extract.py"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "data-csv-extraction",
+      "repository": "data_pipeline",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "src/extract.py",
+        "README.md"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "src/extract.py",
+        "README.md"
+      ]
+    },
+    {
+      "case_tags": [
+        "exact-lexical"
+      ],
+      "claim": "Normalizes event records during transformation.",
+      "evaluation_rank": 3,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "src/transform.py"
+      ],
+      "first_expected_rank": 3,
+      "first_expected_unique_file_rank": 3,
+      "hard_negative_paths": [],
+      "id": "data-record-normalization",
+      "repository": "data_pipeline",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "README.md",
+        "schema/events.sql",
+        "src/transform.py",
+        "config/postgres.ini",
+        "src/load.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 3,
+      "unique_retrieved_paths": [
+        "README.md",
+        "schema/events.sql",
+        "src/transform.py",
+        "config/postgres.ini",
+        "src/load.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "exact-lexical"
+      ],
+      "claim": "Bulk loads transformed records into a warehouse.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "src/load.py"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "data-warehouse-load",
+      "repository": "data_pipeline",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "src/load.py",
+        "README.md",
+        "config/postgres.ini",
+        "schema/events.sql",
+        "src/transform.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "src/load.py",
+        "README.md",
+        "config/postgres.ini",
+        "schema/events.sql",
+        "src/transform.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "exact-lexical",
+        "repeated-snippets"
+      ],
+      "claim": "Runs the pipeline on a cron schedule.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "workflows/pipeline.yml"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "data-scheduled-pipeline",
+      "repository": "data_pipeline",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "workflows/pipeline.yml",
+        "README.md"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "workflows/pipeline.yml",
+        "README.md"
+      ]
+    },
+    {
+      "case_tags": [
+        "exact-lexical"
+      ],
+      "claim": "Declares pandas as a project dependency.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "pyproject.toml"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "data-pandas-dependency",
+      "repository": "data_pipeline",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "pyproject.toml"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "pyproject.toml"
+      ]
+    },
+    {
+      "case_tags": [
+        "paraphrase",
+        "ineligible-extension"
+      ],
+      "claim": "Defines a schema for event records.",
+      "evaluation_rank": 2,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "schema/events.sql"
+      ],
+      "first_expected_rank": 2,
+      "first_expected_unique_file_rank": 2,
+      "hard_negative_paths": [],
+      "id": "data-event-schema",
+      "repository": "data_pipeline",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "README.md",
+        "schema/events.sql",
+        "src/transform.py",
+        "config/postgres.ini",
+        "src/load.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 2,
+      "unique_retrieved_paths": [
+        "README.md",
+        "schema/events.sql",
+        "src/transform.py",
+        "config/postgres.ini",
+        "src/load.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "distributed-evidence",
+        "paraphrase"
+      ],
+      "claim": "The scheduled pipeline extracts, transforms, and loads records.",
+      "evaluation_rank": null,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "src/extract.py",
+        "src/transform.py",
+        "src/load.py"
+      ],
+      "first_expected_rank": 4,
+      "first_expected_unique_file_rank": 4,
+      "hard_negative_paths": [],
+      "id": "data-distributed-etl",
+      "repository": "data_pipeline",
+      "required_evidence_groups": [
+        [
+          "src/extract.py"
+        ],
+        [
+          "src/transform.py"
+        ],
+        [
+          "src/load.py"
+        ]
+      ],
+      "retrieved_paths": [
+        "README.md",
+        "workflows/pipeline.yml",
+        "schema/events.sql",
+        "src/load.py",
+        "src/transform.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": null,
+      "unique_retrieved_paths": [
+        "README.md",
+        "workflows/pipeline.yml",
+        "schema/events.sql",
+        "src/load.py",
+        "src/transform.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "provenance-exclusion",
+        "paraphrase"
+      ],
+      "claim": "Writes event batches to PostgreSQL.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [
+        "README.md"
+      ],
+      "expected_paths": [
+        "config/postgres.ini"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "data-readme-provenance",
+      "repository": "data_pipeline",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "config/postgres.ini",
+        "schema/events.sql",
+        "src/transform.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "config/postgres.ini",
+        "schema/events.sql",
+        "src/transform.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "unsupported",
+        "hard-distractor"
+      ],
+      "claim": "Streams events through Kafka.",
+      "evaluation_rank": null,
+      "excluded_source_paths": [],
+      "expected_paths": [],
+      "first_expected_rank": null,
+      "first_expected_unique_file_rank": null,
+      "hard_negative_paths": [
+        "docs/alternatives.md"
+      ],
+      "id": "data-unsupported-kafka",
+      "repository": "data_pipeline",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "docs/alternatives.md"
+      ],
+      "supported": false,
+      "unique_file_evaluation_rank": null,
+      "unique_retrieved_paths": [
+        "docs/alternatives.md"
+      ]
+    },
+    {
+      "case_tags": [
+        "synonym"
+      ],
+      "claim": "Uses a relational datastore for durable event persistence.",
+      "evaluation_rank": 2,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "config/postgres.ini"
+      ],
+      "first_expected_rank": 2,
+      "first_expected_unique_file_rank": 2,
+      "hard_negative_paths": [],
+      "id": "data-synonym-relational-store",
+      "repository": "data_pipeline",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "README.md",
+        "config/postgres.ini",
+        "schema/events.sql",
+        "src/transform.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 2,
+      "unique_retrieved_paths": [
+        "README.md",
+        "config/postgres.ini",
+        "schema/events.sql",
+        "src/transform.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "exact-lexical"
+      ],
+      "claim": "Signs release packages with Sigstore.",
+      "evaluation_rank": 2,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        ".github/workflows/release.yml"
+      ],
+      "first_expected_rank": 2,
+      "first_expected_unique_file_rank": 2,
+      "hard_negative_paths": [],
+      "id": "release-sigstore-signing",
+      "repository": "release_tool",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "README.md",
+        ".github/workflows/release.yml",
+        "deploy/helm/Chart.yaml",
+        "notes/release.txt",
+        "src/versioning.py",
+        "tests/test_release.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 2,
+      "unique_retrieved_paths": [
+        "README.md",
+        ".github/workflows/release.yml",
+        "deploy/helm/Chart.yaml",
+        "notes/release.txt",
+        "src/versioning.py",
+        "tests/test_release.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "exact-lexical"
+      ],
+      "claim": "Computes a SHA256 checksum before publication.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "src/checksum.py"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "release-sha256",
+      "repository": "release_tool",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "src/checksum.py",
+        "notes/release.txt"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "src/checksum.py",
+        "notes/release.txt"
+      ]
+    },
+    {
+      "case_tags": [
+        "exact-lexical"
+      ],
+      "claim": "Applies semantic version increments to releases.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "src/versioning.py"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "release-semantic-version",
+      "repository": "release_tool",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "src/versioning.py",
+        "deploy/helm/Chart.yaml",
+        "tests/test_release.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "src/versioning.py",
+        "deploy/helm/Chart.yaml",
+        "tests/test_release.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "multiple-valid-files",
+        "paraphrase"
+      ],
+      "claim": "Builds Python release packages with Hatchling.",
+      "evaluation_rank": 2,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "pyproject.toml",
+        ".github/workflows/release.yml"
+      ],
+      "first_expected_rank": 2,
+      "first_expected_unique_file_rank": 2,
+      "hard_negative_paths": [],
+      "id": "release-build-multiple-valid",
+      "repository": "release_tool",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "README.md",
+        ".github/workflows/release.yml",
+        "deploy/helm/Chart.yaml",
+        "notes/release.txt",
+        "pyproject.toml",
+        "src/versioning.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 2,
+      "unique_retrieved_paths": [
+        "README.md",
+        ".github/workflows/release.yml",
+        "deploy/helm/Chart.yaml",
+        "notes/release.txt",
+        "pyproject.toml",
+        "src/versioning.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "provenance-exclusion",
+        "exact-lexical"
+      ],
+      "claim": "Signs release artifacts with Sigstore.",
+      "evaluation_rank": 2,
+      "excluded_source_paths": [
+        "README.md"
+      ],
+      "expected_paths": [
+        ".github/workflows/release.yml"
+      ],
+      "first_expected_rank": 2,
+      "first_expected_unique_file_rank": 2,
+      "hard_negative_paths": [],
+      "id": "release-readme-provenance",
+      "repository": "release_tool",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "notes/release.txt",
+        ".github/workflows/release.yml",
+        "deploy/helm/Chart.yaml",
+        "src/versioning.py",
+        "tests/test_release.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 2,
+      "unique_retrieved_paths": [
+        "notes/release.txt",
+        ".github/workflows/release.yml",
+        "deploy/helm/Chart.yaml",
+        "src/versioning.py",
+        "tests/test_release.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "repeated-snippets",
+        "hard-distractor"
+      ],
+      "claim": "Signs release artifacts before publication.",
+      "evaluation_rank": 4,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        ".github/workflows/release.yml"
+      ],
+      "first_expected_rank": 4,
+      "first_expected_unique_file_rank": 4,
+      "hard_negative_paths": [
+        "notes/release.txt"
+      ],
+      "id": "release-repeated-distractor",
+      "repository": "release_tool",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "notes/release.txt",
+        "README.md",
+        "src/checksum.py",
+        ".github/workflows/release.yml",
+        "deploy/helm/Chart.yaml",
+        "src/versioning.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 4,
+      "unique_retrieved_paths": [
+        "notes/release.txt",
+        "README.md",
+        "src/checksum.py",
+        ".github/workflows/release.yml",
+        "deploy/helm/Chart.yaml",
+        "src/versioning.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "distributed-evidence",
+        "paraphrase"
+      ],
+      "claim": "Builds and signs Python release packages.",
+      "evaluation_rank": null,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "pyproject.toml",
+        ".github/workflows/release.yml"
+      ],
+      "first_expected_rank": 2,
+      "first_expected_unique_file_rank": 2,
+      "hard_negative_paths": [],
+      "id": "release-distributed-build-sign",
+      "repository": "release_tool",
+      "required_evidence_groups": [
+        [
+          "pyproject.toml"
+        ],
+        [
+          ".github/workflows/release.yml"
+        ]
+      ],
+      "retrieved_paths": [
+        "README.md",
+        ".github/workflows/release.yml",
+        "deploy/helm/Chart.yaml",
+        "notes/release.txt",
+        "src/versioning.py",
+        "tests/test_release.py"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": null,
+      "unique_retrieved_paths": [
+        "README.md",
+        ".github/workflows/release.yml",
+        "deploy/helm/Chart.yaml",
+        "notes/release.txt",
+        "src/versioning.py",
+        "tests/test_release.py"
+      ]
+    },
+    {
+      "case_tags": [
+        "exact-lexical"
+      ],
+      "claim": "Includes a Helm deployment chart.",
+      "evaluation_rank": 1,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "deploy/helm/Chart.yaml"
+      ],
+      "first_expected_rank": 1,
+      "first_expected_unique_file_rank": 1,
+      "hard_negative_paths": [],
+      "id": "release-helm-chart",
+      "repository": "release_tool",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "deploy/helm/Chart.yaml"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": 1,
+      "unique_retrieved_paths": [
+        "deploy/helm/Chart.yaml"
+      ]
+    },
+    {
+      "case_tags": [
+        "unsupported",
+        "hard-distractor"
+      ],
+      "claim": "Publishes packages to the npm registry.",
+      "evaluation_rank": null,
+      "excluded_source_paths": [],
+      "expected_paths": [],
+      "first_expected_rank": null,
+      "first_expected_unique_file_rank": null,
+      "hard_negative_paths": [
+        "docs/npm.md"
+      ],
+      "id": "release-unsupported-npm",
+      "repository": "release_tool",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        "README.md",
+        "docs/npm.md"
+      ],
+      "supported": false,
+      "unique_file_evaluation_rank": null,
+      "unique_retrieved_paths": [
+        "README.md",
+        "docs/npm.md"
+      ]
+    },
+    {
+      "case_tags": [
+        "synonym"
+      ],
+      "claim": "Produces a cryptographic digest for each package.",
+      "evaluation_rank": null,
+      "excluded_source_paths": [],
+      "expected_paths": [
+        "src/checksum.py"
+      ],
+      "first_expected_rank": null,
+      "first_expected_unique_file_rank": null,
+      "hard_negative_paths": [],
+      "id": "release-synonym-integrity-digest",
+      "repository": "release_tool",
+      "required_evidence_groups": [],
+      "retrieved_paths": [
+        ".github/workflows/release.yml",
+        "README.md"
+      ],
+      "supported": true,
+      "unique_file_evaluation_rank": null,
+      "unique_retrieved_paths": [
+        ".github/workflows/release.yml",
+        "README.md"
+      ]
+    }
+  ],
+  "metrics": {
+    "all_required_groups_success_at_1": 0.0,
+    "all_required_groups_success_at_3": 0.0,
+    "all_required_groups_success_at_5": 0.3333333333333333,
+    "denominators": {
+      "distributed_evidence_cases": 3,
+      "hard_negative_cases": 8,
+      "ordinary_recall_and_mrr_cases": 36,
+      "required_evidence_groups": 7,
+      "returned_positions_for_repeated_file_occupancy_rate": 128,
+      "unique_file_recall_cases": 36,
+      "unsupported_cases": 4
+    },
+    "evaluated_cases": 36,
+    "evidence_group_coverage_at_1": 0.0,
+    "evidence_group_coverage_at_3": 0.14285714285714285,
+    "evidence_group_coverage_at_5": 0.7142857142857143,
+    "hard_negative_retrieval_rate_at_1": 0.625,
+    "hard_negative_retrieval_rate_at_3": 1.0,
+    "hard_negative_retrieval_rate_at_5": 1.0,
+    "hit_rate_recall_at_1": 0.5555555555555556,
+    "mean_reciprocal_rank": 0.7023148148148148,
+    "per_category": {
+      "distributed-evidence": {
+        "case_count": 3,
+        "mean_reciprocal_rank": 0.06666666666666667,
+        "recall_at_3": 0.0,
+        "recall_eligible_cases": 3
+      },
+      "exact-lexical": {
+        "case_count": 23,
+        "mean_reciprocal_rank": 0.8405797101449275,
+        "recall_at_3": 1.0,
+        "recall_eligible_cases": 23
+      },
+      "hard-distractor": {
+        "case_count": 8,
+        "mean_reciprocal_rank": 0.4375,
+        "recall_at_3": 0.5,
+        "recall_eligible_cases": 4
+      },
+      "ineligible-extension": {
+        "case_count": 1,
+        "mean_reciprocal_rank": 0.5,
+        "recall_at_3": 1.0,
+        "recall_eligible_cases": 1
+      },
+      "multiple-valid-files": {
+        "case_count": 2,
+        "mean_reciprocal_rank": 0.5,
+        "recall_at_3": 1.0,
+        "recall_eligible_cases": 2
+      },
+      "paraphrase": {
+        "case_count": 9,
+        "mean_reciprocal_rank": 0.5777777777777778,
+        "recall_at_3": 0.6666666666666666,
+        "recall_eligible_cases": 9
+      },
+      "provenance-exclusion": {
+        "case_count": 4,
+        "mean_reciprocal_rank": 0.875,
+        "recall_at_3": 1.0,
+        "recall_eligible_cases": 4
+      },
+      "repeated-snippets": {
+        "case_count": 7,
+        "mean_reciprocal_rank": 0.8928571428571429,
+        "recall_at_3": 0.8571428571428571,
+        "recall_eligible_cases": 7
+      },
+      "synonym": {
+        "case_count": 3,
+        "mean_reciprocal_rank": 0.16666666666666666,
+        "recall_at_3": 0.3333333333333333,
+        "recall_eligible_cases": 3
+      },
+      "unsupported": {
+        "case_count": 4,
+        "mean_reciprocal_rank": null,
+        "recall_at_3": null,
+        "recall_eligible_cases": 0
+      }
+    },
+    "provenance_exclusion_violations": 0,
+    "recall_at_3": 0.8333333333333334,
+    "recall_at_5": 0.8888888888888888,
+    "repeated_file_occupancy_rate": 0.015625,
+    "supported_cases": 36,
+    "total_cases": 40,
+    "unique_file_recall_at_1": 0.5555555555555556,
+    "unique_file_recall_at_3": 0.8333333333333334,
+    "unique_file_recall_at_5": 0.8888888888888888,
+    "unsupported_cases": 4,
+    "unsupported_claim_retrieval_rate_at_1": 1.0,
+    "unsupported_claim_retrieval_rate_at_3": 1.0,
+    "unsupported_claim_retrieval_rate_at_5": 1.0
+  }
+}

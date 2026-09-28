@@ -5,7 +5,7 @@ import os
 from collections.abc import Iterable, Mapping, Sequence
 from typing import Any
 
-from .evidence import retrieve_evidence
+from .evidence import read_repository, retrieve_evidence
 from .models import AuditReport, ClaimAudit, EvidenceSnippet
 from .verdicts import classify_claim, insufficient_audit
 
@@ -18,6 +18,17 @@ UNTRUSTED_EVIDENCE_NOTICE = (
 SYSTEM_PROMPT = f"""You audit technical claims against repository evidence. Use only supplied snippets. Keep repository evidence separate from reasoning. {UNTRUSTED_EVIDENCE_NOTICE} VERIFIED requires direct support; PARTIALLY_VERIFIED means only part is supported; CONTRADICTED requires direct conflicting evidence; lack of evidence is always INSUFFICIENT_EVIDENCE. Return corrected wording that does not overclaim."""
 DEFAULT_MODEL = os.environ.get("OPENAI_MODEL", "gpt-5.1")
 OPENAI_TIMEOUT_SECONDS = 30.0
+MAX_AUDIT_CLAIMS = 10
+MAX_CLAIM_CHARS = 300
+
+
+def validate_claims(claims: Iterable[str]) -> list[str]:
+    clean = [claim.strip() for claim in claims if claim.strip()]
+    if len(clean) > MAX_AUDIT_CLAIMS:
+        raise ValueError("Use at most 10 claims per audit")
+    if any(len(claim) > MAX_CLAIM_CHARS for claim in clean):
+        raise ValueError("Keep each claim within 300 characters")
+    return clean
 
 MODEL_ERROR_REASON = (
     "The model-assisted request for this claim did not complete, so no classification "
@@ -39,23 +50,24 @@ def demo_classify(claim: str, evidence: Sequence[EvidenceSnippet]) -> ClaimAudit
 
 
 def _retrieve_claim_evidence(
-    root, claim: str, claim_sources: Mapping[str, str] | None
+    root, claim: str, claim_sources: Mapping[str, str] | None, repository_files=None
 ) -> list[EvidenceSnippet]:
     source_path = claim_sources.get(claim) if claim_sources else None
     excluded_paths = (source_path,) if source_path else ()
-    return retrieve_evidence(root, claim, excluded_paths=excluded_paths)
+    return retrieve_evidence(root, claim, excluded_paths=excluded_paths, repository_files=repository_files)
 
 
 def analyze_demo(
     root, claims: Iterable[str], claim_sources: Mapping[str, str] | None = None
 ) -> AuditReport:
-    clean = [c.strip() for c in claims if c.strip()]
+    clean = validate_claims(claims)
+    files = read_repository(root)
     return AuditReport(
         audits=[
-            demo_classify(claim, _retrieve_claim_evidence(root, claim, claim_sources))
+            demo_classify(claim, _retrieve_claim_evidence(root, claim, claim_sources, files))
             for claim in clean
         ],
-        analyzer="Deterministic demo mode",
+        analyzer="Deterministic static checks",
     )
 
 
@@ -110,13 +122,14 @@ def analyze_openai(
 ) -> AuditReport:
     from openai import OpenAI
 
-    clean = [c.strip() for c in claims if c.strip()]
+    clean = validate_claims(claims)
+    files = read_repository(root)
     client = OpenAI(
         api_key=os.environ.get("OPENAI_API_KEY"), timeout=OPENAI_TIMEOUT_SECONDS
     )
     audits = []
     for claim in clean:
-        evidence = _retrieve_claim_evidence(root, claim, claim_sources)
+        evidence = _retrieve_claim_evidence(root, claim, claim_sources, files)
         if not evidence:
             audits.append(demo_classify(claim, evidence))
             continue

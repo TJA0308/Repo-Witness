@@ -84,7 +84,7 @@ def test_extensionless_names_are_eligible_for_both(tmp_path, name):
 
 
 def test_unsupported_extension_is_ineligible_for_both(tmp_path):
-    (tmp_path / "events.sql").write_text("CREATE TABLE events (id INT);\n", encoding="utf-8")
+    (tmp_path / "events.xyz").write_text("CREATE TABLE events (id INT);\n", encoding="utf-8")
 
     assert lexical_eligible_paths(tmp_path) == []
     assert semantic_eligible_paths(tmp_path) == []

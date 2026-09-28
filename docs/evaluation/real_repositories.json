@@ -1,0 +1,869 @@
+{
+  "method": "README suggestions, originating README excluded, deterministic mode",
+  "interpretation": "Output distribution only; no independent accuracy labels",
+  "repositories": [
+    {
+      "name": "click",
+      "commit": "06b2a678741131fd577ce170e23e5ca0aeba0309",
+      "source": "https://github.com/pallets/click/tree/06b2a678741131fd577ce170e23e5ca0aeba0309",
+      "archive_sha256": "ea1b10e22df2c1fee0f7cf8ce35d6f0b642c9c1a72696ee9347d6a196e4d5f65",
+      "verdict_counts": {
+        "INSUFFICIENT_EVIDENCE": 3
+      },
+      "cases": [
+        {
+          "claim": "Supports lazy loading of subcommands at runtime",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "docs/index.md",
+              "start_line": 20,
+              "end_line": 24
+            },
+            {
+              "path": "docs/complex.md",
+              "start_line": 257,
+              "end_line": 265
+            },
+            {
+              "path": "docs/complex.md",
+              "start_line": 220,
+              "end_line": 224
+            },
+            {
+              "path": "docs/complex.md",
+              "start_line": 232,
+              "end_line": 236
+            },
+            {
+              "path": "docs/complex.md",
+              "start_line": 241,
+              "end_line": 245
+            },
+            {
+              "path": "docs/complex.md",
+              "start_line": 251,
+              "end_line": 255
+            }
+          ]
+        },
+        {
+          "claim": "Supports arbitrary nesting of commands.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "docs/quickstart.md",
+              "start_line": 85,
+              "end_line": 91
+            },
+            {
+              "path": "docs/index.md",
+              "start_line": 18,
+              "end_line": 24
+            },
+            {
+              "path": "docs/commands-and-groups.md",
+              "start_line": 204,
+              "end_line": 208
+            },
+            {
+              "path": "docs/why.md",
+              "start_line": 47,
+              "end_line": 51
+            },
+            {
+              "path": "src/click/core.py",
+              "start_line": 2996,
+              "end_line": 3000
+            },
+            {
+              "path": "docs/commands-and-groups.md",
+              "start_line": 74,
+              "end_line": 78
+            }
+          ]
+        },
+        {
+          "claim": "Provides automatic help page generation.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "docs/index.md",
+              "start_line": 19,
+              "end_line": 23
+            },
+            {
+              "path": "docs/documentation.md",
+              "start_line": 4,
+              "end_line": 8
+            },
+            {
+              "path": "docs/index.md",
+              "start_line": 50,
+              "end_line": 54
+            },
+            {
+              "path": "docs/parameters.md",
+              "start_line": 23,
+              "end_line": 27
+            },
+            {
+              "path": "src/click/core.py",
+              "start_line": 741,
+              "end_line": 745
+            },
+            {
+              "path": "docs/documentation.md",
+              "start_line": 327,
+              "end_line": 331
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "httpx",
+      "commit": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "source": "https://github.com/encode/httpx/tree/b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "archive_sha256": "bc225694843cdc4eeed329446bdc52a63d713a1e1d835f269e6729456cc12906",
+      "verdict_counts": {
+        "INSUFFICIENT_EVIDENCE": 9,
+        "VERIFIED": 1
+      },
+      "cases": [
+        {
+          "claim": "HTTPX requires Python 3.9+.",
+          "verdict": "VERIFIED",
+          "citations": [
+            {
+              "path": "pyproject.toml",
+              "start_line": 7,
+              "end_line": 11
+            },
+            {
+              "path": "docs/index.md",
+              "start_line": 146,
+              "end_line": 150
+            },
+            {
+              "path": "docs/async.md",
+              "start_line": 24,
+              "end_line": 28
+            },
+            {
+              "path": "docs/compatibility.md",
+              "start_line": 230,
+              "end_line": 232
+            },
+            {
+              "path": "docs/environment_variables.md",
+              "start_line": 50,
+              "end_line": 54
+            },
+            {
+              "path": "docs/environment_variables.md",
+              "start_line": 28,
+              "end_line": 32
+            }
+          ]
+        },
+        {
+          "claim": "It includes an integrated command line client, has support for both HTTP/1.1 and HTTP/2, and provides both sync and async APIs.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "docs/index.md",
+              "start_line": 22,
+              "end_line": 26
+            },
+            {
+              "path": "docs/http2.md",
+              "start_line": 48,
+              "end_line": 52
+            },
+            {
+              "path": "docs/third_party_packages.md",
+              "start_line": 85,
+              "end_line": 89
+            },
+            {
+              "path": "docs/index.md",
+              "start_line": 118,
+              "end_line": 122
+            },
+            {
+              "path": "docs/advanced/authentication.md",
+              "start_line": 183,
+              "end_line": 187
+            },
+            {
+              "path": "docs/advanced/extensions.md",
+              "start_line": 186,
+              "end_line": 190
+            }
+          ]
+        },
+        {
+          "claim": "Supports a broadly requests-compatible API.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "docs/index.md",
+              "start_line": 66,
+              "end_line": 70
+            },
+            {
+              "path": "docs/advanced/clients.md",
+              "start_line": 146,
+              "end_line": 150
+            },
+            {
+              "path": "docs/advanced/proxies.md",
+              "start_line": 1,
+              "end_line": 3
+            },
+            {
+              "path": "docs/compatibility.md",
+              "start_line": 1,
+              "end_line": 5
+            },
+            {
+              "path": "httpx/_urlparse.py",
+              "start_line": 10,
+              "end_line": 14
+            },
+            {
+              "path": "docs/advanced/clients.md",
+              "start_line": 140,
+              "end_line": 144
+            }
+          ]
+        },
+        {
+          "claim": "Supports an integrated command-line client.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "docs/advanced/proxies.md",
+              "start_line": 1,
+              "end_line": 3
+            },
+            {
+              "path": "docs/http2.md",
+              "start_line": 57,
+              "end_line": 61
+            },
+            {
+              "path": "docs/index.md",
+              "start_line": 47,
+              "end_line": 51
+            },
+            {
+              "path": "docs/advanced/clients.md",
+              "start_line": 140,
+              "end_line": 144
+            },
+            {
+              "path": "docs/async.md",
+              "start_line": 55,
+              "end_line": 59
+            },
+            {
+              "path": "docs/compatibility.md",
+              "start_line": 198,
+              "end_line": 202
+            }
+          ]
+        },
+        {
+          "claim": "Supports HTTP/1.1 and HTTP/2.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "docs/http2.md",
+              "start_line": 57,
+              "end_line": 61
+            },
+            {
+              "path": "docs/advanced/extensions.md",
+              "start_line": 186,
+              "end_line": 190
+            },
+            {
+              "path": "docs/advanced/proxies.md",
+              "start_line": 1,
+              "end_line": 3
+            },
+            {
+              "path": "docs/http2.md",
+              "start_line": 65,
+              "end_line": 68
+            },
+            {
+              "path": "docs/index.md",
+              "start_line": 22,
+              "end_line": 26
+            },
+            {
+              "path": "docs/logging.md",
+              "start_line": 31,
+              "end_line": 35
+            }
+          ]
+        },
+        {
+          "claim": "Supports standard synchronous interface, but with async support if you need it.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "docs/index.md",
+              "start_line": 67,
+              "end_line": 71
+            },
+            {
+              "path": "docs/advanced/event-hooks.md",
+              "start_line": 61,
+              "end_line": 65
+            },
+            {
+              "path": "docs/async.md",
+              "start_line": 13,
+              "end_line": 17
+            },
+            {
+              "path": "docs/async.md",
+              "start_line": 1,
+              "end_line": 5
+            },
+            {
+              "path": "docs/advanced/authentication.md",
+              "start_line": 183,
+              "end_line": 187
+            },
+            {
+              "path": "docs/async.md",
+              "start_line": 176,
+              "end_line": 180
+            }
+          ]
+        },
+        {
+          "claim": "Supports ability to make requests directly to WSGI applications or ASGI applications.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "docs/index.md",
+              "start_line": 69,
+              "end_line": 73
+            },
+            {
+              "path": "docs/async.md",
+              "start_line": 192,
+              "end_line": 194
+            },
+            {
+              "path": "docs/advanced/transports.md",
+              "start_line": 78,
+              "end_line": 82
+            },
+            {
+              "path": "docs/advanced/transports.md",
+              "start_line": 110,
+              "end_line": 114
+            },
+            {
+              "path": "docs/advanced/transports.md",
+              "start_line": 132,
+              "end_line": 136
+            },
+            {
+              "path": "httpx/_transports/asgi.py",
+              "start_line": 63,
+              "end_line": 67
+            }
+          ]
+        },
+        {
+          "claim": "Supports strict timeouts everywhere.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "docs/index.md",
+              "start_line": 70,
+              "end_line": 74
+            },
+            {
+              "path": "docs/advanced/timeouts.md",
+              "start_line": 1,
+              "end_line": 3
+            },
+            {
+              "path": "docs/compatibility.md",
+              "start_line": 148,
+              "end_line": 152
+            },
+            {
+              "path": "mkdocs.yml",
+              "start_line": 31,
+              "end_line": 35
+            },
+            {
+              "path": "LICENSE.md",
+              "start_line": 10,
+              "end_line": 12
+            },
+            {
+              "path": "docs/advanced/authentication.md",
+              "start_line": 17,
+              "end_line": 21
+            }
+          ]
+        },
+        {
+          "claim": "Supports international domains and urls.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "docs/index.md",
+              "start_line": 76,
+              "end_line": 80
+            },
+            {
+              "path": "httpx/_utils.py",
+              "start_line": 209,
+              "end_line": 213
+            },
+            {
+              "path": "tests/models/whatwg.json",
+              "start_line": 5966,
+              "end_line": 5970
+            },
+            {
+              "path": "docs/advanced/clients.md",
+              "start_line": 146,
+              "end_line": 150
+            },
+            {
+              "path": "docs/advanced/proxies.md",
+              "start_line": 1,
+              "end_line": 3
+            },
+            {
+              "path": "docs/advanced/proxies.md",
+              "start_line": 15,
+              "end_line": 19
+            }
+          ]
+        },
+        {
+          "claim": "Supports keep-alive & connection pooling.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "docs/index.md",
+              "start_line": 77,
+              "end_line": 81
+            },
+            {
+              "path": "docs/advanced/clients.md",
+              "start_line": 11,
+              "end_line": 15
+            },
+            {
+              "path": "docs/advanced/resource-limits.md",
+              "start_line": 2,
+              "end_line": 10
+            },
+            {
+              "path": "docs/advanced/proxies.md",
+              "start_line": 32,
+              "end_line": 36
+            },
+            {
+              "path": "docs/api.md",
+              "start_line": 6,
+              "end_line": 10
+            },
+            {
+              "path": "docs/async.md",
+              "start_line": 55,
+              "end_line": 59
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "requests",
+      "commit": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+      "source": "https://github.com/psf/requests/tree/611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+      "archive_sha256": "50cb394c7d6a0dad356cbbbd650730f09bbbb32a447235cef622c447c0520e06",
+      "verdict_counts": {
+        "INSUFFICIENT_EVIDENCE": 9,
+        "PARTIALLY_VERIFIED": 1
+      },
+      "cases": [
+        {
+          "claim": "Requests officially supports Python 3.10+.",
+          "verdict": "PARTIALLY_VERIFIED",
+          "citations": [
+            {
+              "path": "pyproject.toml",
+              "start_line": 15,
+              "end_line": 19
+            },
+            {
+              "path": "setup.py",
+              "start_line": 2,
+              "end_line": 6
+            },
+            {
+              "path": ".github/CONTRIBUTING.md",
+              "start_line": 13,
+              "end_line": 17
+            },
+            {
+              "path": ".github/ISSUE_TEMPLATE.md",
+              "start_line": 18,
+              "end_line": 22
+            },
+            {
+              "path": ".github/ISSUE_TEMPLATE/Bug_report.md",
+              "start_line": 24,
+              "end_line": 28
+            },
+            {
+              "path": ".github/ISSUE_TEMPLATE/Custom.md",
+              "start_line": 8,
+              "end_line": 10
+            }
+          ]
+        },
+        {
+          "claim": "Supports keep-alive & connection pooling.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "src/requests/sessions.py",
+              "start_line": 396,
+              "end_line": 400
+            },
+            {
+              "path": "src/requests/utils.py",
+              "start_line": 958,
+              "end_line": 962
+            },
+            {
+              "path": "tests/test_requests.py",
+              "start_line": 1274,
+              "end_line": 1278
+            },
+            {
+              "path": "src/requests/adapters.py",
+              "start_line": 69,
+              "end_line": 73
+            },
+            {
+              "path": "src/requests/adapters.py",
+              "start_line": 164,
+              "end_line": 172
+            },
+            {
+              "path": "src/requests/adapters.py",
+              "start_line": 173,
+              "end_line": 177
+            }
+          ]
+        },
+        {
+          "claim": "Supports international domains and urls.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "src/requests/models.py",
+              "start_line": 542,
+              "end_line": 546
+            },
+            {
+              "path": "src/requests/utils.py",
+              "start_line": 43,
+              "end_line": 47
+            },
+            {
+              "path": "src/requests/utils.py",
+              "start_line": 829,
+              "end_line": 833
+            },
+            {
+              "path": "tests/test_requests.py",
+              "start_line": 484,
+              "end_line": 488
+            },
+            {
+              "path": "docs/conf.py",
+              "start_line": 214,
+              "end_line": 218
+            },
+            {
+              "path": "docs/conf.py",
+              "start_line": 262,
+              "end_line": 266
+            }
+          ]
+        },
+        {
+          "claim": "Supports sessions with cookie persistence.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "src/requests/cookies.py",
+              "start_line": 193,
+              "end_line": 197
+            },
+            {
+              "path": "src/requests/cookies.py",
+              "start_line": 390,
+              "end_line": 394
+            },
+            {
+              "path": "src/requests/sessions.py",
+              "start_line": 396,
+              "end_line": 400
+            },
+            {
+              "path": "src/requests/cookies.py",
+              "start_line": 615,
+              "end_line": 619
+            },
+            {
+              "path": "src/requests/cookies.py",
+              "start_line": 14,
+              "end_line": 18
+            },
+            {
+              "path": "src/requests/cookies.py",
+              "start_line": 597,
+              "end_line": 601
+            }
+          ]
+        },
+        {
+          "claim": "Supports browser-style TLS/SSL verification.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "tests/testserver/server.py",
+              "start_line": 159,
+              "end_line": 163
+            },
+            {
+              "path": "src/requests/sessions.py",
+              "start_line": 466,
+              "end_line": 470
+            },
+            {
+              "path": "src/requests/help.py",
+              "start_line": 94,
+              "end_line": 98
+            },
+            {
+              "path": "src/requests/help.py",
+              "start_line": 103,
+              "end_line": 108
+            },
+            {
+              "path": "src/requests/adapters.py",
+              "start_line": 28,
+              "end_line": 32
+            },
+            {
+              "path": "src/requests/adapters.py",
+              "start_line": 428,
+              "end_line": 432
+            }
+          ]
+        },
+        {
+          "claim": "Supports basic & digest authentication.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "src/requests/api.py",
+              "start_line": 41,
+              "end_line": 45
+            },
+            {
+              "path": "src/requests/auth.py",
+              "start_line": 84,
+              "end_line": 88
+            },
+            {
+              "path": "src/requests/auth.py",
+              "start_line": 123,
+              "end_line": 127
+            },
+            {
+              "path": "src/requests/sessions.py",
+              "start_line": 533,
+              "end_line": 537
+            },
+            {
+              "path": "src/requests/sessions.py",
+              "start_line": 592,
+              "end_line": 596
+            },
+            {
+              "path": "tests/test_requests.py",
+              "start_line": 19,
+              "end_line": 23
+            }
+          ]
+        },
+        {
+          "claim": "Provides automatic content decompression and decoding.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "src/requests/exceptions.py",
+              "start_line": 132,
+              "end_line": 136
+            },
+            {
+              "path": "src/requests/models.py",
+              "start_line": 58,
+              "end_line": 62
+            },
+            {
+              "path": "src/requests/models.py",
+              "start_line": 941,
+              "end_line": 945
+            },
+            {
+              "path": "src/requests/sessions.py",
+              "start_line": 30,
+              "end_line": 34
+            },
+            {
+              "path": "src/requests/sessions.py",
+              "start_line": 211,
+              "end_line": 215
+            },
+            {
+              "path": "tests/test_requests.py",
+              "start_line": 35,
+              "end_line": 39
+            }
+          ]
+        },
+        {
+          "claim": "Supports multi-part file uploads.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "src/requests/models.py",
+              "start_line": 633,
+              "end_line": 637
+            },
+            {
+              "path": "src/requests/_types.py",
+              "start_line": 121,
+              "end_line": 125
+            },
+            {
+              "path": "src/requests/api.py",
+              "start_line": 37,
+              "end_line": 41
+            },
+            {
+              "path": "src/requests/_types.py",
+              "start_line": 128,
+              "end_line": 132
+            },
+            {
+              "path": "src/requests/models.py",
+              "start_line": 189,
+              "end_line": 193
+            },
+            {
+              "path": "src/requests/models.py",
+              "start_line": 290,
+              "end_line": 294
+            }
+          ]
+        },
+        {
+          "claim": "Provides automatic honoring of .netrc.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "src/requests/utils.py",
+              "start_line": 76,
+              "end_line": 80
+            },
+            {
+              "path": "src/requests/utils.py",
+              "start_line": 241,
+              "end_line": 248
+            },
+            {
+              "path": "src/requests/utils.py",
+              "start_line": 265,
+              "end_line": 273
+            },
+            {
+              "path": "src/requests/utils.py",
+              "start_line": 237,
+              "end_line": 243
+            },
+            {
+              "path": "tests/test_requests.py",
+              "start_line": 693,
+              "end_line": 697
+            },
+            {
+              "path": "tests/test_requests.py",
+              "start_line": 733,
+              "end_line": 737
+            }
+          ]
+        },
+        {
+          "claim": "Supports chunked HTTP requests.",
+          "verdict": "INSUFFICIENT_EVIDENCE",
+          "citations": [
+            {
+              "path": "tests/test_requests.py",
+              "start_line": 604,
+              "end_line": 611
+            },
+            {
+              "path": "tests/test_requests.py",
+              "start_line": 610,
+              "end_line": 617
+            },
+            {
+              "path": ".github/SECURITY.md",
+              "start_line": 2,
+              "end_line": 6
+            },
+            {
+              "path": "src/requests/__init__.py",
+              "start_line": 21,
+              "end_line": 25
+            },
+            {
+              "path": "src/requests/adapters.py",
+              "start_line": 248,
+              "end_line": 252
+            },
+            {
+              "path": "src/requests/adapters.py",
+              "start_line": 272,
+              "end_line": 276
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

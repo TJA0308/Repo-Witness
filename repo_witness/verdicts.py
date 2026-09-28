@@ -5,17 +5,14 @@ Retrieval finds text that is *about* a claim. It does not establish that the tex
 sorts retrieved snippets into evidence categories and aggregates them into one of
 the four existing verdicts.
 
-It is a conservative rule baseline, not natural-language entailment. Everything
-here is regular expressions over lines. There is no model, no embedding, and no
-network call. When the evidence is ambiguous the rules prefer
+It is a conservative rule baseline, not natural-language entailment. Regex rules
+find possible conflicts; checks.py gates positive verdicts with explicit static
+checks, including Python syntax parsing. There is no network call. Ambiguity yields
 ``INSUFFICIENT_EVIDENCE`` over ``VERIFIED``, because a false verification is the
 failure this project exists to prevent.
 
-The claim tokenizer deliberately does not import ``repo_witness.evidence._terms``.
-That retriever is frozen and its tokenizer keeps trailing punctuation, so a claim
-ending "... uses Kafka." yields the term ``kafka.`` and can never match ``Kafka``
-in a file. Classification strips that punctuation instead. Both tokenizers are
-small and are allowed to diverge; the retriever's behavior is unchanged.
+Both retrieval and classification strip trailing punctuation. Retrieval uses
+substring matches for recall; classification checks boundaries for precision.
 """
 
 from __future__ import annotations
@@ -24,6 +21,7 @@ import re
 from collections.abc import Sequence
 
 from .models import ClaimAudit, EvidenceSnippet, Verdict
+from .checks import bounded_support
 
 SUPPORTING = "supporting"
 CONTRADICTING = "contradicting"
@@ -56,14 +54,6 @@ _NEGATION_CUES = (
     "not", "never", "no", "without", "cannot", "lacks", "lacking",
     "doesn't", "does not", "don't", "isn't", "aren't", "won't",
 )
-# Rejection language is natural language. Restricting these cues to prose and
-# comments is what stops ``SELECTED_FIELDS = [...]`` or ``deprecated=True`` in
-# ordinary code from reading as a rejection of the claim.
-_REJECTION_CUES = (
-    "instead of", "in favor of", "in favour of", "rather than", "rejected",
-    "evaluated", "deprecated", "replaced", "migrated", "moved away",
-    "decided against", "chose", "chosen", "selected",
-)
 _SPECULATIVE_CUES = (
     "todo", "fixme", "planned", "planning", "roadmap", "someday", "eventually",
     "in the future", "might", "may want", "consider", "considering",
@@ -72,13 +62,8 @@ _SPECULATIVE_CUES = (
 # Scope words describe reach or guarantees that static evidence cannot establish.
 # "never" is absent on purpose: it makes a claim an absence claim, which is
 # checked earlier and outranks this list.
-_SCOPE_WORDS = ("always", "100%", "production-scale", "fully", "every", "all")
+_SCOPE_WORDS = ("always", "100%", "production-scale", "fully", "every", "all", "officially")
 
-_NEGATION_WINDOW_WORDS = 3
-_NEGATION_ALTERNATION = "|".join(re.escape(cue) for cue in _NEGATION_CUES)
-_REJECTION_PATTERN = re.compile(
-    "|".join(rf"\b{re.escape(cue)}\b" for cue in _REJECTION_CUES)
-)
 _SPECULATIVE_PATTERN = re.compile(
     "|".join(rf"\b{re.escape(cue)}\b" for cue in _SPECULATIVE_CUES)
 )
@@ -90,7 +75,6 @@ _ABSENCE_PATTERN = re.compile(
 )
 
 _TERM_CACHE: dict[str, re.Pattern[str]] = {}
-_NEGATED_TERM_CACHE: dict[str, re.Pattern[str]] = {}
 
 # Outcome -> (verdict, confidence, reasoning). Confidence values are fixed labels
 # of rule strength. They are not calibrated probabilities; nothing in this
@@ -116,12 +100,12 @@ REASON_MIXED = (
     "part of it is established."
 )
 REASON_SCOPED = (
-    "Implementation evidence was found, but the claim's absolute or broad scope is not "
+    "A bounded repository fact was found, but the claim's absolute or broad scope is not "
     "established by static evidence."
 )
 REASON_SUPPORTED = (
-    "Retrieved code, configuration, or test evidence uses the claim's key technical terms "
-    "in an implementation context."
+    "A supported static check found the stated import, dependency declaration, Docker base-image instruction, or declared Python version floor. "
+    "This establishes a fact about repository text, not successful execution or deployment."
 )
 
 OUTCOMES: dict[str, tuple[Verdict, float, str]] = {
@@ -148,20 +132,6 @@ def _boundary(term: str) -> re.Pattern[str]:
     if pattern is None:
         pattern = re.compile(rf"(?<![a-z0-9]){re.escape(term)}(?![a-z0-9])")
         _TERM_CACHE[term] = pattern
-    return pattern
-
-
-def _negated(term: str) -> re.Pattern[str]:
-    """Match a negation cue within a few words on either side of the term."""
-    pattern = _NEGATED_TERM_CACHE.get(term)
-    if pattern is None:
-        escaped = re.escape(term)
-        gap = rf"(?:\W+\w+){{0,{_NEGATION_WINDOW_WORDS}}}\W+"
-        pattern = re.compile(
-            rf"\b(?:{_NEGATION_ALTERNATION})\b{gap}(?<![a-z0-9]){escaped}(?![a-z0-9])"
-            rf"|(?<![a-z0-9]){escaped}(?![a-z0-9]){gap}\b(?:{_NEGATION_ALTERNATION})\b"
-        )
-        _NEGATED_TERM_CACHE[term] = pattern
     return pattern
 
 
@@ -194,6 +164,8 @@ def line_context(path: str, line: str) -> str:
     parts = normalized.split("/")
     name = parts[-1] if parts else normalized
     suffix = name[name.rfind(".") :] if "." in name else ""
+    if re.fullmatch(r"requirements(?:[-_.][\w.-]+)?\.txt", name):
+        return "config"
     if suffix in _PROSE_SUFFIXES:
         return "prose"
     stem = name[: -len(suffix)] if suffix else name
@@ -202,6 +174,26 @@ def line_context(path: str, line: str) -> str:
     if suffix in _CONFIG_SUFFIXES or name in _CONFIG_NAMES:
         return "config"
     return "code"
+
+
+def directly_conflicts(line: str, terms: Sequence[str]) -> bool:
+    """Require a stated rejection of a claim term, not nearby unrelated `not`."""
+    verbs = r"(?:use|support|include|provide|run|send|store|publish|validate|implement)"
+    for term in terms:
+        if not _boundary(term).search(line):
+            continue
+        target = rf"(?<![a-z0-9]){re.escape(term)}(?![a-z0-9])"
+        if re.search(rf"\b(?:does|do|did)\s+not\s+(?:currently\s+)?{verbs}\s+(?:\w+\s+){{0,2}}{target}", line):
+            return True
+        if re.search(rf"\b(?:never|cannot|can't)\s+{verbs}\s+(?:\w+\s+){{0,2}}{target}", line):
+            return True
+        if re.search(rf"{target}.{{0,45}}\bnot\s+(?:yet\s+)?(?:used|supported|included|provided|stored|published|validated|implemented|wired)\b", line):
+            return True
+        if re.search(rf"{target}\s+(?:was|is)\s+(?:rejected|replaced|deprecated|abandoned|dropped)\b", line):
+            return True
+        if re.search(rf"\b(?:evaluated|considered|proposed|rejected)\s+{target}.{{0,100}}\b(?:picked|chose|selected|rejected)\b", line):
+            return True
+    return False
 
 
 def categorize_snippet(claim: str, snippet: EvidenceSnippet) -> str:
@@ -217,9 +209,7 @@ def categorize_snippet(claim: str, snippet: EvidenceSnippet) -> str:
             continue
         context = line_context(snippet.path, line)
         natural = context in _NATURAL_LANGUAGE_CONTEXTS
-        if any(_negated(term).search(low) for term in hits):
-            found.add(CONTRADICTING)
-        elif natural and _REJECTION_PATTERN.search(low):
+        if directly_conflicts(low, hits):
             found.add(CONTRADICTING)
         elif natural and _SPECULATIVE_PATTERN.search(low):
             found.add(SPECULATIVE)
@@ -293,8 +283,22 @@ def corrected_wording(claim: str, verdict: Verdict) -> str:
 
 def classify_claim(claim: str, evidence: Sequence[EvidenceSnippet]) -> ClaimAudit:
     categories = categorize_evidence(claim, evidence)
+    # Broad keyword matches are useful candidates, not proof. The suffix is an
+    # explicit demo of a bounded fact plus an unproven runtime guarantee.
+    bounded_claim = re.sub(r" with production-scale reliability\.?$", "", claim, flags=re.I)
+    candidates_only = False
+    for index, snippet in enumerate(evidence):
+        if categories[index] == SUPPORTING and not bounded_support(bounded_claim, snippet):
+            categories[index] = MENTION_ONLY
+            candidates_only = True
     outcome = aggregate_outcome(claim, categories)
     verdict, confidence, reasoning = OUTCOMES[outcome]
+    if candidates_only and outcome == "weak_evidence":
+        reasoning = (
+            "Related code was retrieved, but no supported static check establishes this claim. "
+            "A matching name, import, or setting does not prove the claimed behavior. "
+            "Review the cited evidence manually."
+        )
     if outcome == "supported":
         supporting_files = {
             snippet.path

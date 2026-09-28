@@ -5,7 +5,7 @@ from pathlib import Path
 
 import streamlit as st
 
-from repo_witness.analyzer import analyze
+from repo_witness.analyzer import analyze, MAX_AUDIT_CLAIMS, MAX_CLAIM_CHARS
 from repo_witness.export import markdown_report
 from repo_witness.ingest import cleanup_repository, extract_repository
 from repo_witness.models import Verdict
@@ -29,6 +29,7 @@ def repository_error_message(error: Exception) -> str:
         "Upload exceeds 25 MiB limit", "ZIP contains too many files",
         "Repository exceeds 25 MiB total extracted-size limit",
         "No eligible text files found in repository", "ZIP path escapes extraction directory",
+        "Use at most 10 claims per audit", "Keep each claim within 300 characters",
     )
     if isinstance(error, ValueError) and str(error) in safe_messages:
         return f"Rejected ZIP: {error}. Check the displayed limits; unsafe or excluded files are skipped."
@@ -110,7 +111,7 @@ def render_results(report, claim_sources: dict[str, str] | None = None) -> None:
                 st.markdown(f'<span class="rw-verdict rw-verdict-{status_class}">{status_text}</span>', unsafe_allow_html=True)
                 st.markdown(f"### {audit.claim}")
                 source_path = claim_sources.get(audit.claim) if claim_sources else None
-                st.caption(f"Claim source · {source_path}" if source_path else "Claim source · Manual entry")
+                st.caption(f"Excluded review document · {source_path}" if source_path else "Manual entry · no review document excluded")
             with confidence_col:
                 st.metric("Confidence", confidence_label(audit.confidence))
 
@@ -189,6 +190,13 @@ def load_sample_repository() -> None:
     st.session_state.pop("report_claim_sources", None)
 
 
+def try_sample_audit() -> None:
+    """One-click demo using the same discovery and analysis as uploaded projects."""
+    load_sample_repository()
+    discover_repository_claims()
+    st.session_state["run_sample_after_render"] = bool(st.session_state.get("discovered_claims"))
+
+
 def acquire_repository() -> tuple[Path | None, bool]:
     if st.session_state.get("sample_loaded"):
         return APP_ROOT / "sample_repo", False
@@ -241,18 +249,16 @@ def discover_repository_claims() -> None:
 def apply_selected_suggestions() -> None:
     selected = st.session_state.get("selected_suggestions", [])
     st.session_state["claims_editor"] = "\n".join(selected)
-    if not selected:
-        st.session_state.pop("claims_source_path", None)
-    else:
-        st.session_state["claims_source_path"] = st.session_state.get("selected_readme_path")
+    st.session_state["claims_source_path"] = st.session_state.get("selected_readme_path")
     st.session_state.pop("report", None)
     st.session_state.pop("report_claim_sources", None)
 
 
 def current_claim_sources(claims: list[str]) -> dict[str, str]:
     source = st.session_state.get("claims_source_path")
-    discovered = st.session_state.get("discovered_claims", [])
-    return {claim: source for claim in claims if source and claim in discovered}
+    # The entire editor belongs to the selected README review. Keep its exclusion
+    # after edits and additions; do not infer provenance by comparing claim text.
+    return {claim: source for claim in claims if source}
 
 
 def clear_report() -> None:
@@ -328,6 +334,23 @@ st.caption("Fast-moving and AI-assisted development can leave README claims desc
 st.session_state.setdefault("sample_loaded", False)
 st.session_state.setdefault("claims_editor", "")
 
+with st.expander("How the audit works · supported checks and limits"):
+    st.markdown("""
+1. **Read text.** Extract eligible files from the ZIP; never execute repository code.
+2. **Review claims.** Discover README suggestions or enter your own. The selected README stays excluded after edits.
+3. **Find evidence.** Rank matching lines and combine overlapping excerpts, retaining file and line citations.
+4. **Check the claim.** Deterministic verification supports these narrow forms:
+   - `Imports pytest in Python tests.` — a top-level import in a test file's retrieved header.
+   - `Declares requests as a Python dependency.` — an entry in a requirements text file.
+   - `Includes Docker configuration based on Python 3.11.` — a matching `FROM` instruction.
+   - `HTTPX requires Python 3.9+.` - a matching Python version floor in `pyproject.toml`.
+
+Module names, dependency names, and Python versions can vary. Other wording or broader behavior claims
+may return **insufficient evidence**, even when the feature exists. Contradictions use fallible text rules.
+Confidence labels are heuristic, not probabilities. Optional model analysis has different behavior.
+""")
+st.button("Try sample audit", on_click=try_sample_audit, help="Discover and audit five synthetic claims in one click.")
+
 repository_col, claims_col = st.columns(2, gap="large")
 with repository_col:
     with st.container(border=True):
@@ -368,7 +391,7 @@ with claims_col:
     with st.container(border=True):
         st.markdown('<div class="rw-card-kicker">Step 2</div>', unsafe_allow_html=True)
         st.markdown("## Technical claims")
-        st.caption("Enter one claim per line. Be specific about technologies and behavior.")
+        st.caption("One claim per line · up to 10 claims · 300 characters each")
         claims_text = st.text_area(
             "Claims to audit",
             height=220,
@@ -377,16 +400,19 @@ with claims_col:
             placeholder="Enter one technical claim per line…",
         )
         claims = [line.strip() for line in claims_text.splitlines() if line.strip()]
-        if st.session_state.get("claims_source_path") and any(claim not in current_claim_sources(claims) for claim in claims):
-            st.warning("Edited or manual claims have no source mapping. Originating-document exclusion may no longer apply to them.")
+        if st.session_state.get("claims_source_path"):
+            st.caption(f"Review document excluded from evidence: {st.session_state['claims_source_path']}. This also applies to edited and added claims.")
         count_col, example_col = st.columns([1, 2])
         count_col.metric("Claims", len(claims))
-        example_col.caption("Examples: test automation, CI enforcement, storage, deployment, security controls")
+        example_col.caption("Start with a narrow fact: a dependency declaration, a test import, or a Docker base image.")
 
 render_claim_review()
 
 source_ready = st.session_state.get("sample_loaded") or upload is not None
-can_run = source_ready and bool(claims)
+claims_within_limits = len(claims) <= MAX_AUDIT_CLAIMS and all(len(claim) <= MAX_CLAIM_CHARS for claim in claims)
+if not claims_within_limits:
+    st.warning("Use at most 10 claims, with no more than 300 characters per claim.")
+can_run = source_ready and bool(claims) and claims_within_limits
 run_audit = st.button(
     "Run repository audit",
     type="primary",
@@ -396,7 +422,8 @@ run_audit = st.button(
 if not can_run:
     st.caption("Add a repository and at least one user-approved claim to run an audit.")
 
-if run_audit:
+auto_run_sample = st.session_state.pop("run_sample_after_render", False)
+if run_audit or auto_run_sample:
     root = None
     temporary = False
     try:
