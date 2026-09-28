@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="350" viewBox="0 0 1200 350" role="img" aria-labelledby="title desc">
+  <title id="title">Trace a sample claim to its evidence</title>
+  <desc id="desc">Claim: Imports pytest in Python tests. Evidence: sample_repo/tests/test_app.py line 1 contains import pytest. Verdict: Verified for the import statement; test execution is not established.</desc>
+  <rect width="1200" height="350" rx="16" fill="#0b1018"/>
+  <g fill="#121a26" stroke="#273449">
+    <rect x="24" y="24" width="352" height="260" rx="12"/>
+    <rect x="424" y="24" width="352" height="260" rx="12"/>
+    <rect x="824" y="24" width="352" height="260" rx="12"/>
+  </g>
+  <g font-family="Consolas, monospace" font-size="17" fill="#8ba0b7">
+    <text x="48" y="61">01 / CLAIM</text><text x="448" y="61">02 / SOURCE</text><text x="848" y="61">03 / VERDICT</text>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#e5edf7" font-size="27" font-weight="700">
+    <text x="48" y="112">Imports pytest</text><text x="48" y="150">in Python tests.</text>
+  </g>
+  <g font-family="Consolas, monospace" font-size="20">
+    <text x="448" y="104" fill="#7dd3fc">tests/test_app.py:1</text>
+    <rect x="448" y="126" width="304" height="49" rx="6" fill="#0b1018"/>
+    <text x="462" y="158" fill="#8ba0b7">1</text><text x="492" y="158" fill="#c4b5fd">import</text><text x="576" y="158" fill="#e5edf7">pytest</text>
+  </g>
+  <rect x="848" y="90" width="148" height="42" rx="21" fill="#13392f" stroke="#286650"/>
+  <text x="872" y="117" fill="#5eead4" font-family="Consolas, monospace" font-size="20" font-weight="700">VERIFIED</text>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="20" fill="#a2b1c6">
+    <text x="48" y="220">README under review</text><text x="48" y="249">is excluded from evidence.</text>
+    <text x="448" y="220">Python syntax is parsed.</text><text x="448" y="249">Uploaded code is not run.</text>
+    <text x="848" y="176">The import is established.</text><text x="848" y="220">Whether tests pass</text><text x="848" y="249">is outside this check.</text>
+  </g>
+  <g stroke="#5eead4" stroke-width="2" fill="none"><path d="M386 151h26m-7-7 7 7-7 7"/><path d="M786 151h26m-7-7 7 7-7 7"/></g>
+  <text x="24" y="322" font-family="Consolas, monospace" font-size="17" fill="#8ba0b7">SYNTHETIC SAMPLE · one supported check, with a specific proof boundary</text>
+</svg>

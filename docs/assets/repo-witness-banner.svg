@@ -1,39 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title description">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="190" viewBox="0 0 1200 190" role="img" aria-labelledby="title desc">
   <title id="title">RepoWitness</title>
-  <desc id="description">A terminal-style illustration showing a README claim traced to a source file and a verified verdict.</desc>
-  <defs>
-    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0b1018"/>
-      <stop offset="1" stop-color="#111e2b"/>
-    </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#5eead4"/>
-      <stop offset="1" stop-color="#7dd3fc"/>
-    </linearGradient>
-    <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
-      <path d="M 28 0 L 0 0 0 28" fill="none" stroke="#243447" stroke-width="1" opacity=".42"/>
-    </pattern>
-  </defs>
-  <rect width="1200" height="360" rx="24" fill="url(#background)"/>
-  <rect width="1200" height="360" rx="24" fill="url(#grid)"/>
-  <rect x="28" y="28" width="1144" height="304" rx="18" fill="#101923" stroke="#304457"/>
-  <path d="M 28 72 H 1172" stroke="#304457"/>
-  <circle cx="56" cy="50" r="6" fill="#fb7185"/>
-  <circle cx="78" cy="50" r="6" fill="#fbbf24"/>
-  <circle cx="100" cy="50" r="6" fill="#5eead4"/>
-  <text x="130" y="56" fill="#94a8bb" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">repo-witness / audit</text>
-  <text x="55" y="131" fill="url(#accent)" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" font-weight="700" letter-spacing="3">REPOWITNESS</text>
-  <text x="55" y="183" fill="#e5edf7" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="700">README claims. Repository evidence.</text>
-  <text x="55" y="218" fill="#a2b1c6" font-family="Arial, Helvetica, sans-serif" font-size="18">Trace what the docs say to the lines the repository actually contains.</text>
-  <rect x="55" y="252" width="652" height="51" rx="9" fill="#0b121b" stroke="#2a4050"/>
-  <text x="73" y="284" fill="#5eead4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16">$</text>
-  <text x="94" y="284" fill="#d9e6f2" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16">upload → review → inspect → export</text>
-  <rect x="760" y="104" width="362" height="196" rx="12" fill="#0b121b" stroke="#2a4050"/>
-  <text x="783" y="137" fill="#8fa8ba" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">CLAIM</text>
-  <text x="783" y="164" fill="#e5edf7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15">Imports pytest in Python tests.</text>
-  <path d="M 783 181 H 1099" stroke="#273c4d"/>
-  <text x="783" y="210" fill="#8fa8ba" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">EVIDENCE</text>
-  <text x="783" y="237" fill="#7dd3fc" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15">tests/test_app.py:1</text>
-  <rect x="783" y="255" width="106" height="27" rx="13" fill="#11372f" stroke="#2f806c"/>
-  <text x="800" y="273" fill="#5eead4" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="700">VERIFIED</text>
+  <desc id="desc">Repository documentation review. A compact dark developer banner.</desc>
+  <rect width="1200" height="190" rx="16" fill="#0b1018"/>
+  <rect x="1" y="1" width="1198" height="188" rx="15" fill="none" stroke="#273449"/>
+  <path d="M48 48h32v32H48z" fill="none" stroke="#5eead4" stroke-width="3"/>
+  <path d="m70 70 18 18" stroke="#5eead4" stroke-width="3"/>
+  <text x="106" y="83" fill="#e5edf7" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="700">RepoWitness</text>
+  <text x="48" y="143" fill="#a2b1c6" font-family="Consolas, monospace" font-size="21">README claims. Repository evidence.</text>
+  <rect x="822" y="49" width="330" height="91" rx="10" fill="#121a26" stroke="#273449"/>
+  <text x="846" y="79" fill="#8ba0b7" font-family="Consolas, monospace" font-size="15">THE REVIEW LOOP</text>
+  <text x="846" y="113" fill="#5eead4" font-family="Consolas, monospace" font-size="20">claim → evidence → verdict</text>
 </svg>
