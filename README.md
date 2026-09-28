@@ -11,6 +11,8 @@ Review documentation drift with static checks and file-and-line citations.
 [![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-5eead4)](LICENSE)
 
+**[Open the app](https://tja0308-repo-witness-app-k4v52v.streamlit.app/)**
+
 [Quick start](#quick-start) | [Example report](docs/sample-audit.md) | [How it works](docs/how-it-works.md) | [Evaluation](#evaluation)
 
 </div>
