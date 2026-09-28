@@ -1,6 +1,6 @@
 # Understand RepoWitness in one walkthrough
 
-Start the app, click **Try sample audit**, and open the evidence for ?Imports pytest in Python tests.?
+Start the app, click **Try sample audit**, and open the evidence for “Imports pytest in Python tests.”
 
 ## Follow the data
 

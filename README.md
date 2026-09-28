@@ -1,31 +1,35 @@
-<div align="center">
+![RepoWitness terminal illustration showing a claim, source citation, and verdict](docs/assets/repo-witness-banner.svg)
 
-# RepoWitness
+<h1 align="center">RepoWitness</h1>
 
-**README claims. Repository evidence.**
+<p align="center"><strong>README claims. Repository evidence.</strong><br>Review documentation drift with static checks and file-and-line citations.</p>
 
-Review documentation drift with static checks and file-and-line citations.
+<p align="center">
+  <a href="https://github.com/TJA0308/Repo-Witness/actions/workflows/tests.yml"><img src="https://github.com/TJA0308/Repo-Witness/actions/workflows/tests.yml/badge.svg" alt="Offline checks"></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&amp;logoColor=white" alt="Python 3.11"></a>
+  <a href="https://streamlit.io/"><img src="https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&amp;logoColor=white" alt="Streamlit"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-5eead4" alt="MIT license"></a>
+</p>
 
-[![Offline checks](https://github.com/TJA0308/Repo-Witness/actions/workflows/tests.yml/badge.svg)](https://github.com/TJA0308/Repo-Witness/actions/workflows/tests.yml)
-[![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-5eead4)](LICENSE)
+<p align="center"><strong><a href="https://tja0308-repo-witness-app-k4v52v.streamlit.app/">Open the app</a> · <a href="docs/sample-audit.md">View a sample report</a></strong></p>
 
-**[Open the app](https://tja0308-repo-witness-app-k4v52v.streamlit.app/)**
-
-[Quick start](#quick-start) | [Example report](docs/sample-audit.md) | [How it works](docs/how-it-works.md) | [Evaluation](#evaluation)
-
-</div>
+<p align="center"><a href="#try-it">Try it</a> · <a href="#trace-a-claim">Trace a claim</a> · <a href="#quick-start">Run locally</a> · <a href="#how-it-works">Read the code</a> · <a href="#evaluation">Evaluation</a></p>
 
 ---
 
 A README can describe a planned feature, an old implementation, or a guarantee the code cannot establish. RepoWitness helps you review those statements against an uploaded repository snapshot.
 
-**Upload -> review claims -> inspect evidence -> download an audit.** No API key is needed for the default workflow. Repository code is never executed.
+**Upload → review claims → inspect evidence → download an audit.** The default workflow needs no API key. Repository code is never executed.
+
+| If you want to… | Start here |
+| --- | --- |
+| See the product in a minute | [Open the app](https://tja0308-repo-witness-app-k4v52v.streamlit.app/) and click **Try sample audit**. |
+| Understand one verdict | [Trace a claim](#trace-a-claim), then follow the [one-claim walkthrough](docs/how-it-works.md). |
+| Inspect the implementation | [Read the code map](#how-it-works) and [reproduce the evaluation](#evaluation). |
 
 ## Try it
 
-Run the app and click **Try sample audit**. The bundled synthetic repository produces five cited results: **2 verified, 1 partially verified, 1 contradicted, and 1 insufficient evidence**. Expand an evidence panel, edit a claim, or download the report.
+Open the [live app](https://tja0308-repo-witness-app-k4v52v.streamlit.app/) and click **Try sample audit**. The bundled synthetic repository produces five cited results: **2 verified, 1 partially verified, 1 contradicted, and 1 insufficient evidence**. Open an evidence panel, edit a claim, or download the report.
 
 [Read the complete example audit](docs/sample-audit.md)
 
@@ -38,15 +42,39 @@ Run the app and click **Try sample audit**. The bundled synthetic repository pro
 
 </details>
 
-| Claim | What the tool can establish |
-| --- | --- |
-| `Imports pytest in Python tests.` | A top-level import in the retrieved header of a Python test file. |
-| `Declares requests as a Python dependency.` | An uncommented declaration in a requirements text file. |
-| `Includes Docker configuration based on Python 3.11.` | A matching Python base-image instruction. |
-| `HTTPX requires Python 3.9+.` | A matching declared minimum in `pyproject.toml`. |
-| `Encrypts passwords with bcrypt.` | Matching names or imports alone are insufficient; inspect the evidence manually. |
+## Trace a claim
 
-Module names, package names, and Python versions can vary. The deterministic checker intentionally supports narrow claim forms. General behavior, runtime correctness, and deployment success cannot be inferred from these checks.
+Open each result to see the difference between finding relevant text and establishing a claim. These are examples from the [bundled sample report](docs/sample-audit.md).
+
+<details>
+<summary><strong>Verified</strong> · “Imports pytest in Python tests.”</summary>
+
+[`sample_repo/tests/test_app.py:1`](sample_repo/tests/test_app.py#L1) contains a Python import of `pytest`. The import check parses the file without running it. This establishes the narrow statement about repository text.
+
+</details>
+
+<details>
+<summary><strong>Partially verified</strong> · “Includes Docker configuration based on Python 3.11 with production-scale reliability.”</summary>
+
+[`sample_repo/Dockerfile:1`](sample_repo/Dockerfile#L1) declares a Python 3.11 base image. That establishes the configuration part. A Dockerfile alone cannot establish production reliability, so the broader claim remains unproven.
+
+</details>
+
+<details>
+<summary><strong>Contradicted</strong> · “Uses PostgreSQL for persistent health-check storage.”</summary>
+
+[`sample_repo/app.py:3`](sample_repo/app.py#L3) explicitly says the sample service does not use PostgreSQL and keeps health data in memory. The text rule flags that direct conflict for human review.
+
+</details>
+
+<details>
+<summary><strong>Insufficient evidence</strong> · “Publishes signed release artifacts through an automated delivery pipeline.”</summary>
+
+The sample repository does not provide a supported static check for this behavior. RepoWitness leaves the claim unresolved; a missing proof is not proof that the claim is false.
+
+</details>
+
+The deterministic checker supports narrow claim forms, including Python imports, dependency declarations, Docker base images, and declared Python version minimums. General behavior, runtime correctness, and deployment success require separate evidence.
 
 ## Quick start
 
