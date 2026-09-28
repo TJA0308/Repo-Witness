@@ -1,0 +1,776 @@
+{
+  "cases": [
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "implementation-support",
+        "test-evidence"
+      ],
+      "claim": "Uses pytest for automated testing.",
+      "confidence": 0.3,
+      "correct": false,
+      "evidence_categories": [
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "tests/test_auth.py"
+      ],
+      "expected_verdict": "VERIFIED",
+      "id": "support-pytest-test-file",
+      "rationale": "A test module imports pytest and defines a test function; this is direct implementation evidence."
+    },
+    {
+      "actual_verdict": "VERIFIED",
+      "case_tags": [
+        "implementation-support",
+        "config-evidence"
+      ],
+      "claim": "Includes a Docker image based on Python 3.11.",
+      "confidence": 0.7,
+      "correct": true,
+      "evidence_categories": [
+        "evidence category: supporting"
+      ],
+      "evidence_paths": [
+        "Dockerfile"
+      ],
+      "expected_verdict": "VERIFIED",
+      "id": "support-dockerfile-config",
+      "rationale": "The build file pins the claimed base image; configuration is executable intent, not prose."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "implementation-support",
+        "real-identifier"
+      ],
+      "claim": "Authenticates requests with JWT bearer tokens.",
+      "confidence": 0.3,
+      "correct": false,
+      "evidence_categories": [
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "src/auth.py"
+      ],
+      "expected_verdict": "VERIFIED",
+      "id": "support-real-implementation-identifier",
+      "rationale": "A named function implements the claimed mechanism in executable code."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "implementation-support",
+        "config-evidence"
+      ],
+      "claim": "Runs Ruff lint checks in continuous integration.",
+      "confidence": 0.3,
+      "correct": false,
+      "evidence_categories": [
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        ".github/workflows/ci.yml"
+      ],
+      "expected_verdict": "VERIFIED",
+      "id": "support-ci-workflow",
+      "rationale": "The CI workflow actually invokes the claimed tool."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "implementation-support",
+        "config-evidence"
+      ],
+      "claim": "Provides a Makefile lint target.",
+      "confidence": 0.3,
+      "correct": false,
+      "evidence_categories": [
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "Makefile"
+      ],
+      "expected_verdict": "VERIFIED",
+      "id": "support-makefile-target",
+      "rationale": "The named target exists in the build file."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "implementation-support",
+        "corroborated"
+      ],
+      "claim": "Uses Celery for background task processing.",
+      "confidence": 0.3,
+      "correct": false,
+      "evidence_categories": [
+        "evidence category: mention_only",
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "src/tasks.py",
+        "config/celery.toml"
+      ],
+      "expected_verdict": "VERIFIED",
+      "id": "support-corroborated-across-files",
+      "rationale": "Two independent files, code and configuration, support the same claim."
+    },
+    {
+      "actual_verdict": "CONTRADICTED",
+      "case_tags": [
+        "contradiction",
+        "negation"
+      ],
+      "claim": "Uses PostgreSQL for persistent storage.",
+      "confidence": 0.7,
+      "correct": true,
+      "evidence_categories": [
+        "evidence category: contradicting"
+      ],
+      "evidence_paths": [
+        "src/storage.py"
+      ],
+      "expected_verdict": "CONTRADICTED",
+      "id": "contradiction-explicit-negation-in-code",
+      "rationale": "The repository explicitly denies the claim. The denial sits in a string literal inside code, not in prose."
+    },
+    {
+      "actual_verdict": "CONTRADICTED",
+      "case_tags": [
+        "contradiction",
+        "negation"
+      ],
+      "claim": "Sends telemetry to an external collector.",
+      "confidence": 0.7,
+      "correct": true,
+      "evidence_categories": [
+        "evidence category: contradicting"
+      ],
+      "evidence_paths": [
+        "src/app.py"
+      ],
+      "expected_verdict": "CONTRADICTED",
+      "id": "contradiction-negation-in-comment",
+      "rationale": "A comment directly denies the claimed behavior."
+    },
+    {
+      "actual_verdict": "CONTRADICTED",
+      "case_tags": [
+        "contradiction",
+        "rejected-alternative"
+      ],
+      "claim": "Uses Redis as the cache backend.",
+      "confidence": 0.7,
+      "correct": true,
+      "evidence_categories": [
+        "evidence category: contradicting"
+      ],
+      "evidence_paths": [
+        "src/cache.py"
+      ],
+      "expected_verdict": "CONTRADICTED",
+      "id": "contradiction-rejected-alternative-comment",
+      "rationale": "The claimed technology is named as the option that was considered and not taken."
+    },
+    {
+      "actual_verdict": "CONTRADICTED",
+      "case_tags": [
+        "contradiction",
+        "rejected-alternative"
+      ],
+      "claim": "Streams events through Kafka.",
+      "confidence": 0.7,
+      "correct": true,
+      "evidence_categories": [
+        "evidence category: contradicting"
+      ],
+      "evidence_paths": [
+        "docs/alternatives.md"
+      ],
+      "expected_verdict": "CONTRADICTED",
+      "id": "contradiction-rejected-alternative-docs",
+      "rationale": "Documentation records the claimed technology as explicitly rejected."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "speculative",
+        "todo"
+      ],
+      "claim": "Uses PostgreSQL for storage.",
+      "confidence": 0.3,
+      "correct": true,
+      "evidence_categories": [
+        "evidence category: speculative"
+      ],
+      "evidence_paths": [
+        "src/db.py"
+      ],
+      "expected_verdict": "INSUFFICIENT_EVIDENCE",
+      "id": "speculative-todo-comment",
+      "rationale": "A TODO records an intention. It neither implements nor denies the claim."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "speculative",
+        "future-plan"
+      ],
+      "claim": "Deploys to Kubernetes.",
+      "confidence": 0.3,
+      "correct": true,
+      "evidence_categories": [
+        "evidence category: speculative"
+      ],
+      "evidence_paths": [
+        "docs/roadmap.md"
+      ],
+      "expected_verdict": "INSUFFICIENT_EVIDENCE",
+      "id": "speculative-future-plan-docs",
+      "rationale": "A roadmap statement about future intent is not present-tense implementation evidence."
+    },
+    {
+      "actual_verdict": "CONTRADICTED",
+      "case_tags": [
+        "speculative",
+        "todo",
+        "negation",
+        "known-hard"
+      ],
+      "claim": "Validates uploaded files with ClamAV.",
+      "confidence": 0.7,
+      "correct": true,
+      "evidence_categories": [
+        "evidence category: contradicting"
+      ],
+      "evidence_paths": [
+        "src/upload.py"
+      ],
+      "expected_verdict": "CONTRADICTED",
+      "id": "speculative-fixme-not-yet-wired",
+      "rationale": "A careful reviewer reads 'not yet wired up' as denying the claim outright, not merely as an unfulfilled intention. Labelled by that reading, not by what the heuristic returns."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "mention-only",
+        "comment-mention"
+      ],
+      "claim": "Uses GraphQL for the public API.",
+      "confidence": 0.3,
+      "correct": true,
+      "evidence_categories": [
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "src/api.py"
+      ],
+      "expected_verdict": "INSUFFICIENT_EVIDENCE",
+      "id": "mention-only-contrastive-comment",
+      "rationale": "The technology is named only as a contrast. Mentioning a thing is not using it."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "mention-only",
+        "documentation-only"
+      ],
+      "claim": "Uses Terraform to provision infrastructure.",
+      "confidence": 0.3,
+      "correct": true,
+      "evidence_categories": [
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "docs/faq.md"
+      ],
+      "expected_verdict": "INSUFFICIENT_EVIDENCE",
+      "id": "mention-only-documentation-aside",
+      "rationale": "General prose about a technology says nothing about this repository's implementation."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "mention-only",
+        "documentation-only"
+      ],
+      "claim": "Publishes signed release artifacts.",
+      "confidence": 0.3,
+      "correct": true,
+      "evidence_categories": [
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "README.md"
+      ],
+      "expected_verdict": "INSUFFICIENT_EVIDENCE",
+      "id": "mention-only-readme-restates-claim",
+      "rationale": "Documentation repeating the claim is not independent evidence for it."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "partial",
+        "unproven-scope"
+      ],
+      "claim": "Provides a health endpoint with production-scale reliability.",
+      "confidence": 0.3,
+      "correct": false,
+      "evidence_categories": [
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "src/health.py"
+      ],
+      "expected_verdict": "PARTIALLY_VERIFIED",
+      "id": "partial-unproven-scope",
+      "rationale": "The endpoint exists, but 'production-scale reliability' is a runtime property static evidence cannot establish."
+    },
+    {
+      "actual_verdict": "CONTRADICTED",
+      "case_tags": [
+        "partial",
+        "mixed-signals"
+      ],
+      "claim": "Uses Redis for caching and session storage.",
+      "confidence": 0.7,
+      "correct": false,
+      "evidence_categories": [
+        "evidence category: mention_only",
+        "evidence category: contradicting"
+      ],
+      "evidence_paths": [
+        "src/cache.py",
+        "docs/sessions.md"
+      ],
+      "expected_verdict": "PARTIALLY_VERIFIED",
+      "id": "partial-mixed-support-and-contradiction",
+      "rationale": "One half of the compound claim is implemented and the other half is explicitly denied."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "partial",
+        "mixed-signals"
+      ],
+      "claim": "Encrypts data at rest and in transit.",
+      "confidence": 0.3,
+      "correct": false,
+      "evidence_categories": [
+        "evidence category: mention_only",
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "src/transport.py",
+        "docs/security.md"
+      ],
+      "expected_verdict": "PARTIALLY_VERIFIED",
+      "id": "partial-implementation-incomplete",
+      "rationale": "Transit encryption is supported; at-rest encryption is explicitly denied."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "mixed-signals",
+        "implementation-support"
+      ],
+      "claim": "Uses pytest and coverage reporting in CI.",
+      "confidence": 0.3,
+      "correct": false,
+      "evidence_categories": [
+        "evidence category: mention_only",
+        "evidence category: mention_only",
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "tests/test_api.py",
+        ".github/workflows/ci.yml",
+        "README.md"
+      ],
+      "expected_verdict": "VERIFIED",
+      "id": "mixed-supporting-outweighs-mention",
+      "rationale": "Two independent implementation sources support the claim; the README mention adds nothing but does not weaken it."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "no-evidence"
+      ],
+      "claim": "Streams events through Kafka.",
+      "confidence": 0.2,
+      "correct": true,
+      "evidence_categories": [],
+      "evidence_paths": [],
+      "expected_verdict": "INSUFFICIENT_EVIDENCE",
+      "id": "no-relevant-evidence",
+      "rationale": "Retrieval returned nothing. Absence of evidence is not evidence of contradiction."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "substring-edge-case"
+      ],
+      "claim": "Provides type annotations for public functions.",
+      "confidence": 0.3,
+      "correct": false,
+      "evidence_categories": [
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "src/introspect.py"
+      ],
+      "expected_verdict": "VERIFIED",
+      "id": "substring-annotations-contains-not",
+      "rationale": "The word 'annotations' contains the substring 'not'. A substring negation check wrongly marks this CONTRADICTED."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "substring-edge-case"
+      ],
+      "claim": "Includes notification support via email.",
+      "confidence": 0.3,
+      "correct": false,
+      "evidence_categories": [
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "src/notify.py"
+      ],
+      "expected_verdict": "VERIFIED",
+      "id": "substring-notification-contains-not",
+      "rationale": "'notification' contains 'not'; the claim is positive and supported."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "substring-edge-case"
+      ],
+      "claim": "Supports Notion export.",
+      "confidence": 0.3,
+      "correct": false,
+      "evidence_categories": [
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "src/export.py"
+      ],
+      "expected_verdict": "VERIFIED",
+      "id": "substring-notion-contains-not",
+      "rationale": "'Notion' contains 'not'; the claim is positive and supported."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "substring-edge-case"
+      ],
+      "claim": "Runs on the Mono runtime.",
+      "confidence": 0.3,
+      "correct": false,
+      "evidence_categories": [
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "src/runtime.py"
+      ],
+      "expected_verdict": "VERIFIED",
+      "id": "substring-mono-contains-no-space",
+      "rationale": "'Mono ' contains the substring 'no '; the claim is positive and supported."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "negated-claim"
+      ],
+      "claim": "Does not collect user analytics.",
+      "confidence": 0.2,
+      "correct": true,
+      "evidence_categories": [
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "src/app.py"
+      ],
+      "expected_verdict": "INSUFFICIENT_EVIDENCE",
+      "id": "negated-claim-absence-cannot-be-proven",
+      "rationale": "The claim asserts an absence. Bounded lexical retrieval over at most six snippets cannot establish that something is absent from a repository."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "adversarial",
+        "paraphrase",
+        "known-hard"
+      ],
+      "claim": "Uses MySQL for relational storage.",
+      "confidence": 0.3,
+      "correct": false,
+      "evidence_categories": [
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "docs/database.md"
+      ],
+      "expected_verdict": "CONTRADICTED",
+      "id": "adversarial-paraphrased-rejection",
+      "rationale": "A reviewer reads 'abandoned' as a rejection. The cue list has no entry for it, so a fixed vocabulary of rejection words cannot generalise to paraphrase."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "adversarial",
+        "negation",
+        "known-hard"
+      ],
+      "claim": "Uses Redis for caching.",
+      "confidence": 0.3,
+      "correct": false,
+      "evidence_categories": [
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "src/cache.py"
+      ],
+      "expected_verdict": "CONTRADICTED",
+      "id": "adversarial-negation-beyond-proximity-window",
+      "rationale": "The negation is real but sits far more than three words from the claim term, so a proximity window cannot connect them."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "adversarial",
+        "negation",
+        "known-hard"
+      ],
+      "claim": "Uses Docker for containerised builds.",
+      "confidence": 0.3,
+      "correct": false,
+      "evidence_categories": [
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "src/build.py"
+      ],
+      "expected_verdict": "VERIFIED",
+      "id": "adversarial-false-contradiction-from-unrelated-negation",
+      "rationale": "The repository plainly uses Docker. The negation concerns one CI platform, not the claim, but proximity matching cannot tell the difference and reports a contradiction."
+    },
+    {
+      "actual_verdict": "CONTRADICTED",
+      "case_tags": [
+        "adversarial",
+        "rejected-alternative",
+        "known-hard"
+      ],
+      "claim": "Uses SQLite for local storage.",
+      "confidence": 0.7,
+      "correct": true,
+      "evidence_categories": [
+        "evidence category: contradicting"
+      ],
+      "evidence_paths": [
+        "src/config.py"
+      ],
+      "expected_verdict": "CONTRADICTED",
+      "id": "adversarial-inline-trailing-comment-rejection",
+      "rationale": "The rejection lives in a trailing comment on a code line. Context detection only recognises whole-line comments, so the line reads as code and the term reads as support."
+    },
+    {
+      "actual_verdict": "INSUFFICIENT_EVIDENCE",
+      "case_tags": [
+        "adversarial",
+        "negated-claim",
+        "known-hard"
+      ],
+      "claim": "Does not bundle any telemetry client.",
+      "confidence": 0.2,
+      "correct": false,
+      "evidence_categories": [
+        "evidence category: mention_only"
+      ],
+      "evidence_paths": [
+        "src/telemetry.py"
+      ],
+      "expected_verdict": "CONTRADICTED",
+      "id": "adversarial-absence-claim-that-is-refutable",
+      "rationale": "Absence cannot be confirmed, but it can sometimes be refuted: this repository demonstrably does bundle a telemetry client. The blanket insufficient-evidence policy for absence claims gives up that one direction, and this case measures the cost of that choice."
+    }
+  ],
+  "metrics": {
+    "confusion_matrix": {
+      "CONTRADICTED": {
+        "CONTRADICTED": 6,
+        "INSUFFICIENT_EVIDENCE": 3,
+        "PARTIALLY_VERIFIED": 0,
+        "VERIFIED": 0
+      },
+      "INSUFFICIENT_EVIDENCE": {
+        "CONTRADICTED": 0,
+        "INSUFFICIENT_EVIDENCE": 7,
+        "PARTIALLY_VERIFIED": 0,
+        "VERIFIED": 0
+      },
+      "PARTIALLY_VERIFIED": {
+        "CONTRADICTED": 1,
+        "INSUFFICIENT_EVIDENCE": 2,
+        "PARTIALLY_VERIFIED": 0,
+        "VERIFIED": 0
+      },
+      "VERIFIED": {
+        "CONTRADICTED": 0,
+        "INSUFFICIENT_EVIDENCE": 11,
+        "PARTIALLY_VERIFIED": 0,
+        "VERIFIED": 1
+      }
+    },
+    "correct_cases": 14,
+    "denominators": {
+      "cases_not_labelled_verified": 19,
+      "labelled_cases": 31
+    },
+    "failed_cases": [
+      "adversarial-absence-claim-that-is-refutable",
+      "adversarial-false-contradiction-from-unrelated-negation",
+      "adversarial-negation-beyond-proximity-window",
+      "adversarial-paraphrased-rejection",
+      "mixed-supporting-outweighs-mention",
+      "partial-implementation-incomplete",
+      "partial-mixed-support-and-contradiction",
+      "partial-unproven-scope",
+      "substring-annotations-contains-not",
+      "substring-mono-contains-no-space",
+      "substring-notification-contains-not",
+      "substring-notion-contains-not",
+      "support-ci-workflow",
+      "support-corroborated-across-files",
+      "support-makefile-target",
+      "support-pytest-test-file",
+      "support-real-implementation-identifier"
+    ],
+    "false_verification_cases": [],
+    "false_verification_rate": 0.0,
+    "overall_accuracy": 0.45161290322580644,
+    "per_class": {
+      "CONTRADICTED": {
+        "labelled_cases": 9,
+        "precision": 0.8571428571428571,
+        "predicted_cases": 7,
+        "recall": 0.6666666666666666
+      },
+      "INSUFFICIENT_EVIDENCE": {
+        "labelled_cases": 7,
+        "precision": 0.30434782608695654,
+        "predicted_cases": 23,
+        "recall": 1.0
+      },
+      "PARTIALLY_VERIFIED": {
+        "labelled_cases": 3,
+        "precision": null,
+        "predicted_cases": 0,
+        "recall": 0.0
+      },
+      "VERIFIED": {
+        "labelled_cases": 12,
+        "precision": 1.0,
+        "predicted_cases": 1,
+        "recall": 0.08333333333333333
+      }
+    },
+    "per_tag": {
+      "adversarial": {
+        "accuracy": 0.2,
+        "case_count": 5
+      },
+      "comment-mention": {
+        "accuracy": 1.0,
+        "case_count": 1
+      },
+      "config-evidence": {
+        "accuracy": 0.3333333333333333,
+        "case_count": 3
+      },
+      "contradiction": {
+        "accuracy": 1.0,
+        "case_count": 4
+      },
+      "corroborated": {
+        "accuracy": 0.0,
+        "case_count": 1
+      },
+      "documentation-only": {
+        "accuracy": 1.0,
+        "case_count": 2
+      },
+      "future-plan": {
+        "accuracy": 1.0,
+        "case_count": 1
+      },
+      "implementation-support": {
+        "accuracy": 0.14285714285714285,
+        "case_count": 7
+      },
+      "known-hard": {
+        "accuracy": 0.3333333333333333,
+        "case_count": 6
+      },
+      "mention-only": {
+        "accuracy": 1.0,
+        "case_count": 3
+      },
+      "mixed-signals": {
+        "accuracy": 0.0,
+        "case_count": 3
+      },
+      "negated-claim": {
+        "accuracy": 0.5,
+        "case_count": 2
+      },
+      "negation": {
+        "accuracy": 0.6,
+        "case_count": 5
+      },
+      "no-evidence": {
+        "accuracy": 1.0,
+        "case_count": 1
+      },
+      "paraphrase": {
+        "accuracy": 0.0,
+        "case_count": 1
+      },
+      "partial": {
+        "accuracy": 0.0,
+        "case_count": 3
+      },
+      "real-identifier": {
+        "accuracy": 0.0,
+        "case_count": 1
+      },
+      "rejected-alternative": {
+        "accuracy": 1.0,
+        "case_count": 3
+      },
+      "speculative": {
+        "accuracy": 1.0,
+        "case_count": 3
+      },
+      "substring-edge-case": {
+        "accuracy": 0.0,
+        "case_count": 4
+      },
+      "test-evidence": {
+        "accuracy": 0.0,
+        "case_count": 1
+      },
+      "todo": {
+        "accuracy": 1.0,
+        "case_count": 2
+      },
+      "unproven-scope": {
+        "accuracy": 0.0,
+        "case_count": 1
+      }
+    },
+    "total_cases": 31
+  }
+}

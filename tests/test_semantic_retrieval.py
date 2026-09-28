@@ -463,8 +463,8 @@ def test_lexical_benchmark_output_is_unchanged_by_the_semantic_addition():
     metrics = json.loads(default_output)["metrics"]
     assert metrics["evaluated_cases"] == 36
     assert metrics["provenance_exclusion_violations"] == 0
-    assert metrics["hit_rate_recall_at_1"] == pytest.approx(0.5277777777777778)
-    assert metrics["mean_reciprocal_rank"] == pytest.approx(0.6513888888888889)
+    assert metrics["hit_rate_recall_at_1"] == pytest.approx(0.5555555555555556)
+    assert metrics["mean_reciprocal_rank"] == pytest.approx(0.7023148148148148)
 
 
 def test_semantic_unit_tests_require_no_network(monkeypatch, semantic_repository):

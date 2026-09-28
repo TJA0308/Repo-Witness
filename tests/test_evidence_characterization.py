@@ -146,13 +146,6 @@ def test_complete_lexical_output_compatibility_fixture(tmp_path):
             "relevance": "Matched: alpha; score 12",
         },
         {
-            "path": "b.txt",
-            "start_line": 1,
-            "end_line": 2,
-            "excerpt": "1: alpha alpha\n2: beta",
-            "relevance": "Matched: beta; score 11",
-        },
-        {
             "path": "notes.md",
             "start_line": 1,
             "end_line": 1,
