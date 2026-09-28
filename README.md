@@ -40,6 +40,8 @@ The example below establishes a narrow fact: a Python test file imports pytest. 
 
 [![Claim: Imports pytest in Python tests. Source: tests/test_app.py line 1, import pytest. Verdict: Verified for the import; whether tests pass is outside this check.](docs/assets/claim-trace.svg)](sample_repo/tests/test_app.py#L1)
 
+**Claim:** Imports pytest in Python tests. **Source:** [`tests/test_app.py:1`](sample_repo/tests/test_app.py#L1) contains `import pytest`. **Verdict:** Verified for the import; whether the tests pass is outside this check.
+
 <details>
 <summary><strong>Partially verified</strong> — the evidence establishes only part of a claim</summary>
 
