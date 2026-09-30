@@ -1,6 +1,6 @@
 <h1 align="center"><img src="docs/assets/repo-witness-banner.svg" alt="RepoWitness — README claims. Repository evidence." width="1200"></h1>
 
-<p align="center">Review README claims against repository source, with static checks and file-and-line citations.</p>
+<p align="center">Review README claims and code changes with source citations and focused diffs.</p>
 
 <p align="center">
   <a href="https://github.com/TJA0308/Repo-Witness/actions/workflows/tests.yml"><img src="https://github.com/TJA0308/Repo-Witness/actions/workflows/tests.yml/badge.svg" alt="Offline checks"></a>
@@ -13,6 +13,8 @@
 
 A README can describe a planned feature, an old implementation, or a guarantee the code cannot establish. RepoWitness turns those statements into a review: choose a claim, inspect the relevant source lines, and download a cited audit.
 
+**Review documentation before merging a change:** compare two snapshots to flag claims whose retrieved source passages were edited, added, or removed. Inspect the diff and before/after evidence to decide whether the wording needs updating. Flags are review signals, not proof of broken behavior.
+
 **No API key is needed for the default workflow. Uploaded repository code is never executed.**
 
 ## Demo
@@ -24,6 +26,14 @@ Open the [live app](https://tja0308-repo-witness-app-k4v52v.streamlit.app/) and 
 *Screenshot walkthrough of the bundled synthetic sample, not a screen recording.* The five sample claims produce **2 verified, 1 partial, 1 contradicted, and 1 insufficient** verdicts.
 
 [Open the complete sample report](docs/sample-audit.md) · [View the sample repository](sample_repo)
+
+### Try a code-change review
+
+Select **Review a code change → Try change-review example → Run change review**. The unchanged README still claims a dependency and Docker version that were changed in the newer snapshot. The tool flags those two claims, shows the source diffs, and leaves the unchanged test import unflagged.
+
+For your own project, upload before/after ZIPs, find claims in the newer README, edit the list, and compare. Both snapshots exclude the selected review document. A local command also accepts ZIPs exported from Git commits.
+
+[Example change-review report](docs/sample-change-review.md) · [Workflow and local command](docs/change-review.md)
 
 <details>
 <summary>View still screenshots</summary>

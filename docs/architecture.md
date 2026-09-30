@@ -24,6 +24,8 @@ flowchart LR
 | `models.py` | Pydantic report and citation schemas. |
 | `presentation.py` / `export.py` | Format the dashboard and Markdown export. |
 | `app.py` | Streamlit session state, user input, discovery, analysis, and cleanup. |
+| `change_review.py` | Compare two snapshots, track changes in retrieved passages, produce review signals and focused diffs; local ZIP comparison command. |
+| `change_review_ui.py` | Two-snapshot form, newer README discovery, demo, comparison results, and temporary extraction cleanup. |
 
 ## Retrieval
 
@@ -40,6 +42,18 @@ For a test-import claim, retrieval parses complete test files and finds an exact
 ## Claim revision
 
 The result panel lets the user edit and recheck one claim without replacing the original report. The same analyzer and repository ingestion run again, preserving the original claim's excluded review document. The latest recheck result and its source mapping live in session state and have a separate Markdown export. Editing the revision removes its old result. Changing the repository, main claims or starting a new audit clears all revision state. Temporary extraction is cleaned after both normal audits and rechecks. Revision suggestions only remove two known broad-scope phrases; they do not invent new facts or guarantee verification.
+
+## Code-change review
+
+A separate app mode reads two snapshots and retrieves/audits the same selected
+claims in each. This mode always uses deterministic checks. Parsed supporting
+passages take precedence over keyword candidates when available; otherwise all
+retrieved candidates are tracked. `difflib.SequenceMatcher` finds source edits.
+An edit overlapping a tracked passage flags the claim for manual review, with
+the relevant diff and before/after citations. No flagged change is not a
+guarantee of correctness. The comparison introduces no new dependency, service
+or model call. Both extraction workspaces are cleaned even if the second ZIP
+fails. See [the workflow](change-review.md) for the local command and limits.
 
 ## Verdict policy
 

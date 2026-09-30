@@ -12,6 +12,7 @@ from repo_witness.ingest import cleanup_repository, extract_repository
 from repo_witness.models import Verdict
 from repo_witness.presentation import confidence_label, evidence_classification, useful_correction, visible_evidence
 from repo_witness.readme_claims import discover_readmes, extract_candidate_claims
+from repo_witness.change_review_ui import render_change_review
 
 
 APP_ROOT = Path(__file__).parent
@@ -395,6 +396,11 @@ load_styles()
 render_header()
 render_workflow()
 st.caption("Fast-moving and AI-assisted development can leave README claims describing planned, replaced, partial, or removed features. Review those claims before release, submission, or project review.")
+
+review_mode = st.radio("Review mode", ["Audit one snapshot", "Review a code change"], horizontal=True)
+if review_mode == "Review a code change":
+    render_change_review(APP_ROOT)
+    st.stop()
 
 st.session_state.setdefault("sample_loaded", False)
 st.session_state.setdefault("claims_editor", "")

@@ -74,3 +74,15 @@ Explain that the revised wording asks a smaller question. The tool has not prove
 - **Supported check found no matching declaration:** the rule exists, but the available source does not establish the claim. This can include a different value, invalid metadata, or an incomplete citation.
 
 None of these outcomes establishes that the original claim is false. Absence claims and model request failures keep their own specific explanations.
+
+## Review a code change
+
+The second app mode compares before/after snapshots using the same claims. It
+reuses retrieval and deterministic checks, then flags edits overlapping the
+retrieved source passages. It focuses on supporting passages when a narrow check
+finds them. Before/after citations and the relevant diff let you decide whether
+the README needs an update. A flag does not establish that the claim is false.
+
+Try the bundled example: the dependency and Docker version change, the test
+import stays unchanged, and only the first two claims are flagged.
+[Follow the comparison code and local Git workflow](change-review.md).
