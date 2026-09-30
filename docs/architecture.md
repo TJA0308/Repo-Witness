@@ -18,7 +18,7 @@ flowchart LR
 | `ingest.py` | Limit uploads and extraction; reject escaping paths; skip selected binaries and secrets; clean temporary directories. |
 | `readme_claims.py` | Find READMEs, join wrapped prose, and suggest technical sentences or normalized feature bullets. |
 | `evidence.py` | Read eligible files once per audit, score matching lines, merge overlapping windows, return at most six excerpts. |
-| `checks.py` | Explicit positive checks: Python test imports, requirements declarations, Python Docker base images. |
+| `checks.py` | Explicit positive checks: Python test imports, requirements and project dependency declarations, Python Docker base images, declared Python minimums. |
 | `verdicts.py` | Detect possible conflicts and speculation, apply positive checks, aggregate the four verdicts. |
 | `analyzer.py` | Validate up to ten claims, reuse the file snapshot, coordinate deterministic or optional model analysis. |
 | `models.py` | Pydantic report and citation schemas. |
@@ -33,18 +33,22 @@ The analyzer reads eligible files into one dictionary for the audit. Every claim
 
 The selected README is excluded for **all claims in its review session**, including edits and additions. This is a document-level exclusion, not a claim that every edited sentence came from that README. Starting a new repository clears the review state. A purely manual session without README discovery has no source exclusion.
 
+For a dependency declaration claim, retrieval first checks the root `pyproject.toml` using the complete cached source. A confirmed `[project].dependencies` assignment is returned before lexical candidates and counts toward the same six-snippet limit. The bounded citation covers the complete assignment (at most 40 lines and 1,200 characters); oversized assignments remain unresolved. Other claims retain the existing lexical ranking.
+
 ## Verdict policy
 
 Keyword overlap can retrieve a candidate but cannot earn verification. `checks.bounded_support` recognizes these claim forms (case-insensitive wording):
 
 - `Imports pytest in Python tests.` Module names can vary. The retrieved window must begin at line one of a Python test file. Python AST parsing checks complete prefixes for a top-level import. It does not import or run the file. Imports in comments, strings, relative imports, and nested conditional imports do not qualify.
-- `Declares requests as a Python dependency.` Package names can vary. An uncommented declaration in a requirements text file qualifies. This proves a declaration, not installation or use. Other manifest formats are not supported by this check.
+- `Declares requests as a Python dependency.` Package names can vary. An uncommented declaration in a requirements text file qualifies. For root `pyproject.toml`, `tomllib` parses the complete file and `packaging.Requirement` validates dependency strings in `[project].dependencies`. Package names use standard case and punctuation normalization, with exact matching. Version constraints, extras, direct URLs, and environment markers are accepted as declarations without installing packages or evaluating markers. Build dependencies, optional groups, tool-specific tables, nested manifests, and a dependency field also declared dynamic do not qualify. Bare `dependencies = ...` under `[project]` and root `project.dependencies = ...` are supported; unusual quoted or inline table spellings remain unresolved. This proves a declaration, not installation or use.
 - `Includes Docker configuration based on Python 3.11.` Versions can vary; documented configuration/image wording variants are accepted. A matching Python `FROM` instruction qualifies, not a successful image build or deployment.
 - `HTTPX requires Python 3.9+.` A root `pyproject.toml` `requires-python = ">=3.9"` declaration qualifies. Project names and version floors can vary. `Requests officially supports Python 3.10+` is partial: the metadata shows a minimum version, not full compatibility.
 
 An explicit `with production-scale reliability` suffix illustrates a narrow fact plus an unproven guarantee and produces partial verification when the base fact is established. Other compound claims do not silently inherit support for just one component.
 
 Existing negation/rejection rules still detect possible contradictions. They are fallible: nearby negation, comments, and paraphrases can mislead them. Absence claims abstain. Two independent supporting files increase the heuristic confidence label, which is not a probability.
+
+Insufficient-evidence explanations distinguish an empty retrieval, an unsupported claim form with related evidence, and a supported check that did not establish the fact. Absence claims and model failures retain their specific explanations. These are messages in the existing report schema, so the UI and Markdown export show the same reason.
 
 ## Optional model analysis
 

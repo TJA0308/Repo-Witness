@@ -44,9 +44,9 @@ MODEL_UNPARSED_REASON = (
 )
 
 
-def demo_classify(claim: str, evidence: Sequence[EvidenceSnippet]) -> ClaimAudit:
+def demo_classify(claim: str, evidence: Sequence[EvidenceSnippet], repository_files=None) -> ClaimAudit:
     """Deterministic classifier entry point, retained for import compatibility."""
-    return classify_claim(claim, evidence)
+    return classify_claim(claim, evidence, repository_files=repository_files)
 
 
 def _retrieve_claim_evidence(
@@ -64,7 +64,7 @@ def analyze_demo(
     files = read_repository(root)
     return AuditReport(
         audits=[
-            demo_classify(claim, _retrieve_claim_evidence(root, claim, claim_sources, files))
+            demo_classify(claim, _retrieve_claim_evidence(root, claim, claim_sources, files), files)
             for claim in clean
         ],
         analyzer="Deterministic static checks",

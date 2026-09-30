@@ -341,7 +341,7 @@ with st.expander("How the audit works · supported checks and limits"):
 3. **Find evidence.** Rank matching lines and combine overlapping excerpts, retaining file and line citations.
 4. **Check the claim.** Deterministic verification supports these narrow forms:
    - `Imports pytest in Python tests.` — a top-level import in a test file's retrieved header.
-   - `Declares requests as a Python dependency.` — an entry in a requirements text file.
+   - `Declares requests as a Python dependency.` — an entry in a requirements text file or root `pyproject.toml` under `[project].dependencies`.
    - `Includes Docker configuration based on Python 3.11.` — a matching `FROM` instruction.
    - `HTTPX requires Python 3.9+.` - a matching Python version floor in `pyproject.toml`.
 

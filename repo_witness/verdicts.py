@@ -21,7 +21,7 @@ import re
 from collections.abc import Sequence
 
 from .models import ClaimAudit, EvidenceSnippet, Verdict
-from .checks import bounded_support
+from .checks import bounded_support, supports_claim_form
 
 SUPPORTING = "supporting"
 CONTRADICTING = "contradicting"
@@ -80,7 +80,18 @@ _TERM_CACHE: dict[str, re.Pattern[str]] = {}
 # of rule strength. They are not calibrated probabilities; nothing in this
 # repository estimates a probability.
 REASON_NO_EVIDENCE = (
-    "No relevant repository snippet was retrieved. This is not evidence of contradiction."
+    "No relevant evidence found: no repository snippet was retrieved. "
+    "Try a more specific claim or inspect the repository manually. This is not evidence of contradiction."
+)
+REASON_UNSUPPORTED = (
+    "Related evidence found, but this claim form is outside the supported static checks. "
+    "Review the cited lines manually or use a narrow claim such as "
+    "'Declares requests as a Python dependency.'"
+)
+REASON_UNESTABLISHED = (
+    "Related evidence found, but the supported static check found no matching declaration. "
+    "The source may contain only a mention, a different value, invalid syntax, or an incomplete excerpt. "
+    "This does not establish that the claim is false."
 )
 REASON_ABSENCE = (
     "This claim asserts an absence. Bounded lexical retrieval can only show what a "
@@ -281,24 +292,20 @@ def corrected_wording(claim: str, verdict: Verdict) -> str:
     return f"{stem} — not established by the retrieved repository evidence."
 
 
-def classify_claim(claim: str, evidence: Sequence[EvidenceSnippet]) -> ClaimAudit:
+def classify_claim(claim: str, evidence: Sequence[EvidenceSnippet], *, repository_files=None) -> ClaimAudit:
     categories = categorize_evidence(claim, evidence)
     # Broad keyword matches are useful candidates, not proof. The suffix is an
     # explicit demo of a bounded fact plus an unproven runtime guarantee.
     bounded_claim = re.sub(r" with production-scale reliability\.?$", "", claim, flags=re.I)
-    candidates_only = False
     for index, snippet in enumerate(evidence):
-        if categories[index] == SUPPORTING and not bounded_support(bounded_claim, snippet):
+        if categories[index] != CONTRADICTING and bounded_support(bounded_claim, snippet, repository_files):
+            categories[index] = SUPPORTING
+        elif categories[index] == SUPPORTING:
             categories[index] = MENTION_ONLY
-            candidates_only = True
     outcome = aggregate_outcome(claim, categories)
     verdict, confidence, reasoning = OUTCOMES[outcome]
-    if candidates_only and outcome == "weak_evidence":
-        reasoning = (
-            "Related code was retrieved, but no supported static check establishes this claim. "
-            "A matching name, import, or setting does not prove the claimed behavior. "
-            "Review the cited evidence manually."
-        )
+    if outcome == "weak_evidence":
+        reasoning = REASON_UNESTABLISHED if supports_claim_form(bounded_claim) else REASON_UNSUPPORTED
     if outcome == "supported":
         supporting_files = {
             snippet.path

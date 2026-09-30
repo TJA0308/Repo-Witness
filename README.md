@@ -77,6 +77,10 @@ The example below establishes a narrow fact: a Python test file imports pytest. 
 
 The positive checks cover narrow forms of Python imports, dependency declarations, Docker base images, and declared Python version minimums. Confidence labels describe uncalibrated heuristic strength; they are not probabilities.
 
+For example, **“Declares requests as a Python dependency.”** checks requirements files and the root `pyproject.toml` project's dependency list. Optional extras, build dependencies, and Poetry-specific tables do not qualify for the TOML check. A declaration does not establish installation or use.
+
+Unresolved results now distinguish **no relevant evidence found**, **a claim form outside the supported checks**, and **a supported check with no matching declaration**. The explanation appears in both the app and exported report.
+
 ## How it works
 
 ```mermaid

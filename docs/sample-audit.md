@@ -141,7 +141,7 @@ Confidence describes heuristic strength, not a probability of correctness.
 
 - Verdict: **Insufficient evidence**
 - Confidence: Low (heuristic strength)
-- Explanation: No relevant repository snippet was retrieved. This is not evidence of contradiction.
+- Explanation: No relevant evidence found: no repository snippet was retrieved. Try a more specific claim or inspect the repository manually. This is not evidence of contradiction.
 - Excluded review document: README.md
 - Evidence count: 0
 - Suggested corrected wording: Publishes signed release artifacts through an automated delivery pipeline — not established by the retrieved repository evidence.

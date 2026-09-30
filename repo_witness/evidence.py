@@ -3,6 +3,7 @@ import re
 from collections.abc import Collection, Mapping
 from pathlib import Path
 from .models import EvidenceSnippet
+from .checks import pyproject_dependency_evidence
 
 MAX_CANDIDATES = 6
 MAX_EXCERPT_CHARS = 1200
@@ -50,6 +51,9 @@ def retrieve_evidence(
     excluded = {path.replace("\\", "/").casefold() for path in (excluded_paths or ())}
     scored = []
     files = read_repository(root) if repository_files is None else repository_files
+    declaration = None
+    if "pyproject.toml" in files and "pyproject.toml" not in excluded:
+        declaration = pyproject_dependency_evidence(claim, files["pyproject.toml"])
     for relative, lines in sorted(files.items()):
         if relative.casefold() in excluded:
             continue
@@ -88,4 +92,6 @@ def retrieve_evidence(
             results.append(EvidenceSnippet(path=rel, start_line=start + 1, end_line=end, excerpt=excerpt, relevance=f"Matched: {', '.join(hits)}; score {score}"))
         if len(results) >= limit:
             break
+    if declaration:
+        return [declaration, *(item for item in results if item.path != "pyproject.toml")][:limit]
     return results
