@@ -60,10 +60,10 @@ dependencies = [
 [docs/async.md:24-28](https://github.com/encode/httpx/blob/b5addb64f0161ff6bfe94c124ef76f6a1fba5254/docs/async.md#L24-L28)
 
 ```text
-24: 
+24:
 25: !!! tip
 26:     Use [IPython](https://ipython.readthedocs.io/en/stable/) or Python 3.9+ with `python -m asyncio` to try this code interactively, as they support executing `async`/`await` expressions in the console.
-27: 
+27:
 28: ## API Differences
 ```
 
@@ -74,7 +74,7 @@ dependencies = [
 11:   tests:
 12:     name: "Python ${{ matrix.python-version }}"
 13:     runs-on: "ubuntu-latest"
-14: 
+14:
 ```
 
 [.github/workflows/test-suite.yml:21-25](https://github.com/encode/httpx/blob/b5addb64f0161ff6bfe94c124ef76f6a1fba5254/.github/workflows/test-suite.yml#L21-L25)
@@ -91,9 +91,9 @@ dependencies = [
 
 ```text
 83: ```
-84: 
+84:
 85: The `NetRCAuth()` class uses [the `netrc.netrc()` function from the Python standard library](https://docs.python.org/3/library/netrc.html). See the documentation there for more details on exceptions that may be raised if the `.netrc` file is not found, or cannot be parsed.
-86: 
+86:
 87: ## Custom authentication schemes
 ```
 
@@ -101,9 +101,9 @@ dependencies = [
 
 ```text
 3: Request and response extensions provide a untyped space where additional information may be added.
-4: 
+4:
 5: Extensions should be used for features that may not be available on all transports, and that do not fit neatly into [the simplified request/response model](https://www.encode.io/httpcore/extensions/) that the underlying `httpcore` package uses as its API.
-6: 
+6:
 7: Several extensions are supported on the request:
 ```
 
@@ -141,11 +141,11 @@ requires-python = ">=3.10"
 [setup.py:2-6](https://github.com/psf/requests/blob/611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60/setup.py#L2-L6)
 
 ```text
-2: 
+2:
 3: if sys.version_info < (3, 10):  # noqa: UP036
 4:     sys.stderr.write("Requests requires Python 3.10 or later.\n")
 5:     sys.exit(1)
-6: 
+6:
 ```
 
 [.github/CONTRIBUTING.md:13-17](https://github.com/psf/requests/blob/611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60/.github/CONTRIBUTING.md#L13-L17)
@@ -155,16 +155,16 @@ requires-python = ">=3.10"
 14: instead be directed to [Stack Overflow](https://stackoverflow.com/). Make sure
 15: that your question is tagged with the `python-requests` tag when asking it on
 16: Stack Overflow, to ensure that it is answered promptly and accurately.
-17: 
+17:
 ```
 
 [.github/ISSUE_TEMPLATE.md:18-22](https://github.com/psf/requests/blob/611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60/.github/ISSUE_TEMPLATE.md#L18-L22)
 
 ```text
 18: ## System Information
-19: 
+19:
 20:     $ python -m requests.help
-21: 
+21:
 22: ```
 ```
 
@@ -172,9 +172,9 @@ requires-python = ">=3.10"
 
 ```text
 24: ## System Information
-25: 
+25:
 26:     $ python -m requests.help
-27: 
+27:
 28: ```json
 ```
 
@@ -182,7 +182,7 @@ requires-python = ">=3.10"
 
 ```text
 8: ---
-9: 
+9:
 10: Please refer to our [Stack Overflow tag](https://stackoverflow.com/questions/tagged/python-requests) for guidance.
 ```
 
@@ -227,16 +227,16 @@ from click._utils import UNSET
 
 ```text
 15: ```
-16: 
+16:
 17: The examples use [pytest](https://docs.pytest.org/en/stable/) style tests.
-18: 
+18:
 19: ```{contents}
 ```
 
 [docs/complex.md:232-236](https://github.com/pallets/click/blob/06b2a678741131fd577ce170e23e5ca0aeba0309/docs/complex.md#L232-L236)
 
 ```text
-232: 
+232:
 233: ```{warning}
 234: Lazy loading of python code can result in hard to track down bugs, circular imports
 235: in order-dependent codebases, and other surprising behaviors. It is recommended that
@@ -246,17 +246,17 @@ from click._utils import UNSET
 [src/click/core.py:2493-2497](https://github.com/pallets/click/blob/06b2a678741131fd577ce170e23e5ca0aeba0309/src/click/core.py#L2493-L2497)
 
 ```text
-2493: 
+2493:
 2494:         Both imports are local because neither :mod:`keyword` nor
 2495:         :mod:`warnings` is on the allow-list ``tests/test_imports.py`` holds
 2496:         Click's import footprint to.
-2497: 
+2497:
 ```
 
 [src/click/testing.py:749-753](https://github.com/pallets/click/blob/06b2a678741131fd577ce170e23e5ca0aeba0309/src/click/testing.py#L749-L753)
 
 ```text
-749: 
+749:
 750:         .. warning::
 751:             This helper predates Python 3 and modern pytest, and is not
 752:             thread-safe: it relies on :func:`os.chdir`, which mutates
@@ -267,10 +267,10 @@ from click._utils import UNSET
 
 ```text
 195:         click.Argument([])
-196: 
+196:
 197:     with pytest.warns(DeprecationWarning, match="not a valid Python identifier"):
 198:         assert click.Argument([], expose_value=False).name == ""
-199: 
+199:
 ```
 
 </details>
@@ -314,7 +314,7 @@ readme = "README.md"
 31:     @app.route("/json", methods=["POST"])
 32:     def return_json():
 33:         return flask.jsonify(foo=str(flask.request.get_json()))
-34: 
+34:
 35:     rv = client.post("/json", data="malformed", content_type="application/json")
 ```
 
@@ -324,7 +324,7 @@ readme = "README.md"
 248:     @app.route("/", methods=["POST"])
 249:     def index():
 250:         return flask.json.dumps(flask.request.get_json()["x"])
-251: 
+251:
 252:     rv = client.post(
 ```
 
@@ -334,28 +334,28 @@ readme = "README.md"
 8: copyright = "2010 Pallets"
 9: author = "Pallets"
 10: release, version = get_version("Flask")
-11: 
+11:
 12: # General --------------------------------------------------------------
 ```
 
 [examples/tutorial/tests/conftest.py:5-9](https://github.com/pallets/flask/blob/d73fa1cdcbd8b1465c151db8924ba58b1dd14e35/examples/tutorial/tests/conftest.py#L5-L9)
 
 ```text
-5: 
+5:
 6: from flaskr import create_app
 7: from flaskr.db import get_db
 8: from flaskr.db import init_db
-9: 
+9:
 ```
 
 [examples/tutorial/tests/test_auth.py:3-7](https://github.com/pallets/flask/blob/d73fa1cdcbd8b1465c151db8924ba58b1dd14e35/examples/tutorial/tests/test_auth.py#L3-L7)
 
 ```text
 3: from flask import session
-4: 
+4:
 5: from flaskr.db import get_db
-6: 
-7: 
+6:
+7:
 ```
 
 </details>
@@ -386,20 +386,20 @@ markdown-it-py = ">=2.2.0"
 [pyproject.toml:58-62](https://github.com/Textualize/rich/blob/9d8f9a372cc5916fd4781fec207ced7ddac2f08f/pyproject.toml#L58-L62)
 
 ```text
-58: 
+58:
 59: [[tool.mypy.overrides]]
 60: module = ["pygments.*", "IPython.*", "ipywidgets.*"]
 61: ignore_missing_imports = true
-62: 
+62:
 ```
 
 [tests/test_syntax.py:6-10](https://github.com/Textualize/rich/blob/9d8f9a372cc5916fd4781fec207ced7ddac2f08f/tests/test_syntax.py#L6-L10)
 
 ```text
-6: 
+6:
 7: import pytest
 8: from pygments.lexers import PythonLexer
-9: 
+9:
 10: from rich.console import Console
 ```
 
@@ -407,10 +407,10 @@ markdown-it-py = ">=2.2.0"
 
 ```text
 60: DEFAULT_THEME = "monokai"
-61: 
+61:
 62: # The following styles are based on https://github.com/pygments/pygments/blob/master/pygments/formatters/terminal.py
 63: # A few modifications were made
-64: 
+64:
 ```
 
 [.github/workflows/pythonpackage.yml:18-25](https://github.com/Textualize/rich/blob/9d8f9a372cc5916fd4781fec207ced7ddac2f08f/.github/workflows/pythonpackage.yml#L18-L25)
@@ -440,9 +440,9 @@ markdown-it-py = ">=2.2.0"
 
 ```text
 366: <summary>语法高亮（Syntax Highlighting）</summary>
-367: 
+367:
 368: Rich 使用[pygments](https://pygments.org/)库来实现[语法高亮显示](https://rich.readthedocs.io/en/latest/syntax.html)。用法类似于渲染 markdown。构造一个`Syntax`对象并将其打印到控制台。下面是一个例子：
-369: 
+369:
 370: ```python
 ```
 
