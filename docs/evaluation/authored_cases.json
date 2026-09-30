@@ -1,0 +1,361 @@
+{
+  "label_status": "Authored before the recorded run; independent review pending",
+  "method": "Deterministic static checks; README excluded; archive hashes and citation text validated",
+  "interpretation": "Selected authored examples, not general accuracy or independent validation",
+  "agreement": {
+    "matching": 3,
+    "total": 5
+  },
+  "cases": [
+    {
+      "id": "httpx",
+      "owner": "encode",
+      "repository": "httpx",
+      "commit": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "archive_sha256": "bc225694843cdc4eeed329446bdc52a63d713a1e1d835f269e6729456cc12906",
+      "claim": "Declares httpcore as a Python dependency.",
+      "claim_origin": "Authored manifest claim",
+      "excluded_path": "README.md",
+      "expected_verdict": "VERIFIED",
+      "rationale": "The project.dependencies array declares httpcore==1.*. This establishes a declaration, not successful installation or runtime use.",
+      "review_source": {
+        "path": "pyproject.toml",
+        "start_line": 30,
+        "end_line": 35,
+        "excerpt": "dependencies = [\n    \"certifi\",\n    \"httpcore==1.*\",\n    \"anyio\",\n    \"idna\",\n]"
+      },
+      "matches_label": true,
+      "actual": {
+        "claim": "Declares httpcore as a Python dependency.",
+        "verdict": "VERIFIED",
+        "confidence": 0.7,
+        "evidence": [
+          {
+            "path": "pyproject.toml",
+            "start_line": 30,
+            "end_line": 35,
+            "excerpt": "30: dependencies = [\n31:     \"certifi\",\n32:     \"httpcore==1.*\",\n33:     \"anyio\",\n34:     \"idna\",\n35: ]",
+            "relevance": "Parsed root project.dependencies; exact normalized package name; evidence category: supporting"
+          },
+          {
+            "path": "docs/async.md",
+            "start_line": 24,
+            "end_line": 28,
+            "excerpt": "24: \n25: !!! tip\n26:     Use [IPython](https://ipython.readthedocs.io/en/stable/) or Python 3.9+ with `python -m asyncio` to try this code interactively, as they support executing `async`/`await` expressions in the console.\n27: \n28: ## API Differences",
+            "relevance": "Matched: python; score 14; evidence category: mention_only"
+          },
+          {
+            "path": ".github/workflows/test-suite.yml",
+            "start_line": 10,
+            "end_line": 14,
+            "excerpt": "10: jobs:\n11:   tests:\n12:     name: \"Python ${{ matrix.python-version }}\"\n13:     runs-on: \"ubuntu-latest\"\n14: ",
+            "relevance": "Matched: python; score 12; evidence category: mention_only"
+          },
+          {
+            "path": ".github/workflows/test-suite.yml",
+            "start_line": 21,
+            "end_line": 25,
+            "excerpt": "21:       - uses: \"actions/setup-python@v6\"\n22:         with:\n23:           python-version: \"${{ matrix.python-version }}\"\n24:           allow-prereleases: true\n25:       - name: \"Install dependencies\"",
+            "relevance": "Matched: python; score 12; evidence category: mention_only"
+          },
+          {
+            "path": "docs/advanced/authentication.md",
+            "start_line": 83,
+            "end_line": 87,
+            "excerpt": "83: ```\n84: \n85: The `NetRCAuth()` class uses [the `netrc.netrc()` function from the Python standard library](https://docs.python.org/3/library/netrc.html). See the documentation there for more details on exceptions that may be raised if the `.netrc` file is not found, or cannot be parsed.\n86: \n87: ## Custom authentication schemes",
+            "relevance": "Matched: python; score 12; evidence category: mention_only"
+          },
+          {
+            "path": "docs/advanced/extensions.md",
+            "start_line": 3,
+            "end_line": 7,
+            "excerpt": "3: Request and response extensions provide a untyped space where additional information may be added.\n4: \n5: Extensions should be used for features that may not be available on all transports, and that do not fit neatly into [the simplified request/response model](https://www.encode.io/httpcore/extensions/) that the underlying `httpcore` package uses as its API.\n6: \n7: Several extensions are supported on the request:",
+            "relevance": "Matched: httpcore; score 12; evidence category: mention_only"
+          }
+        ],
+        "reasoning": "A supported static check found the stated import, dependency declaration, Docker base-image instruction, or declared Python version floor. This establishes a fact about repository text, not successful execution or deployment.",
+        "corrected_wording": "Declares httpcore as a Python dependency."
+      }
+    },
+    {
+      "id": "requests",
+      "owner": "psf",
+      "repository": "requests",
+      "commit": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+      "archive_sha256": "50cb394c7d6a0dad356cbbbd650730f09bbbb32a447235cef622c447c0520e06",
+      "claim": "Requests officially supports Python 3.10+.",
+      "claim_origin": "Literal README.md:38",
+      "excluded_path": "README.md",
+      "expected_verdict": "PARTIALLY_VERIFIED",
+      "rationale": "requires-python establishes the declared minimum. Official support across Python versions requires broader evidence than this static declaration.",
+      "review_source": {
+        "path": "pyproject.toml",
+        "start_line": 17,
+        "end_line": 17,
+        "excerpt": "requires-python = \">=3.10\""
+      },
+      "matches_label": true,
+      "actual": {
+        "claim": "Requests officially supports Python 3.10+.",
+        "verdict": "PARTIALLY_VERIFIED",
+        "confidence": 0.55,
+        "evidence": [
+          {
+            "path": "pyproject.toml",
+            "start_line": 15,
+            "end_line": 19,
+            "excerpt": "15:     {name = \"Nate Prewitt\", email=\"nate.prewitt@gmail.com\"}\n16: ]\n17: requires-python = \">=3.10\"\n18: dependencies = [\n19:     \"charset_normalizer>=2,<4\",",
+            "relevance": "Matched: python, 3.10; score 34; evidence category: supporting"
+          },
+          {
+            "path": "setup.py",
+            "start_line": 2,
+            "end_line": 6,
+            "excerpt": "2: \n3: if sys.version_info < (3, 10):  # noqa: UP036\n4:     sys.stderr.write(\"Requests requires Python 3.10 or later.\\n\")\n5:     sys.exit(1)\n6: ",
+            "relevance": "Matched: requests, python, 3.10; score 33; evidence category: mention_only"
+          },
+          {
+            "path": ".github/CONTRIBUTING.md",
+            "start_line": 13,
+            "end_line": 17,
+            "excerpt": "13: not use it to ask questions about how to use Requests. These questions should\n14: instead be directed to [Stack Overflow](https://stackoverflow.com/). Make sure\n15: that your question is tagged with the `python-requests` tag when asking it on\n16: Stack Overflow, to ensure that it is answered promptly and accurately.\n17: ",
+            "relevance": "Matched: requests, python; score 22; evidence category: mention_only"
+          },
+          {
+            "path": ".github/ISSUE_TEMPLATE.md",
+            "start_line": 18,
+            "end_line": 22,
+            "excerpt": "18: ## System Information\n19: \n20:     $ python -m requests.help\n21: \n22: ```",
+            "relevance": "Matched: requests, python; score 22; evidence category: mention_only"
+          },
+          {
+            "path": ".github/ISSUE_TEMPLATE/Bug_report.md",
+            "start_line": 24,
+            "end_line": 28,
+            "excerpt": "24: ## System Information\n25: \n26:     $ python -m requests.help\n27: \n28: ```json",
+            "relevance": "Matched: requests, python; score 22; evidence category: mention_only"
+          },
+          {
+            "path": ".github/ISSUE_TEMPLATE/Custom.md",
+            "start_line": 8,
+            "end_line": 10,
+            "excerpt": "8: ---\n9: \n10: Please refer to our [Stack Overflow tag](https://stackoverflow.com/questions/tagged/python-requests) for guidance.",
+            "relevance": "Matched: requests, python; score 22; evidence category: mention_only"
+          }
+        ],
+        "reasoning": "A bounded repository fact was found, but the claim's absolute or broad scope is not established by static evidence.",
+        "corrected_wording": "Requests officially supports Python 3.10+, though the retrieved evidence does not establish its full scope."
+      }
+    },
+    {
+      "id": "click",
+      "owner": "pallets",
+      "repository": "click",
+      "commit": "06b2a678741131fd577ce170e23e5ca0aeba0309",
+      "archive_sha256": "ea1b10e22df2c1fee0f7cf8ce35d6f0b642c9c1a72696ee9347d6a196e4d5f65",
+      "claim": "Imports pytest in Python tests.",
+      "claim_origin": "Authored test import claim",
+      "excluded_path": "README.md",
+      "expected_verdict": "VERIFIED",
+      "rationale": "A top-level import pytest appears in a Python test file. This does not establish that the tests pass.",
+      "review_source": {
+        "path": "tests/test_basic.py",
+        "start_line": 1,
+        "end_line": 9,
+        "excerpt": "from __future__ import annotations\n\nimport enum\nimport os\n\nimport pytest\n\nimport click\nfrom click._utils import UNSET"
+      },
+      "matches_label": false,
+      "actual": {
+        "claim": "Imports pytest in Python tests.",
+        "verdict": "INSUFFICIENT_EVIDENCE",
+        "confidence": 0.3,
+        "evidence": [
+          {
+            "path": "docs/upgrade-guides.md",
+            "start_line": 16,
+            "end_line": 20,
+            "excerpt": "16: - A parameter name that is not a valid Python identifier, or that is a [Python keyword](https://docs.python.org/3/reference/lexical_analysis.html#keywords), is deprecated and raises `TypeError` in 9.0. [`str.isidentifier()`](https://docs.python.org/3/library/stdtypes.html#str.isidentifier) decides the first case, so `click.argument(\"0foo\")` fails it. It accepts a keyword, so `click.option(\"--from\")` names a parameter `from`, which no callback can declare. [Soft keywords](https://docs.python.org/3/reference/lexical_analysis.html#soft-keywords) such as `match` and `type` are contextual and unaffected, and `--True` and `--None` lower case out of the keyword set. To migrate, pass an explicit name (`click.option(\"--from\", \"source\")`, `click.option(\"--0-file\", \"zero_file\")`). An argument takes one declaration and has no explicit-name channel, so rename it and pass `metavar` to keep its old display (`click.argument(\"zero_file\", metavar=\"0-FILE\")`). See [#3827](https://github.com/pallets/click/pull/3827) and [#3866](https://github.com/pallets/click/pull/3866).\n17: - An option name written as a Python identifier is deprecated when it is not already lower cased: `clic\n[excerpt truncated]",
+            "relevance": "Matched: pytest, python, tests; score 35; evidence category: mention_only"
+          },
+          {
+            "path": "docs/testing.md",
+            "start_line": 15,
+            "end_line": 19,
+            "excerpt": "15: ```\n16: \n17: The examples use [pytest](https://docs.pytest.org/en/stable/) style tests.\n18: \n19: ```{contents}",
+            "relevance": "Matched: pytest, tests; score 23; evidence category: mention_only"
+          },
+          {
+            "path": "docs/complex.md",
+            "start_line": 232,
+            "end_line": 236,
+            "excerpt": "232: \n233: ```{warning}\n234: Lazy loading of python code can result in hard to track down bugs, circular imports\n235: in order-dependent codebases, and other surprising behaviors. It is recommended that\n236: this technique only be used in concert with testing which will at least run the",
+            "relevance": "Matched: imports, python; score 22; evidence category: mention_only"
+          },
+          {
+            "path": "src/click/core.py",
+            "start_line": 2493,
+            "end_line": 2497,
+            "excerpt": "2493: \n2494:         Both imports are local because neither :mod:`keyword` nor\n2495:         :mod:`warnings` is on the allow-list ``tests/test_imports.py`` holds\n2496:         Click's import footprint to.\n2497: ",
+            "relevance": "Matched: imports, tests; score 22; evidence category: mention_only"
+          },
+          {
+            "path": "src/click/testing.py",
+            "start_line": 749,
+            "end_line": 753,
+            "excerpt": "749: \n750:         .. warning::\n751:             This helper predates Python 3 and modern pytest, and is not\n752:             thread-safe: it relies on :func:`os.chdir`, which mutates\n753:             process-global state, and :meth:`invoke` swaps the",
+            "relevance": "Matched: pytest, python; score 22; evidence category: mention_only"
+          },
+          {
+            "path": "tests/test_arguments.py",
+            "start_line": 195,
+            "end_line": 199,
+            "excerpt": "195:         click.Argument([])\n196: \n197:     with pytest.warns(DeprecationWarning, match=\"not a valid Python identifier\"):\n198:         assert click.Argument([], expose_value=False).name == \"\"\n199: ",
+            "relevance": "Matched: pytest, python; score 22; evidence category: mention_only"
+          }
+        ],
+        "reasoning": "Related evidence found, but the supported static check found no matching declaration. The source may contain only a mention, a different value, invalid syntax, or an incomplete excerpt. This does not establish that the claim is false.",
+        "corrected_wording": "Imports pytest in Python tests — not established by the retrieved repository evidence."
+      }
+    },
+    {
+      "id": "flask",
+      "owner": "pallets",
+      "repository": "flask",
+      "commit": "d73fa1cdcbd8b1465c151db8924ba58b1dd14e35",
+      "archive_sha256": "e95e9058a638867f51648d3b40738ca99b306c1d19dc16c9e49f2383fd4841f6",
+      "claim": "Flask is quick and easy to get started with.",
+      "claim_origin": "Paraphrase of README.md:5-7",
+      "excluded_path": "README.md",
+      "expected_verdict": "INSUFFICIENT_EVIDENCE",
+      "rationale": "Quick and easy is subjective and depends on the user and task. The package description is context, not proof; the originating README is excluded.",
+      "review_source": {
+        "path": "pyproject.toml",
+        "start_line": 1,
+        "end_line": 5,
+        "excerpt": "[project]\nname = \"Flask\"\nversion = \"3.2.0.dev\"\ndescription = \"A simple framework for building complex web applications.\"\nreadme = \"README.md\""
+      },
+      "matches_label": true,
+      "actual": {
+        "claim": "Flask is quick and easy to get started with.",
+        "verdict": "INSUFFICIENT_EVIDENCE",
+        "confidence": 0.3,
+        "evidence": [
+          {
+            "path": "tests/test_basic.py",
+            "start_line": 504,
+            "end_line": 508,
+            "excerpt": "504:     @app.route(\"/bump\")\n505:     def bump():\n506:         rv = flask.session[\"foo\"] = flask.session.get(\"foo\", 0) + 1\n507:         flask.session.permanent = is_permanent\n508:         return str(rv)",
+            "relevance": "Matched: flask, get; score 23; evidence category: mention_only"
+          },
+          {
+            "path": "tests/test_json.py",
+            "start_line": 31,
+            "end_line": 35,
+            "excerpt": "31:     @app.route(\"/json\", methods=[\"POST\"])\n32:     def return_json():\n33:         return flask.jsonify(foo=str(flask.request.get_json()))\n34: \n35:     rv = client.post(\"/json\", data=\"malformed\", content_type=\"application/json\")",
+            "relevance": "Matched: flask, get; score 23; evidence category: mention_only"
+          },
+          {
+            "path": "tests/test_json.py",
+            "start_line": 248,
+            "end_line": 252,
+            "excerpt": "248:     @app.route(\"/\", methods=[\"POST\"])\n249:     def index():\n250:         return flask.json.dumps(flask.request.get_json()[\"x\"])\n251: \n252:     rv = client.post(",
+            "relevance": "Matched: flask, get; score 23; evidence category: mention_only"
+          },
+          {
+            "path": "docs/conf.py",
+            "start_line": 8,
+            "end_line": 12,
+            "excerpt": "8: copyright = \"2010 Pallets\"\n9: author = \"Pallets\"\n10: release, version = get_version(\"Flask\")\n11: \n12: # General --------------------------------------------------------------",
+            "relevance": "Matched: flask, get; score 22; evidence category: mention_only"
+          },
+          {
+            "path": "examples/tutorial/tests/conftest.py",
+            "start_line": 5,
+            "end_line": 9,
+            "excerpt": "5: \n6: from flaskr import create_app\n7: from flaskr.db import get_db\n8: from flaskr.db import init_db\n9: ",
+            "relevance": "Matched: flask, get; score 22; evidence category: mention_only"
+          },
+          {
+            "path": "examples/tutorial/tests/test_auth.py",
+            "start_line": 3,
+            "end_line": 7,
+            "excerpt": "3: from flask import session\n4: \n5: from flaskr.db import get_db\n6: \n7: ",
+            "relevance": "Matched: flask, get; score 22; evidence category: mention_only"
+          }
+        ],
+        "reasoning": "Related evidence found, but this claim form is outside the supported static checks. Review the cited lines manually or use a narrow claim such as 'Declares requests as a Python dependency.'",
+        "corrected_wording": "Flask is quick and easy to get started with — not established by the retrieved repository evidence."
+      }
+    },
+    {
+      "id": "rich",
+      "owner": "Textualize",
+      "repository": "rich",
+      "commit": "9d8f9a372cc5916fd4781fec207ced7ddac2f08f",
+      "archive_sha256": "b45c174dd3601a23184651d8eb597c67a1a6a6f85a157d77c25087a2f29af7fc",
+      "claim": "Declares pygments as a Python dependency.",
+      "claim_origin": "Authored Poetry manifest claim",
+      "excluded_path": "README.md",
+      "expected_verdict": "VERIFIED",
+      "rationale": "The tool.poetry.dependencies table declares pygments ^2.13.0. A manual static review can verify the declaration even though the current checker does not support Poetry.",
+      "review_source": {
+        "path": "pyproject.toml",
+        "start_line": 29,
+        "end_line": 33,
+        "excerpt": "[tool.poetry.dependencies]\npython = \">=3.9.0\"\npygments = \"^2.13.0\"\nipywidgets = { version = \">=7.5.1,<9\", optional = true }\nmarkdown-it-py = \">=2.2.0\""
+      },
+      "matches_label": false,
+      "actual": {
+        "claim": "Declares pygments as a Python dependency.",
+        "verdict": "INSUFFICIENT_EVIDENCE",
+        "confidence": 0.3,
+        "evidence": [
+          {
+            "path": "pyproject.toml",
+            "start_line": 58,
+            "end_line": 62,
+            "excerpt": "58: \n59: [[tool.mypy.overrides]]\n60: module = [\"pygments.*\", \"IPython.*\", \"ipywidgets.*\"]\n61: ignore_missing_imports = true\n62: ",
+            "relevance": "Matched: pygments, python; score 22; evidence category: mention_only"
+          },
+          {
+            "path": "tests/test_syntax.py",
+            "start_line": 6,
+            "end_line": 10,
+            "excerpt": "6: \n7: import pytest\n8: from pygments.lexers import PythonLexer\n9: \n10: from rich.console import Console",
+            "relevance": "Matched: pygments, python; score 22; evidence category: mention_only"
+          },
+          {
+            "path": "rich/syntax.py",
+            "start_line": 60,
+            "end_line": 64,
+            "excerpt": "60: DEFAULT_THEME = \"monokai\"\n61: \n62: # The following styles are based on https://github.com/pygments/pygments/blob/master/pygments/formatters/terminal.py\n63: # A few modifications were made\n64: ",
+            "relevance": "Matched: pygments; score 13; evidence category: mention_only"
+          },
+          {
+            "path": ".github/workflows/pythonpackage.yml",
+            "start_line": 18,
+            "end_line": 25,
+            "excerpt": "18:     steps:\n19:       - uses: actions/checkout@v4\n20:       - name: Set up Python ${{ matrix.python-version }}\n21:         uses: actions/setup-python@v5\n22:         with:\n23:           python-version: ${{ matrix.python-version }}\n24:           allow-prereleases: true\n25:       - name: Install and configure Poetry",
+            "relevance": "Matched: python; score 12; evidence category: mention_only"
+          },
+          {
+            "path": "FAQ.md",
+            "start_line": 6,
+            "end_line": 10,
+            "excerpt": "6: - [Incorrect highlights in printed output](#incorrect-highlights-in-printed-output)\n7: - [Natively inserted ANSI escape sequence characters break alignment of Panel.](#natively-inserted-ansi-escape-sequence-characters-break-alignment-of-panel)\n8: - [python -m rich.spinner shows extra lines.](#python--m-richspinner-shows-extra-lines)\n9: - [Rich is automatically installing traceback handler.](#rich-is-automatically-installing-traceback-handler)\n10: - [Strange colors in console output.](#strange-colors-in-console-output)",
+            "relevance": "Matched: python; score 12; evidence category: mention_only"
+          },
+          {
+            "path": "README.cn.md",
+            "start_line": 366,
+            "end_line": 370,
+            "excerpt": "366: <summary>语法高亮（Syntax Highlighting）</summary>\n367: \n368: Rich 使用[pygments](https://pygments.org/)库来实现[语法高亮显示](https://rich.readthedocs.io/en/latest/syntax.html)。用法类似于渲染 markdown。构造一个`Syntax`对象并将其打印到控制台。下面是一个例子：\n369: \n370: ```python",
+            "relevance": "Matched: pygments; score 12; evidence category: mention_only"
+          }
+        ],
+        "reasoning": "Related evidence found, but the supported static check found no matching declaration. The source may contain only a mention, a different value, invalid syntax, or an incomplete excerpt. This does not establish that the claim is false.",
+        "corrected_wording": "Declares pygments as a Python dependency — not established by the retrieved repository evidence."
+      }
+    }
+  ]
+}

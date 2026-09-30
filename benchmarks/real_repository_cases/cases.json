@@ -1,0 +1,95 @@
+{
+  "label_status": "Authored before the recorded run; independent review pending",
+  "cases": [
+    {
+      "id": "httpx",
+      "owner": "encode",
+      "repository": "httpx",
+      "commit": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254",
+      "archive_sha256": "bc225694843cdc4eeed329446bdc52a63d713a1e1d835f269e6729456cc12906",
+      "claim": "Declares httpcore as a Python dependency.",
+      "claim_origin": "Authored manifest claim",
+      "excluded_path": "README.md",
+      "expected_verdict": "VERIFIED",
+      "rationale": "The project.dependencies array declares httpcore==1.*. This establishes a declaration, not successful installation or runtime use.",
+      "review_source": {
+        "path": "pyproject.toml",
+        "start_line": 30,
+        "end_line": 35,
+        "excerpt": "dependencies = [\n    \"certifi\",\n    \"httpcore==1.*\",\n    \"anyio\",\n    \"idna\",\n]"
+      }
+    },
+    {
+      "id": "requests",
+      "owner": "psf",
+      "repository": "requests",
+      "commit": "611c6162cbc4ac2020a2f91c7cfa4f3abf9bbb60",
+      "archive_sha256": "50cb394c7d6a0dad356cbbbd650730f09bbbb32a447235cef622c447c0520e06",
+      "claim": "Requests officially supports Python 3.10+.",
+      "claim_origin": "Literal README.md:38",
+      "excluded_path": "README.md",
+      "expected_verdict": "PARTIALLY_VERIFIED",
+      "rationale": "requires-python establishes the declared minimum. Official support across Python versions requires broader evidence than this static declaration.",
+      "review_source": {
+        "path": "pyproject.toml",
+        "start_line": 17,
+        "end_line": 17,
+        "excerpt": "requires-python = \">=3.10\""
+      }
+    },
+    {
+      "id": "click",
+      "owner": "pallets",
+      "repository": "click",
+      "commit": "06b2a678741131fd577ce170e23e5ca0aeba0309",
+      "archive_sha256": "ea1b10e22df2c1fee0f7cf8ce35d6f0b642c9c1a72696ee9347d6a196e4d5f65",
+      "claim": "Imports pytest in Python tests.",
+      "claim_origin": "Authored test import claim",
+      "excluded_path": "README.md",
+      "expected_verdict": "VERIFIED",
+      "rationale": "A top-level import pytest appears in a Python test file. This does not establish that the tests pass.",
+      "review_source": {
+        "path": "tests/test_basic.py",
+        "start_line": 1,
+        "end_line": 9,
+        "excerpt": "from __future__ import annotations\n\nimport enum\nimport os\n\nimport pytest\n\nimport click\nfrom click._utils import UNSET"
+      }
+    },
+    {
+      "id": "flask",
+      "owner": "pallets",
+      "repository": "flask",
+      "commit": "d73fa1cdcbd8b1465c151db8924ba58b1dd14e35",
+      "archive_sha256": "e95e9058a638867f51648d3b40738ca99b306c1d19dc16c9e49f2383fd4841f6",
+      "claim": "Flask is quick and easy to get started with.",
+      "claim_origin": "Paraphrase of README.md:5-7",
+      "excluded_path": "README.md",
+      "expected_verdict": "INSUFFICIENT_EVIDENCE",
+      "rationale": "Quick and easy is subjective and depends on the user and task. The package description is context, not proof; the originating README is excluded.",
+      "review_source": {
+        "path": "pyproject.toml",
+        "start_line": 1,
+        "end_line": 5,
+        "excerpt": "[project]\nname = \"Flask\"\nversion = \"3.2.0.dev\"\ndescription = \"A simple framework for building complex web applications.\"\nreadme = \"README.md\""
+      }
+    },
+    {
+      "id": "rich",
+      "owner": "Textualize",
+      "repository": "rich",
+      "commit": "9d8f9a372cc5916fd4781fec207ced7ddac2f08f",
+      "archive_sha256": "b45c174dd3601a23184651d8eb597c67a1a6a6f85a157d77c25087a2f29af7fc",
+      "claim": "Declares pygments as a Python dependency.",
+      "claim_origin": "Authored Poetry manifest claim",
+      "excluded_path": "README.md",
+      "expected_verdict": "VERIFIED",
+      "rationale": "The tool.poetry.dependencies table declares pygments ^2.13.0. A manual static review can verify the declaration even though the current checker does not support Poetry.",
+      "review_source": {
+        "path": "pyproject.toml",
+        "start_line": 29,
+        "end_line": 33,
+        "excerpt": "[tool.poetry.dependencies]\npython = \">=3.9.0\"\npygments = \"^2.13.0\"\nipywidgets = { version = \">=7.5.1,<9\", optional = true }\nmarkdown-it-py = \">=2.2.0\""
+      }
+    }
+  ]
+}

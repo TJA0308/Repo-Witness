@@ -1,5 +1,9 @@
 # Pinned public-repository smoke test
 
+For five manually reasoned examples with expected and actual verdicts, see
+[the authored walkthrough](authored-cases.md). Those selected cases are separate
+from this unlabeled smoke test; independent review is still pending.
+
 This is an audit of three public project snapshots. It checks whether discovery,
 retrieval, citations, and the verdict rules run on repositories outside the
 synthetic fixtures. It is **not an accuracy estimate**: the 23 claims have no

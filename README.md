@@ -144,6 +144,10 @@ This checks the workflow and citation paths. There are no independent verdict la
 
 </details>
 
+### Five worked examples from real repositories
+
+[Walk through HTTPX, Requests, Click, Flask, and Rich](docs/evaluation/authored-cases.md): each example has a pinned commit, an authored expected verdict, source lines, reasoning, and the actual audit output. **3 of 5 match the authored labels**. The two mismatches expose missed import evidence and unsupported Poetry metadata. These selected examples are not an independent accuracy benchmark.
+
 <details>
 <summary>Run the checks and reproduce the benchmarks</summary>
 
