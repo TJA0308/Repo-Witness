@@ -3,7 +3,7 @@ import re
 from collections.abc import Collection, Mapping
 from pathlib import Path
 from .models import EvidenceSnippet
-from .checks import pyproject_dependency_evidence
+from .checks import pyproject_dependency_evidence, python_test_import_evidence
 
 MAX_CANDIDATES = 6
 MAX_EXCERPT_CHARS = 1200
@@ -54,6 +54,12 @@ def retrieve_evidence(
     declaration = None
     if "pyproject.toml" in files and "pyproject.toml" not in excluded:
         declaration = pyproject_dependency_evidence(claim, files["pyproject.toml"])
+    import_evidence = None
+    for relative, lines in sorted(files.items()):
+        if relative.casefold() not in excluded:
+            import_evidence = python_test_import_evidence(claim, relative, lines)
+            if import_evidence:
+                break
     for relative, lines in sorted(files.items()):
         if relative.casefold() in excluded:
             continue
@@ -94,4 +100,6 @@ def retrieve_evidence(
             break
     if declaration:
         return [declaration, *(item for item in results if item.path != "pyproject.toml")][:limit]
+    if import_evidence:
+        return [import_evidence, *(item for item in results if item.path != import_evidence.path)][:limit]
     return results

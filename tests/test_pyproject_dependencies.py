@@ -37,7 +37,7 @@ def test_project_dependencies_are_declarations_not_installation(tmp_path, entry)
     '[project.optional-dependencies]\ntest = ["requests"]',
     '[build-system]\nrequires = ["requests"]',
     '[dependency-groups]\ndev = ["requests"]',
-    '[tool.poetry.dependencies]\nrequests = "*"',
+    '[tool.poetry.dependencies]\nrequests = {version = "*", optional = true}',
     '[tool.example]\ndependencies = ["requests"]',
     '[project]\ndescription = \'\'\'\ndependencies = ["requests"]\n\'\'\'',
     '[project]\ndependencies = "requests"',

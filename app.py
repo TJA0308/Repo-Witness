@@ -1,4 +1,5 @@
 import os
+import re
 import zipfile
 from html import escape
 from pathlib import Path
@@ -103,7 +104,7 @@ def render_results(report, claim_sources: dict[str, str] | None = None) -> None:
     mode = "OpenAI-assisted analysis" if report.analyzer.startswith("OpenAI") else "Deterministic local analysis"
     st.caption(f"Analysis mode: {mode}. Confidence is heuristic strength, not a probability of correctness.")
     st.success(f"Audit complete — {len(report.audits)} claims reviewed.")
-    for audit in report.audits:
+    for audit_index, audit in enumerate(report.audits):
         status_text, status_class = VERDICT_UI[audit.verdict]
         with st.container(border=True):
             status_col, confidence_col = st.columns([4, 1])
@@ -144,6 +145,8 @@ def render_results(report, claim_sources: dict[str, str] | None = None) -> None:
                         st.caption(f"Relevance · {evidence.relevance}")
                     st.code(evidence.excerpt, language="text")
 
+            render_claim_revision(audit, audit_index, source_path)
+
     with st.container(border=True):
         st.markdown("### Export audit")
         st.caption("Download the complete verdicts, corrected wording, and line-linked evidence as Markdown.")
@@ -178,16 +181,14 @@ def uploaded_repository_changed() -> None:
     st.session_state["sample_loaded"] = False
     clear_discovery_state()
     st.session_state["claims_editor"] = ""
-    st.session_state.pop("report", None)
-    st.session_state.pop("report_claim_sources", None)
+    clear_report()
 
 
 def load_sample_repository() -> None:
     st.session_state["sample_loaded"] = True
     clear_discovery_state()
     st.session_state["claims_editor"] = ""
-    st.session_state.pop("report", None)
-    st.session_state.pop("report_claim_sources", None)
+    clear_report()
 
 
 def try_sample_audit() -> None:
@@ -222,8 +223,7 @@ def discover_repository_claims() -> None:
     root = None
     temporary = False
     clear_discovery_state()
-    st.session_state.pop("report", None)
-    st.session_state.pop("report_claim_sources", None)
+    clear_report()
     try:
         root, temporary = acquire_repository()
         if root is None:
@@ -250,8 +250,7 @@ def apply_selected_suggestions() -> None:
     selected = st.session_state.get("selected_suggestions", [])
     st.session_state["claims_editor"] = "\n".join(selected)
     st.session_state["claims_source_path"] = st.session_state.get("selected_readme_path")
-    st.session_state.pop("report", None)
-    st.session_state.pop("report_claim_sources", None)
+    clear_report()
 
 
 def current_claim_sources(claims: list[str]) -> dict[str, str]:
@@ -264,6 +263,72 @@ def current_claim_sources(claims: list[str]) -> dict[str, str]:
 def clear_report() -> None:
     st.session_state.pop("report", None)
     st.session_state.pop("report_claim_sources", None)
+    clear_revision_state()
+
+
+def clear_revision_state() -> None:
+    for key in list(st.session_state):
+        if key.startswith("revision_"):
+            st.session_state.pop(key, None)
+
+
+def recheck_claim(editor_key: str, result_key: str, source_path: str | None) -> None:
+    """Audit one edit without replacing the original report or losing provenance."""
+    st.session_state.pop(result_key, None)
+    claim = st.session_state[editor_key].strip()
+    if not claim or len(claim) > MAX_CLAIM_CHARS:
+        st.session_state[result_key] = {"error": "Enter a claim with 1 to 300 characters."}
+        return
+    root, temporary = None, False
+    try:
+        root, temporary = acquire_repository()
+        if root is None:
+            raise ValueError("No repository is available to audit")
+        sources = {claim: source_path} if source_path else {}
+        report = run_repository_audit(root, [claim], sources)
+        st.session_state[result_key] = {"report": report, "sources": sources}
+    except Exception as exc:
+        st.session_state[result_key] = {"error": repository_error_message(exc)}
+    finally:
+        if temporary and root is not None:
+            cleanup_repository(root)
+
+
+def render_claim_revision(audit, index: int, source_path: str | None) -> None:
+    editor_key, result_key = f"revision_editor_{index}", f"revision_result_{index}"
+    suggestion = audit.claim
+    if audit.verdict == Verdict.PARTIALLY_VERIFIED:
+        suggestion = re.sub(r" with production-scale reliability\.?$", ".", suggestion, flags=re.I)
+        suggestion = re.sub(r"officially supports Python", "requires Python", suggestion, flags=re.I)
+    with st.expander("Revise and recheck this claim"):
+        st.caption("Edit the claim to state a fact the cited source can establish. Rechecking keeps the original audit above; improved wording still needs evidence.")
+        revised = st.text_input(
+            "Revised claim", value=suggestion, key=editor_key, max_chars=MAX_CLAIM_CHARS,
+            on_change=st.session_state.pop, args=(result_key, None),
+        )
+        st.caption(f"Review document remains excluded: {source_path}" if source_path else "Manual entry: no review document excluded.")
+        st.button("Recheck revised claim", key=f"revision_button_{index}",
+                  disabled=not revised.strip(), on_click=recheck_claim,
+                  args=(editor_key, result_key, source_path), use_container_width=True)
+        result = st.session_state.get(result_key)
+        if not result:
+            return
+        if "error" in result:
+            st.error(result["error"])
+            return
+        revised_report = result["report"]
+        revised_audit = revised_report.audits[0]
+        st.markdown(f"**Recheck verdict: {VERDICT_UI[revised_audit.verdict][0]}**")
+        st.write(revised_audit.claim)
+        st.write(revised_audit.reasoning)
+        st.caption(f"Analysis mode: {revised_report.analyzer}. Confidence is heuristic, not a probability.")
+        if revised_audit.verdict == Verdict.INSUFFICIENT_EVIDENCE:
+            st.caption("Insufficient evidence does not establish that the revised claim is false.")
+        for evidence in visible_evidence(revised_audit.evidence):
+            st.code(f"{evidence.path}:{evidence.start_line}-{evidence.end_line}", language=None)
+            st.code(evidence.excerpt, language="text")
+        st.download_button("Download recheck report", markdown_report(revised_report, result["sources"]),
+                           "repo-witness-recheck.md", "text/markdown", key=f"revision_export_{index}")
 
 
 def render_claim_review() -> None:
@@ -340,8 +405,8 @@ with st.expander("How the audit works · supported checks and limits"):
 2. **Review claims.** Discover README suggestions or enter your own. The selected README stays excluded after edits.
 3. **Find evidence.** Rank matching lines and combine overlapping excerpts, retaining file and line citations.
 4. **Check the claim.** Deterministic verification supports these narrow forms:
-   - `Imports pytest in Python tests.` — a top-level import in a test file's retrieved header.
-   - `Declares requests as a Python dependency.` — an entry in a requirements text file or root `pyproject.toml` under `[project].dependencies`.
+   - `Imports pytest in Python tests.` — a parsed top-level import with a bounded test-file header citation.
+   - `Declares requests as a Python dependency.` — an entry in a requirements text file or root `pyproject.toml` under `[project].dependencies` or legacy `[tool.poetry.dependencies]` (non-optional).
    - `Includes Docker configuration based on Python 3.11.` — a matching `FROM` instruction.
    - `HTTPX requires Python 3.9+.` - a matching Python version floor in `pyproject.toml`.
 
@@ -424,6 +489,7 @@ if not can_run:
 
 auto_run_sample = st.session_state.pop("run_sample_after_render", False)
 if run_audit or auto_run_sample:
+    clear_revision_state()
     root = None
     temporary = False
     try:

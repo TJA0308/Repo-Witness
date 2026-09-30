@@ -1,10 +1,14 @@
 # Five real-repository examples
 
-These are **selected, authored cases**, with labels written before the recorded run. Independent review is pending. They demonstrate the audit flow and its limitations; **3/5 agreement is not a general accuracy estimate**. No downloaded repository code was executed.
+These are **selected, authored cases**, with labels written before the first recorded run. Independent review is pending. The original run matched **3/5** labels; a rerun after targeted fixes matches **5/5**. We used the two failures to guide development, so neither result is an independent or general accuracy estimate. No downloaded repository code was executed.
 
 Each repository is pinned to a commit. The runner checks the archive SHA-256, review excerpts, actual citation text and ranges, and exclusion of the originating README. Labels and actual results are kept separately.
 
-| Repository | Claim | Expected | Actual |
+## Original run before the fixes
+
+The source excerpts and actual evidence below preserve this original run.
+
+| Repository | Claim | Expected | Original actual |
 | --- | --- | --- | --- |
 | httpx | Declares httpcore as a Python dependency. | VERIFIED | VERIFIED |
 | requests | Requests officially supports Python 3.10+. | PARTIALLY_VERIFIED | PARTIALLY_VERIFIED |
@@ -14,11 +18,29 @@ Each repository is pinned to a commit. The runner checks the archive SHA-256, re
 
 ## What the mismatches tell us
 
+These findings describe the original version. The rerun below shows which were resolved.
+
 - **Click:** the test file contains a top-level `import pytest`, but keyword retrieval selected other passages and missed the import. This is a retrieval failure; the claim is not false.
 - **Rich:** Poetry declares `pygments`, but the checker only handles requirements files and root `[project].dependencies`. Retrieval also missed the relevant Poetry declaration. This is an unsupported manifest format plus weak retrieval.
 - **Flask:** the subjective ease-of-use claim correctly abstains, but the returned snippets are weakly related. Citation correctness does not establish relevance.
 
-The verdict rules were not changed to make these examples pass. There is no contradiction example here; contradiction behavior remains covered by synthetic cases.
+The original run recorded the existing rules without tuning them to these labels. The later fixes below address the observed failures. There is no contradiction example here; contradiction behavior remains covered by synthetic cases.
+
+## Rerun after targeted fixes
+
+| Repository | Expected | Current actual | Change |
+| --- | --- | --- | --- |
+| HTTPX | VERIFIED | VERIFIED | No verdict change |
+| Requests | PARTIALLY_VERIFIED | PARTIALLY_VERIFIED | Broad support scope remains unproven |
+| Click | VERIFIED | VERIFIED | Parsed top-level import evidence takes priority over keyword noise |
+| Flask | INSUFFICIENT_EVIDENCE | INSUFFICIENT_EVIDENCE | Subjective wording still abstains; weak snippets remain |
+| Rich | VERIFIED | VERIFIED | Root legacy Poetry main dependency is parsed and prioritized |
+
+[Current complete output](authored_cases_after.json) · [Original complete output](authored_cases.json)
+
+The pinned archives and expected labels are unchanged. These are development
+cases: do not describe 5/5 as independent validation, general accuracy, or proof
+of runtime behavior. General synthetic benchmark metrics are unchanged.
 
 ## Walk through each case
 
@@ -460,7 +482,7 @@ curl.exe -L -f -o (Join-Path $archiveDir 'requests.zip') 'https://codeload.githu
 curl.exe -L -f -o (Join-Path $archiveDir 'click.zip') 'https://codeload.github.com/pallets/click/zip/06b2a678741131fd577ce170e23e5ca0aeba0309'
 curl.exe -L -f -o (Join-Path $archiveDir 'flask.zip') 'https://codeload.github.com/pallets/flask/zip/d73fa1cdcbd8b1465c151db8924ba58b1dd14e35'
 curl.exe -L -f -o (Join-Path $archiveDir 'rich.zip') 'https://codeload.github.com/Textualize/rich/zip/9d8f9a372cc5916fd4781fec207ced7ddac2f08f'
-python -m repo_witness.authored_evaluation $archiveDir --output docs/evaluation/authored_cases.json
+python -m repo_witness.authored_evaluation $archiveDir --output docs/evaluation/authored_cases_after.json
 ```
 
 The runner rejects archive hash differences instead of silently evaluating a different snapshot. It uses the same bounded ZIP ingestion, retrieval and deterministic analyzer as the app, and cleans its temporary extraction.
@@ -469,4 +491,4 @@ The runner rejects archive hash differences instead of silently evaluating a dif
 
 ## How to explain this in an interview
 
-> I built a static claim auditor that retrieves repository evidence and applies narrow, explainable checks. I tried five pinned real repositories and recorded both successes and failures. It verifies declarations rather than runtime behavior. A missed import showed that retrieval can lose the right evidence; a Poetry dependency showed a format coverage gap. The examples are authored demonstrations, and independent evaluation is still future work.
+> I built a repository claim auditor that retrieves source evidence and applies narrow, explainable checks. I tried five pinned real repositories and recorded both successes and failures. It verifies declarations rather than runtime behavior. A missed import led me to prioritize parsed test imports; a Poetry dependency led to a bounded metadata check. The same five authored labels now match, but those examples guided the fixes, so independent evaluation is still future work. Users can also revise a broad claim and recheck it while preserving the original audit and README exclusion.

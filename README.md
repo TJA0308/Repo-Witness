@@ -77,7 +77,9 @@ The example below establishes a narrow fact: a Python test file imports pytest. 
 
 The positive checks cover narrow forms of Python imports, dependency declarations, Docker base images, and declared Python version minimums. Confidence labels describe uncalibrated heuristic strength; they are not probabilities.
 
-For example, **“Declares requests as a Python dependency.”** checks requirements files and the root `pyproject.toml` project's dependency list. Optional extras, build dependencies, and Poetry-specific tables do not qualify for the TOML check. A declaration does not establish installation or use.
+For example, **“Declares requests as a Python dependency.”** checks requirements files and the root `pyproject.toml` project's dependency list or legacy Poetry main dependencies. Optional extras, development groups, and build dependencies do not qualify for the TOML check. A declaration does not establish installation or use.
+
+**Review, revise, recheck:** open a result's revision panel, edit the claim into a source-supported fact, and recheck it. The original result stays visible, the selected README remains excluded, and the revised audit has its own evidence and Markdown download. Narrowing wording does not guarantee verification.
 
 Unresolved results now distinguish **no relevant evidence found**, **a claim form outside the supported checks**, and **a supported check with no matching declaration**. The explanation appears in both the app and exported report.
 
@@ -146,7 +148,7 @@ This checks the workflow and citation paths. There are no independent verdict la
 
 ### Five worked examples from real repositories
 
-[Walk through HTTPX, Requests, Click, Flask, and Rich](docs/evaluation/authored-cases.md): each example has a pinned commit, an authored expected verdict, source lines, reasoning, and the actual audit output. **3 of 5 match the authored labels**. The two mismatches expose missed import evidence and unsupported Poetry metadata. These selected examples are not an independent accuracy benchmark.
+[Walk through HTTPX, Requests, Click, Flask, and Rich](docs/evaluation/authored-cases.md): each example has a pinned commit, an authored expected verdict, source lines, reasoning, and the actual audit output. The first run matched **3 of 5** labels; targeted import retrieval and Poetry support bring the rerun to **5 of 5**. These fixes used the observed failures, so this is development evidence, not an independent accuracy benchmark.
 
 <details>
 <summary>Run the checks and reproduce the benchmarks</summary>
