@@ -1,13 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="190" viewBox="0 0 1200 190" role="img" aria-labelledby="title desc">
-  <title id="title">RepoWitness</title>
-  <desc id="desc">Repository documentation review. A compact dark developer banner.</desc>
-  <rect width="1200" height="190" rx="16" fill="#0b1018"/>
-  <rect x="1" y="1" width="1198" height="188" rx="15" fill="none" stroke="#273449"/>
-  <path d="M48 48h32v32H48z" fill="none" stroke="#5eead4" stroke-width="3"/>
-  <path d="m70 70 18 18" stroke="#5eead4" stroke-width="3"/>
-  <text x="106" y="83" fill="#e5edf7" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="700">RepoWitness</text>
-  <text x="48" y="143" fill="#a2b1c6" font-family="Consolas, monospace" font-size="21">README claims. Repository evidence.</text>
-  <rect x="822" y="49" width="330" height="91" rx="10" fill="#121a26" stroke="#273449"/>
-  <text x="846" y="79" fill="#8ba0b7" font-family="Consolas, monospace" font-size="15">THE REVIEW LOOP</text>
-  <text x="846" y="113" fill="#5eead4" font-family="Consolas, monospace" font-size="20">claim → evidence → verdict</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="240" viewBox="0 0 1200 240" role="img" aria-labelledby="title desc">
+  <title id="title">RepoWitness — a source review workspace</title>
+  <desc id="desc">Review README claims using source citations and focused changes. Paper and ink styling with a restrained rust accent.</desc>
+  <rect width="1200" height="240" rx="4" fill="#f6f4ee"/>
+  <rect x="1" y="1" width="1198" height="238" rx="3" fill="none" stroke="#d8d9cf"/>
+  <rect x="36" y="30" width="48" height="48" rx="3" fill="#252923"/>
+  <text x="44" y="62" fill="#fffefb" font-family="Consolas, monospace" font-size="22" font-weight="700">rw.</text>
+  <text x="102" y="48" fill="#a44226" font-family="Consolas, monospace" font-size="14" letter-spacing="2">A SOURCE REVIEW WORKSPACE</text>
+  <text x="102" y="79" fill="#252923" font-family="Consolas, monospace" font-size="29" font-weight="700">RepoWitness</text>
+  <text x="36" y="141" fill="#252923" font-family="Georgia, serif" font-size="37">Give every claim a source to stand on.</text>
+  <text x="36" y="188" fill="#62675d" font-family="Arial, sans-serif" font-size="20">README claims / repository evidence / focused diffs</text>
+  <path d="M825 35V205" stroke="#d8d9cf"/>
+  <g font-family="Consolas, monospace" font-size="17">
+    <text x="859" y="66" fill="#62675d">01 / INSPECT A SNAPSHOT</text>
+    <text x="859" y="99" fill="#252923">claim → source → verdict</text>
+    <text x="859" y="154" fill="#62675d">02 / COMPARE A CHANGE</text>
+    <text x="859" y="187" fill="#a44226">before → after → review</text>
+  </g>
 </svg>

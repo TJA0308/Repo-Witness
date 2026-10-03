@@ -1,30 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="350" viewBox="0 0 1200 350" role="img" aria-labelledby="title desc">
-  <title id="title">Trace a sample claim to its evidence</title>
-  <desc id="desc">Claim: Imports pytest in Python tests. Evidence: sample_repo/tests/test_app.py line 1 contains import pytest. Verdict: Verified for the import statement; test execution is not established.</desc>
-  <rect width="1200" height="350" rx="16" fill="#0b1018"/>
-  <g fill="#121a26" stroke="#273449">
-    <rect x="24" y="24" width="352" height="260" rx="12"/>
-    <rect x="424" y="24" width="352" height="260" rx="12"/>
-    <rect x="824" y="24" width="352" height="260" rx="12"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">Trace a claim to a source fact</title>
+  <desc id="desc">Illustrated walkthrough of actual bundled sample results, not an application screenshot. Imports pytest in Python tests is verified using tests/test_app.py line 1. This does not establish test execution. The complete sample has two verified, one partial, one contradicted and one insufficient result.</desc>
+  <rect width="1200" height="520" rx="4" fill="#f6f4ee"/>
+  <rect x="1" y="1" width="1198" height="518" rx="3" fill="none" stroke="#d8d9cf"/>
+  <text x="36" y="40" fill="#a44226" font-family="Consolas, monospace" font-size="15" letter-spacing="1.5">01 / AUDIT A SNAPSHOT</text>
+  <text x="36" y="98" fill="#252923" font-family="Georgia, serif" font-size="42">One claim. One cited source.</text>
+  <path d="M36 128H1164" stroke="#d8d9cf"/>
+  <g font-family="Consolas, monospace" font-size="15" fill="#62675d">
+    <text x="36" y="169">README CLAIM</text>
+    <text x="648" y="169">RETRIEVED REPOSITORY EVIDENCE</text>
   </g>
-  <g font-family="Consolas, monospace" font-size="17" fill="#8ba0b7">
-    <text x="48" y="61">01 / CLAIM</text><text x="448" y="61">02 / SOURCE</text><text x="848" y="61">03 / VERDICT</text>
+  <g fill="#252923" font-family="Arial, sans-serif" font-size="31">
+    <text x="36" y="224">Imports pytest</text>
+    <text x="36" y="268">in Python tests.</text>
   </g>
-  <g font-family="Arial, Helvetica, sans-serif" fill="#e5edf7" font-size="27" font-weight="700">
-    <text x="48" y="112">Imports pytest</text><text x="48" y="150">in Python tests.</text>
+  <text x="36" y="314" fill="#62675d" font-family="Arial, sans-serif" font-size="20">The originating README is excluded.</text>
+  <path d="M566 221H612m-10-10 10 10-10 10" stroke="#a44226" stroke-width="2" fill="none"/>
+  <text x="648" y="212" fill="#62675d" font-family="Consolas, monospace" font-size="22">tests/test_app.py:1</text>
+  <rect x="648" y="230" width="516" height="62" fill="#fffefb" stroke="#d8d9cf"/>
+  <path d="M648 230V292" stroke="#426449" stroke-width="3"/>
+  <text x="668" y="270" fill="#62675d" font-family="Consolas, monospace" font-size="24">1</text>
+  <text x="706" y="270" fill="#252923" font-family="Consolas, monospace" font-size="24">import pytest</text>
+  <text x="648" y="324" fill="#62675d" font-family="Arial, sans-serif" font-size="20">Parsed top-level import · supporting evidence</text>
+  <rect x="36" y="358" width="1128" height="72" rx="3" fill="#e8eee4" stroke="#bfceba"/>
+  <text x="58" y="402" fill="#31573a" font-family="Consolas, monospace" font-size="23" font-weight="700">VERIFIED</text>
+  <text x="258" y="402" fill="#31573a" font-family="Arial, sans-serif" font-size="21">Import declaration established. Whether tests pass remains unproven.</text>
+  <g font-family="Consolas, monospace" font-size="15" fill="#62675d">
+    <text x="36" y="466">FULL SAMPLE / 2 verified · 1 partial · 1 contradicted · 1 insufficient</text>
+    <text x="36" y="496">ILLUSTRATED WALKTHROUGH / actual synthetic sample results / no code execution</text>
   </g>
-  <g font-family="Consolas, monospace" font-size="20">
-    <text x="448" y="104" fill="#7dd3fc">tests/test_app.py:1</text>
-    <rect x="448" y="126" width="304" height="49" rx="6" fill="#0b1018"/>
-    <text x="462" y="158" fill="#8ba0b7">1</text><text x="492" y="158" fill="#c4b5fd">import</text><text x="576" y="158" fill="#e5edf7">pytest</text>
-  </g>
-  <rect x="848" y="90" width="148" height="42" rx="21" fill="#13392f" stroke="#286650"/>
-  <text x="872" y="117" fill="#5eead4" font-family="Consolas, monospace" font-size="20" font-weight="700">VERIFIED</text>
-  <g font-family="Arial, Helvetica, sans-serif" font-size="20" fill="#a2b1c6">
-    <text x="48" y="220">README under review</text><text x="48" y="249">is excluded from evidence.</text>
-    <text x="448" y="220">Python syntax is parsed.</text><text x="448" y="249">Uploaded code is not run.</text>
-    <text x="848" y="176">The import is established.</text><text x="848" y="220">Whether tests pass</text><text x="848" y="249">is outside this check.</text>
-  </g>
-  <g stroke="#5eead4" stroke-width="2" fill="none"><path d="M386 151h26m-7-7 7 7-7 7"/><path d="M786 151h26m-7-7 7 7-7 7"/></g>
-  <text x="24" y="322" font-family="Consolas, monospace" font-size="17" fill="#8ba0b7">SYNTHETIC SAMPLE · one supported check, with a specific proof boundary</text>
 </svg>

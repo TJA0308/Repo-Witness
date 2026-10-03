@@ -1,14 +1,16 @@
 # README visuals
 
-- `workspace.png` and `results.png` are screenshots of the actual local Streamlit app with the bundled synthetic sample.
-- `sample-preview.gif` is a two-frame slideshow of those complete screenshots, scaled proportionally into the same frame without additional cropping. It is not a live screen recording and does not show evidence expansion or report downloading.
-- `repo-witness-banner.svg` and `claim-trace.svg` are editable vector illustrations. The trace uses the real sample import in `sample_repo/tests/test_app.py:1`.
+- `repo-witness-banner.svg` matches the paper-and-ink application palette.
+- `claim-trace.svg` illustrates the actual `sample_repo/tests/test_app.py:1` import and sample verdict counts.
+- `change-review.svg` illustrates the actual worker-service comparison: two flagged claims, one unchanged dependency, and one claim with no evidence.
+- `sample-preview.gif` alternates complete renders of those two walkthroughs on equal 1200 × 520 canvases, without cropping. These are illustrations of actual results, not app screenshots or a screen recording. The README links both still SVGs for readers who prefer a static view.
+- `workspace.png` and `results.png` are retained historical screenshots of the previous dark application UI. They are no longer used in the main README.
 
-To rebuild the slideshow from the repository root, install the optional asset tool and run:
+To rebuild the illustrated preview from the repository root, install the optional asset tools and run:
 
 ```bash
-python -m pip install Pillow==11.3.0
+python -m pip install Pillow==11.3.0 resvg-py==0.5.0
 python scripts/build_readme_preview.py
 ```
 
-Pillow is only needed to regenerate the GIF; it is not an app dependency. Font rendering can vary across operating systems. The README also links the still screenshots so the preview can be read without animation.
+These tools are only needed to regenerate the GIF; they are not app dependencies. Font rendering can vary across operating systems. SVGs use local Georgia, Arial, and Consolas fonts, with generic fallbacks, and contain no scripts or remote resources.
