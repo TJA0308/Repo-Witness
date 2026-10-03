@@ -1,4 +1,4 @@
-<h1 align="center"><img src="docs/assets/repo-witness-banner.svg" alt="RepoWitness ? a source review workspace" width="1200"></h1>
+<h1 align="center"><img src="docs/assets/repo-witness-banner.svg" alt="RepoWitness — a source review workspace" width="1200"></h1>
 
 <p align="center">Review README claims against source evidence. Compare snapshots to flag passages worth another look.</p>
 
@@ -9,7 +9,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-62675D" alt="MIT license"></a>
 </p>
 
-<p align="center"><strong><a href="https://tja0308-repo-witness-app-k4v52v.streamlit.app/">Launch app ?</a> ? <a href="#demo">Try the demos</a> ? <a href="#quick-start">Run locally</a> ? <a href="#how-it-works">Explore the code</a> ? <a href="#evaluation">Inspect the measurements</a></strong></p>
+<p align="center"><strong><a href="https://tja0308-repo-witness-app-k4v52v.streamlit.app/">Launch app ↗</a> · <a href="#demo">Try the demos</a> · <a href="#quick-start">Run locally</a> · <a href="#how-it-works">Explore the code</a> · <a href="#evaluation">Inspect the measurements</a></strong></p>
 
 A dependency disappears. The Python minimum changes. The README still describes the old snapshot. RepoWitness helps you find the source behind a statement, inspect relevant changes, and export a cited review.
 
@@ -19,50 +19,50 @@ A dependency disappears. The Python minimum changes. The README still describes 
 
 [![Illustrated walkthrough of actual sample results: a cited pytest import and four worker-service change-review outcomes](docs/assets/sample-preview.gif)](https://tja0308-repo-witness-app-k4v52v.streamlit.app/)
 
-*Illustrated walkthrough of actual bundled results, not app screenshots or a screen recording.* Both frames use the same complete canvas without cropping. [Open the claim trace](docs/assets/claim-trace.svg) ? [Open the change review](docs/assets/change-review.svg).
+*Illustrated walkthrough of actual bundled results, not app screenshots or a screen recording.* Both frames use the same complete canvas without cropping. [Open the claim trace](docs/assets/claim-trace.svg) · [Open the change review](docs/assets/change-review.svg).
 
 Choose a path in the [live app](https://tja0308-repo-witness-app-k4v52v.streamlit.app/):
 
 | Explore | Click in the app | What you will see |
 | --- | --- | --- |
 | **One snapshot** | **Try sample audit** | Five claims: 2 verified, 1 partial, 1 contradicted, 1 insufficient. |
-| **API service change** | **Review a code change ? API service ? Try change-review example ? Run change review** | Dependency and Docker changes flagged; test import unchanged. |
-| **Worker service change** | **Review a code change ? Worker service ? Try change-review example ? Run change review** | Python minimum and test import flagged; dependency unchanged; release-signing evidence missing. |
+| **API service change** | **Review a code change → API service → Try change-review example → Run change review** | Dependency and Docker changes flagged; test import unchanged. |
+| **Worker service change** | **Review a code change → Worker service → Try change-review example → Run change review** | Python minimum and test import flagged; dependency unchanged; release-signing evidence missing. |
 
 <details>
-<summary><strong>01 / Trace a source fact</strong> ? click through the claim and evidence</summary>
+<summary><strong>01 / Trace a source fact</strong> — click through the claim and evidence</summary>
 
 [![Imports pytest in Python tests is verified using tests/test_app.py line 1; execution remains untested](docs/assets/claim-trace.svg)](sample_repo/tests/test_app.py#L1)
 
 **Claim:** Imports pytest in Python tests.
 
-**Citation:** [`tests/test_app.py:1`](sample_repo/tests/test_app.py#L1) ? `import pytest`.
+**Citation:** [`tests/test_app.py:1`](sample_repo/tests/test_app.py#L1) → `import pytest`.
 
 **Check:** Parse the Python file and find a top-level import. The originating README is excluded.
 
 **Verdict:** `VERIFIED` for the declaration. This does not establish that the tests pass.
 
-[Read the full sample report](docs/sample-audit.md) ? [Browse the sample repository](sample_repo).
+[Read the full sample report](docs/sample-audit.md) · [Browse the sample repository](sample_repo).
 
 </details>
 
 <details>
-<summary><strong>02 / Review the API change</strong> ? inspect removed and modified evidence</summary>
+<summary><strong>02 / Review the API change</strong> — inspect removed and modified evidence</summary>
 
-| README statement | Before ? after | Review signal |
+| README statement | Before → after | Review signal |
 | --- | --- | --- |
-| Declares requests as a Python dependency. | [`requests`](sample_changes/before/requirements.txt) ? [`urllib3`](sample_changes/after/requirements.txt) | Review needed |
-| Includes Docker configuration based on Python 3.11. | [`python:3.11`](sample_changes/before/Dockerfile) ? [`python:3.12`](sample_changes/after/Dockerfile) | Review needed |
+| Declares requests as a Python dependency. | [`requests`](sample_changes/before/requirements.txt) → [`urllib3`](sample_changes/after/requirements.txt) | Review needed |
+| Includes Docker configuration based on Python 3.11. | [`python:3.11`](sample_changes/before/Dockerfile) → [`python:3.12`](sample_changes/after/Dockerfile) | Review needed |
 | Imports pytest in Python tests. | Import unchanged | No change found in retrieved evidence |
 
 The README remains unchanged. An unrelated meeting-note edit does not flag a claim.
 
-[Inspect the before snapshot](sample_changes/before) ? [Inspect the after snapshot](sample_changes/after) ? [Read the generated example report](docs/sample-change-review.md).
+[Inspect the before snapshot](sample_changes/before) · [Inspect the after snapshot](sample_changes/after) · [Read the generated example report](docs/sample-change-review.md).
 
 </details>
 
 <details>
-<summary><strong>03 / Review the worker change</strong> ? distinguish changed, unchanged, and missing evidence</summary>
+<summary><strong>03 / Review the worker change</strong> — distinguish changed, unchanged, and missing evidence</summary>
 
 [![Worker example: Python and pytest changes require review, HTTPX evidence is unchanged, and signing evidence is absent](docs/assets/change-review.svg)](sample_changes/worker)
 
@@ -85,12 +85,12 @@ The README remains unchanged. An unrelated meeting-note edit does not flag a cla
 
 A flag asks you to inspect the diff. Missing evidence leaves the claim unresolved.
 
-[Before manifest](sample_changes/worker/before/pyproject.toml#L4) ? [After manifest](sample_changes/worker/after/pyproject.toml#L4) ? [Before tests](sample_changes/worker/before/tests/test_worker.py#L1) ? [After tests](sample_changes/worker/after/tests/test_worker.py#L1).
+[Before manifest](sample_changes/worker/before/pyproject.toml#L4) · [After manifest](sample_changes/worker/after/pyproject.toml#L4) · [Before tests](sample_changes/worker/before/tests/test_worker.py#L1) · [After tests](sample_changes/worker/after/tests/test_worker.py#L1).
 
 </details>
 
 <details>
-<summary><strong>04 / Understand the verdicts</strong> ? what each result establishes</summary>
+<summary><strong>04 / Understand the verdicts</strong> — what each result establishes</summary>
 
 | Verdict | Meaning | Sample |
 | --- | --- | --- |
@@ -262,4 +262,4 @@ Never commit API keys or `.streamlit/secrets.toml`.
 
 </details>
 
-[One-claim code walkthrough](docs/how-it-works.md) ? [Architecture and limitations](docs/architecture.md) ? [MIT License](LICENSE)
+[One-claim code walkthrough](docs/how-it-works.md) · [Architecture and limitations](docs/architecture.md) · [MIT License](LICENSE)
