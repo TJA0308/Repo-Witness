@@ -56,21 +56,38 @@ def run_repository_audit(root: Path, claims: list[str], claim_sources: dict[str,
 
 def render_header() -> None:
     model = os.environ.get("OPENAI_MODEL", "gpt-5.1")
-    mode = f"OpenAI-assisted analysis · {escape(model)}" if os.environ.get("OPENAI_API_KEY") else "Deterministic analysis · No external AI API"
+    comparison = st.session_state.get("review_mode") == "Review a code change"
+    mode = f"OpenAI-assisted analysis · {escape(model)}" if os.environ.get("OPENAI_API_KEY") and not comparison else "Deterministic analysis · No external AI API"
+    headline = "See what changed.<br>Know what to review." if comparison else "Give every claim<br>a source to stand on."
     st.markdown(
         f"""
         <header class="rw-header">
           <div class="rw-brand-lockup">
-            <div class="rw-mark" aria-hidden="true">⌕</div>
+            <div class="rw-mark" aria-hidden="true">rw.</div>
             <div>
               <div class="rw-title-row">
                 <h1>RepoWitness</h1>
-                <span class="rw-mode-badge">{mode}</span>
               </div>
-              <p class="rw-tagline">Catch documentation drift before you ship.</p>
+              <p class="rw-tagline">A source review workspace</p>
             </div>
           </div>
+          <span class="rw-mode-badge">{mode}</span>
         </header>
+        <section class="rw-intro">
+          <div>
+            <p class="rw-eyebrow">README claims / repository evidence</p>
+            <h2>{headline}</h2>
+            <p class="rw-intro-copy">Review the wording, inspect the source, and decide what holds up.
+            Compare snapshots to see when related evidence changes.</p>
+          </div>
+          <aside class="rw-trace" aria-label="Example of a narrow source check">
+            <div class="rw-trace-label">A claim, traced</div>
+            <p>“Imports pytest in Python tests.”</p>
+            <div class="rw-trace-source">sample / tests/test_app.py:1</div>
+            <pre><span>1</span> import pytest</pre>
+            <div class="rw-trace-footer">Import declaration found <span>Execution untested</span></div>
+          </aside>
+        </section>
         """,
         unsafe_allow_html=True,
     )
@@ -401,9 +418,7 @@ st.set_page_config(
 load_styles()
 render_header()
 render_workflow()
-st.caption("Fast-moving and AI-assisted development can leave README claims describing planned, replaced, partial, or removed features. Review those claims before release, submission, or project review.")
-
-review_mode = st.radio("Review mode", ["Audit one snapshot", "Review a code change"], horizontal=True)
+review_mode = st.radio("Review mode", ["Audit one snapshot", "Review a code change"], horizontal=True, key="review_mode")
 if review_mode == "Review a code change":
     render_change_review(APP_ROOT)
     st.stop()
