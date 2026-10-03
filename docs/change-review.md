@@ -29,6 +29,17 @@ For a quick demo, use **Try change-review example**. It is a synthetic pair:
 An unrelated meeting note also changes, without producing a claim flag.
 [Full example report](sample-change-review.md).
 
+Choose **Worker service** in **Example repository**, then click **Try change-review example** for another synthetic pair. Its README is deliberately unchanged:
+
+| Claim | Source change | Review signal |
+| --- | --- | --- |
+| Worker requires Python 3.10+. | Project minimum raised to Python 3.12 | Review needed |
+| Imports pytest in Python tests. | Tests now import unittest | Review needed |
+| Declares httpx as a Python dependency. | Dependency unchanged | No change found in retrieved evidence |
+| Publishes signed release artifacts. | No relevant evidence in either snapshot | No evidence retrieved |
+
+The first two claims move from verified to insufficient evidence. Missing evidence does not prove a claim false. Switching examples clears the previous report and claim list; load the selected example to begin another review.
+
 ## From two Git commits
 
 Inside the repository you want to review, export snapshots on PowerShell:

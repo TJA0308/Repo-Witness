@@ -9,6 +9,28 @@ from .change_review import compare_claims, markdown_change_review, snapshot_root
 from .ingest import cleanup_repository, extract_repository
 from .readme_claims import discover_readmes, extract_candidate_claims
 
+CHANGE_EXAMPLES = {
+    "API service": {
+        "directory": "sample_changes",
+        "description": "Synthetic API example: a dependency is removed, a Docker base version changes, and a test import stays unchanged.",
+        "claims": [
+            "Declares requests as a Python dependency.",
+            "Includes Docker configuration based on Python 3.11.",
+            "Imports pytest in Python tests.",
+        ],
+    },
+    "Worker service": {
+        "directory": "sample_changes/worker",
+        "description": "Synthetic worker example: the Python minimum increases, pytest is replaced by unittest, the HTTPX dependency stays unchanged, and release signing has no evidence.",
+        "claims": [
+            "Worker requires Python 3.10+.",
+            "Imports pytest in Python tests.",
+            "Declares httpx as a Python dependency.",
+            "Publishes signed release artifacts.",
+        ],
+    },
+}
+
 
 def clear_change_result() -> None:
     st.session_state.pop("change_report", None)
@@ -28,11 +50,8 @@ def load_change_demo() -> None:
     st.session_state["change_demo"] = True
     st.session_state.pop("change_documents", None)
     st.session_state["change_readme"] = "README.md"
-    st.session_state["change_editor"] = "\n".join([
-        "Declares requests as a Python dependency.",
-        "Includes Docker configuration based on Python 3.11.",
-        "Imports pytest in Python tests.",
-    ])
+    example = CHANGE_EXAMPLES[st.session_state.get("change_example", "API service")]
+    st.session_state["change_editor"] = "\n".join(example["claims"])
 
 
 @contextmanager
@@ -40,7 +59,9 @@ def snapshot_pair(app_root: Path):
     temporary = []
     try:
         if st.session_state.get("change_demo"):
-            yield app_root / "sample_changes/before", app_root / "sample_changes/after"
+            example = CHANGE_EXAMPLES[st.session_state.get("change_example", "API service")]
+            directory = app_root / example["directory"]
+            yield directory / "before", directory / "after"
         else:
             for key in ("change_before_zip", "change_after_zip"):
                 upload = st.session_state.get(key)
@@ -77,6 +98,9 @@ def discover_change_claims(app_root: Path) -> None:
 def render_change_review(app_root: Path) -> None:
     st.markdown("## Review documentation after a code change")
     st.caption("Compare the same claims against before and after snapshots. A flag means an edit overlaps retrieved evidence; review the diff to decide whether the wording needs updating.")
+    st.selectbox("Example repository", list(CHANGE_EXAMPLES), key="change_example",
+                 on_change=change_upload_changed,
+                 help="Choose a bundled synthetic repository, then click Try change-review example.")
     st.button("Try change-review example", on_click=load_change_demo)
     columns = st.columns(2)
     with columns[0]:
@@ -88,7 +112,7 @@ def render_change_review(app_root: Path) -> None:
     demo = st.session_state.get("change_demo", False)
     ready = demo or bool(st.session_state.get("change_before_zip") and st.session_state.get("change_after_zip"))
     if demo:
-        st.info("Synthetic example loaded: a dependency is removed, a Docker base version changes, and a test import stays unchanged.")
+        st.info(CHANGE_EXAMPLES[st.session_state["change_example"]]["description"])
     st.button("Find claims in newer README", on_click=discover_change_claims, args=(app_root,), disabled=not ready)
     documents = st.session_state.get("change_documents")
     if documents is not None:

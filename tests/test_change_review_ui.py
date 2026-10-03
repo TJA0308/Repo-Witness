@@ -45,6 +45,52 @@ def test_new_readme_discovery_and_claim_limits(app):
     assert button(app, "Run change review").disabled
 
 
+def test_worker_example_shows_all_signals_and_switching_clears_results(app):
+    from repo_witness.models import Verdict
+
+    button(app, "Try change-review example").click().run()
+    button(app, "Run change review").click().run()
+    app.selectbox(key="change_example").set_value("Worker service").run()
+    assert "change_report" not in app.session_state
+    assert app.text_area[0].value == ""
+    assert button(app, "Run change review").disabled
+    button(app, "Try change-review example").click().run()
+    button(app, "Find claims in newer README").click().run()
+    assert len(app.text_area[0].value.splitlines()) == 4
+    button(app, "Run change review").click().run()
+    assert not app.exception
+    report = app.session_state["change_report"]
+    assert report.changed_file_count == 2
+    assert [c.status for c in report.claims] == [
+        "REVIEW_NEEDED", "REVIEW_NEEDED", "NO_RETRIEVED_CHANGE", "NO_EVIDENCE",
+    ]
+    assert [c.before.verdict for c in report.claims] == [
+        Verdict.VERIFIED, Verdict.VERIFIED, Verdict.VERIFIED, Verdict.INSUFFICIENT_EVIDENCE,
+    ]
+    assert [c.after.verdict for c in report.claims] == [
+        Verdict.INSUFFICIENT_EVIDENCE, Verdict.INSUFFICIENT_EVIDENCE,
+        Verdict.VERIFIED, Verdict.INSUFFICIENT_EVIDENCE,
+    ]
+    assert "-requires-python = \">=3.10\"" in report.claims[0].changes[0].diff
+    assert "-import pytest" in report.claims[1].changes[0].diff
+    assert app.get("download_button")[0].proto.url
+    root = Path(__file__).parents[1] / "sample_changes/worker"
+    for claim in report.claims:
+        assert claim.excluded_document == "README.md"
+        for side, audit in (("before", claim.before), ("after", claim.after)):
+            for snippet in audit.evidence:
+                assert snippet.path != "README.md"
+                lines = (root / side / snippet.path).read_text().splitlines()
+                assert 1 <= snippet.start_line <= snippet.end_line <= len(lines)
+                assert snippet.excerpt == "\n".join(
+                    f"{i + 1}: {lines[i]}" for i in range(snippet.start_line - 1, snippet.end_line)
+                )
+    app.selectbox(key="change_example").set_value("API service").run()
+    assert "change_report" not in app.session_state
+    button(app, "Try change-review example").click().run()
+    assert len(app.text_area[0].value.splitlines()) == 3
+
+
 def test_uploaded_wrapper_snapshots_and_partial_failure_cleanup(app, monkeypatch):
     import streamlit as st
     import repo_witness.change_review_ui as ui

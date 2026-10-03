@@ -31,6 +31,8 @@ Open the [live app](https://tja0308-repo-witness-app-k4v52v.streamlit.app/) and 
 
 Select **Review a code change → Try change-review example → Run change review**. The unchanged README still claims a dependency and Docker version that were changed in the newer snapshot. The tool flags those two claims, shows the source diffs, and leaves the unchanged test import unflagged.
 
+Choose **Worker service** under **Example repository** for a second synthetic demo: a raised Python minimum, a removed pytest import, an unchanged dependency, and a release-signing claim with no evidence.
+
 For your own project, upload before/after ZIPs, find claims in the newer README, edit the list, and compare. Both snapshots exclude the selected review document. A local command also accepts ZIPs exported from Git commits.
 
 [Example change-review report](docs/sample-change-review.md) · [Workflow and local command](docs/change-review.md)
