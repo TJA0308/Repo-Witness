@@ -26,6 +26,7 @@ Choose a path in the [live app](https://tja0308-repo-witness-app-k4v52v.streamli
 | Explore | Click in the app | What you will see |
 | --- | --- | --- |
 | **One snapshot** | **Try sample audit** | Five claims: 2 verified, 1 partial, 1 contradicted, 1 insufficient. |
+| **Another snapshot** | **Sample repository: Data pipeline → Try sample audit** | Dependency and Python declarations, broad support wording, a storage conflict, and missing signing evidence. |
 | **API service change** | **Review a code change → API service → Try change-review example → Run change review** | Dependency and Docker changes flagged; test import unchanged. |
 | **Worker service change** | **Review a code change → Worker service → Try change-review example → Run change review** | Python minimum and test import flagged; dependency unchanged; release-signing evidence missing. |
 

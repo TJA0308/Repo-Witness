@@ -37,6 +37,44 @@ def test_one_click_demo_uses_complete_workflow(app):
     assert app.get("download_button")[0].proto.url
 
 
+def test_second_audit_example_clears_stale_state_and_has_valid_export(app):
+    button(app, "Try sample audit").click().run()
+    app.button(key="revision_button_0").click().run()
+    assert "revision_result_0" in app.session_state
+    app.selectbox(key="audit_example").set_value("Data pipeline").run()
+    assert "report" not in app.session_state
+    assert "revision_result_0" not in app.session_state
+    assert app.text_area[0].value == ""
+    assert button(app, "Run repository audit").disabled
+    button(app, "Try sample audit").click().run()
+    assert not app.exception
+    report = app.session_state["report"]
+    assert {audit.claim: audit.verdict for audit in report.audits} == {
+        "Pipeline requires Python 3.11+.": Verdict.VERIFIED,
+        "Pipeline officially supports Python 3.11+.": Verdict.PARTIALLY_VERIFIED,
+        "Declares pandas as a Python dependency.": Verdict.VERIFIED,
+        "Uses Redis for persistent pipeline storage.": Verdict.CONTRADICTED,
+        "Publishes signed release artifacts.": Verdict.INSUFFICIENT_EVIDENCE,
+    }
+    sources = app.session_state["report_claim_sources"]
+    assert all(path == "README.md" for path in sources.values())
+    root = ROOT / "sample_repos/data_pipeline"
+    for audit in report.audits:
+        for evidence in audit.evidence:
+            assert evidence.path != "README.md"
+            lines = (root / evidence.path).read_text().splitlines()
+            assert 1 <= evidence.start_line <= evidence.end_line <= len(lines)
+    assert "pyproject.toml" in markdown_report(report, sources)
+    assert app.get("download_button")[0].proto.url
+    app.text_input(key="revision_editor_1").set_value("Pipeline requires Python 3.11+.").run()
+    app.button(key="revision_button_1").click().run()
+    revised = app.session_state["revision_result_1"]["report"].audits[0]
+    assert revised.verdict == Verdict.VERIFIED
+    app.selectbox(key="audit_example").set_value("Service health API").run()
+    button(app, "Try sample audit").click().run()
+    assert app.session_state["report"].audits[0].claim == "Imports pytest in Python tests."
+
+
 def test_oversized_manual_claim_list_cannot_run(app):
     button(app, "Load sample repository").click().run()
     app.text_area[0].set_value("\n".join(["Uses pytest"] * 11)).run()

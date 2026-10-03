@@ -16,6 +16,10 @@ from repo_witness.change_review_ui import render_change_review
 
 
 APP_ROOT = Path(__file__).parent
+AUDIT_EXAMPLES = {
+    "Service health API": "sample_repo",
+    "Data pipeline": "sample_repos/data_pipeline",
+}
 VERDICT_UI = {
     Verdict.VERIFIED: ("Verified", "verified"),
     Verdict.PARTIALLY_VERIFIED: ("Partially verified", "partial"),
@@ -202,6 +206,11 @@ def uploaded_repository_changed() -> None:
     clear_report()
 
 
+def audit_example_changed() -> None:
+    uploaded_repository_changed()
+    st.session_state.pop("run_sample_after_render", None)
+
+
 def load_sample_repository() -> None:
     st.session_state["sample_loaded"] = True
     clear_discovery_state()
@@ -219,7 +228,7 @@ def try_sample_audit() -> None:
 def acquire_repository() -> tuple[Path | None, Path | None]:
     """Return the content root and the outer temporary folder to clean up."""
     if st.session_state.get("sample_loaded"):
-        return APP_ROOT / "sample_repo", None
+        return APP_ROOT / AUDIT_EXAMPLES[st.session_state.get("audit_example", "Service health API")], None
     upload = st.session_state.get("repository_zip")
     if upload is None:
         return None, None
@@ -441,7 +450,10 @@ Module names, dependency names, and Python versions can vary. Other wording or b
 may return **insufficient evidence**, even when the feature exists. Contradictions use fallible text rules.
 Confidence labels are heuristic, not probabilities. Optional model analysis has different behavior.
 """)
-st.button("Try sample audit", on_click=try_sample_audit, help="Discover and audit five synthetic claims in one click.")
+st.selectbox("Sample repository", list(AUDIT_EXAMPLES), key="audit_example",
+             on_change=audit_example_changed,
+             help="Choose a bundled synthetic repository, then click Try sample audit.")
+st.button("Try sample audit", on_click=try_sample_audit, help="Discover and audit the selected repository's claims in one click.")
 
 repository_col, claims_col = st.columns(2, gap="large")
 with repository_col:
@@ -464,11 +476,11 @@ with repository_col:
         st.button(
             "Load sample repository",
             on_click=load_sample_repository,
-            help="Safe example: a bundled synthetic repository with all four verdicts. No code is executed.",
+            help="Load the selected synthetic example. No code is executed.",
             use_container_width=True,
         )
         if st.session_state.get("sample_loaded"):
-            st.success("Safe example loaded — bundled synthetic repository.")
+            st.success(f"Safe example loaded — {st.session_state['audit_example']} (synthetic repository).")
         elif upload is None:
             st.caption("No repository yet. Upload a ZIP or load the safe example.")
         source_ready = st.session_state.get("sample_loaded") or upload is not None
