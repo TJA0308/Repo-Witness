@@ -14,7 +14,9 @@ from collections.abc import Mapping
 from pathlib import PurePosixPath
 
 from packaging.requirements import InvalidRequirement, Requirement
+from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.utils import canonicalize_name
+from packaging.version import Version
 
 from .models import EvidenceSnippet
 
@@ -200,9 +202,44 @@ def bounded_support(
     python_version = re.fullmatch(
         r"(?:[a-z0-9_-]+\s+)?(?:requires|officially supports) python (\d+\.\d+)\+", claim
     )
-    if python_version and snippet.path.casefold() == "pyproject.toml":
-        version = re.escape(python_version.group(1))
-        return bool(re.search(rf'^requires-python\s*=\s*["\']>=\s*{version}(?:["\',\s]|$)', text, re.M | re.I))
+    if python_version and snippet.path == "pyproject.toml":
+        if repository_files is None:
+            return False
+        lines = repository_files.get("pyproject.toml", [])
+        try:
+            project = tomllib.loads("\n".join(lines)).get("project", {})
+            if not isinstance(project, dict) or "requires-python" in project.get("dynamic", []):
+                return False
+            value = project.get("requires-python")
+            if not isinstance(value, str):
+                return False
+            specifiers = SpecifierSet(value)
+            minimum = Version(python_version.group(1))
+            if not any(item.operator == ">=" and Version(item.version) == minimum for item in specifiers):
+                return False
+            # A higher or strict lower bound cannot establish this minimum.
+            if any(item.operator not in {">=", "<", "<=", "!="}
+                   or item.operator == ">=" and Version(item.version) != minimum for item in specifiers):
+                return False
+            if not specifiers.contains(minimum, prereleases=True):
+                return False
+        except (tomllib.TOMLDecodeError, InvalidSpecifier, ValueError, TypeError):
+            return False
+        # Locate the real assignment using parsed prefixes. Text inside a
+        # multiline string or another table never changes project metadata.
+        for index in range(max(0, snippet.start_line - 1), min(len(lines), snippet.end_line)):
+            if not re.match(r'^\s*(?:project\.)?requires-python\s*=', lines[index]):
+                continue
+            try:
+                before = tomllib.loads("\n".join(lines[:index])).get("project", {})
+                after = tomllib.loads("\n".join(lines[:index + 1])).get("project", {})
+            except tomllib.TOMLDecodeError:
+                continue
+            if (isinstance(before, dict) and "requires-python" not in before
+                    and isinstance(after, dict) and after.get("requires-python") == value
+                    and f"{index + 1}: {lines[index]}" in snippet.excerpt.splitlines()):
+                return True
+        return False
 
     dependency = DEPENDENCY_CLAIM.fullmatch(claim)
     if dependency and snippet.path == "pyproject.toml" and repository_files is not None:

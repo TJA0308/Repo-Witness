@@ -24,6 +24,11 @@ def should_ignore(path: Path) -> bool:
 def cleanup_repository(root: Path) -> None:
     shutil.rmtree(root, ignore_errors=True)
 
+def snapshot_root(extracted: Path) -> Path:
+    """Remove one ZIP wrapper directory, such as a GitHub commit folder."""
+    entries = list(extracted.iterdir())
+    return entries[0] if len(entries) == 1 and entries[0].is_dir() else extracted
+
 def extract_repository(upload: bytes | bytearray | io.BufferedIOBase, destination: Path | None = None) -> Path:
     if hasattr(upload, "read"):
         upload = upload.read()

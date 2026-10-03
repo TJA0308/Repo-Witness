@@ -8,7 +8,7 @@ import streamlit as st
 
 from repo_witness.analyzer import analyze, MAX_AUDIT_CLAIMS, MAX_CLAIM_CHARS
 from repo_witness.export import markdown_report
-from repo_witness.ingest import cleanup_repository, extract_repository
+from repo_witness.ingest import cleanup_repository, extract_repository, snapshot_root
 from repo_witness.models import Verdict
 from repo_witness.presentation import confidence_label, evidence_classification, useful_correction, visible_evidence
 from repo_witness.readme_claims import discover_readmes, extract_candidate_claims
@@ -199,13 +199,19 @@ def try_sample_audit() -> None:
     st.session_state["run_sample_after_render"] = bool(st.session_state.get("discovered_claims"))
 
 
-def acquire_repository() -> tuple[Path | None, bool]:
+def acquire_repository() -> tuple[Path | None, Path | None]:
+    """Return the content root and the outer temporary folder to clean up."""
     if st.session_state.get("sample_loaded"):
-        return APP_ROOT / "sample_repo", False
+        return APP_ROOT / "sample_repo", None
     upload = st.session_state.get("repository_zip")
     if upload is None:
-        return None, False
-    return extract_repository(upload.getvalue()), True
+        return None, None
+    extracted = extract_repository(upload.getvalue())
+    try:
+        return snapshot_root(extracted), extracted
+    except Exception:
+        cleanup_repository(extracted)
+        raise
 
 
 def set_claims_for_selected_readme() -> None:
@@ -222,11 +228,11 @@ def set_claims_for_selected_readme() -> None:
 
 def discover_repository_claims() -> None:
     root = None
-    temporary = False
+    cleanup_root = None
     clear_discovery_state()
     clear_report()
     try:
-        root, temporary = acquire_repository()
+        root, cleanup_root = acquire_repository()
         if root is None:
             st.session_state["discovery_status"] = "no_repository"
             return
@@ -243,8 +249,8 @@ def discover_repository_claims() -> None:
         st.session_state["discovery_status"] = "error"
         st.session_state["discovery_error"] = repository_error_message(exc)
     finally:
-        if temporary and root is not None:
-            cleanup_repository(root)
+        if cleanup_root is not None:
+            cleanup_repository(cleanup_root)
 
 
 def apply_selected_suggestions() -> None:
@@ -280,9 +286,9 @@ def recheck_claim(editor_key: str, result_key: str, source_path: str | None) -> 
     if not claim or len(claim) > MAX_CLAIM_CHARS:
         st.session_state[result_key] = {"error": "Enter a claim with 1 to 300 characters."}
         return
-    root, temporary = None, False
+    root, cleanup_root = None, None
     try:
-        root, temporary = acquire_repository()
+        root, cleanup_root = acquire_repository()
         if root is None:
             raise ValueError("No repository is available to audit")
         sources = {claim: source_path} if source_path else {}
@@ -291,8 +297,8 @@ def recheck_claim(editor_key: str, result_key: str, source_path: str | None) -> 
     except Exception as exc:
         st.session_state[result_key] = {"error": repository_error_message(exc)}
     finally:
-        if temporary and root is not None:
-            cleanup_repository(root)
+        if cleanup_root is not None:
+            cleanup_repository(cleanup_root)
 
 
 def render_claim_revision(audit, index: int, source_path: str | None) -> None:
@@ -497,9 +503,9 @@ auto_run_sample = st.session_state.pop("run_sample_after_render", False)
 if run_audit or auto_run_sample:
     clear_revision_state()
     root = None
-    temporary = False
+    cleanup_root = None
     try:
-        root, temporary = acquire_repository()
+        root, cleanup_root = acquire_repository()
         if root is None:
             raise ValueError("No repository is available to audit")
         claim_sources = current_claim_sources(claims)
@@ -509,8 +515,8 @@ if run_audit or auto_run_sample:
         clear_report()
         st.error(repository_error_message(exc))
     finally:
-        if temporary and root is not None:
-            cleanup_repository(root)
+        if cleanup_root is not None:
+            cleanup_repository(cleanup_root)
 
 report = st.session_state.get("report")
 if report:

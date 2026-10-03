@@ -1,4 +1,6 @@
 """Small reproductions of failures observed in three pinned public repositories."""
+import pytest
+
 from repo_witness.analyzer import analyze_demo
 from repo_witness.models import EvidenceSnippet, Verdict
 from repo_witness.readme_claims import extract_candidate_claims
@@ -50,6 +52,35 @@ def test_other_project_version_does_not_verify(tmp_path):
     )
     audit = analyze_demo(tmp_path, ["Requires Python 3.9+."]).audits[0]
     assert audit.verdict == Verdict.INSUFFICIENT_EVIDENCE
+
+
+@pytest.mark.parametrize("source", [
+    '[tool.example]\nrequires-python = ">=3.9"',
+    '[project]\ndescription = \'\'\'\nrequires-python = ">=3.9"\n\'\'\'\nrequires-python = ">=3.12"',
+    '[project]\nrequires-python = ">=3.9"\ninvalid = [',
+    '[project]\nrequires-python = ">=3.9"\ndynamic = ["requires-python"]',
+    '[project]\nrequires-python = ">=3.9,>=3.12"',
+    '[project]\nrequires-python = ">=3.9,<3.8"',
+    '[project]\nrequires-python = ">=3.9,!=3.9"',
+    '[project]\nrequires-python = ">=3.9,broken"',
+])
+def test_misleading_or_invalid_python_metadata_never_verifies(tmp_path, source):
+    (tmp_path / "pyproject.toml").write_text(source, encoding="utf-8")
+    audit = analyze_demo(tmp_path, ["Requires Python 3.9+."]).audits[0]
+    assert audit.verdict not in {Verdict.VERIFIED, Verdict.PARTIALLY_VERIFIED}
+
+
+@pytest.mark.parametrize("source", [
+    '[project]\nrequires-python = ">=3.9"',
+    '[project]\nrequires-python = ">=3.9,<4"',
+    'project.requires-python = ">=3.9"',
+])
+def test_python_minimum_requires_full_metadata_and_real_citation(tmp_path, source):
+    (tmp_path / "pyproject.toml").write_text(source, encoding="utf-8")
+    audit = analyze_demo(tmp_path, ["Requires Python 3.9+."]).audits[0]
+    assert audit.verdict == Verdict.VERIFIED
+    # A window alone cannot establish its TOML table or full document validity.
+    assert classify_claim(audit.claim, audit.evidence).verdict != Verdict.VERIFIED
 
 
 def test_unrelated_negation_in_real_documentation_is_not_a_contradiction():

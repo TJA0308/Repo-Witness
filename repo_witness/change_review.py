@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 
 from .analyzer import validate_claims
 from .evidence import read_repository, retrieve_evidence
-from .ingest import cleanup_repository, extract_repository
+from .ingest import cleanup_repository, extract_repository, snapshot_root
 from .models import ClaimAudit, EvidenceSnippet
 from .verdicts import classify_claim
 
@@ -37,12 +37,6 @@ class ClaimChange(BaseModel):
 class ChangeReview(BaseModel):
     changed_file_count: int
     claims: list[ClaimChange]
-
-
-def snapshot_root(extracted: Path) -> Path:
-    """Remove one ZIP wrapper directory, such as a GitHub commit folder."""
-    entries = list(extracted.iterdir())
-    return entries[0] if len(entries) == 1 and entries[0].is_dir() else extracted
 
 
 def _overlaps(start: int, end: int, snippets: list[EvidenceSnippet]) -> bool:

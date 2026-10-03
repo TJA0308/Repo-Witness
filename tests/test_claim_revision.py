@@ -54,7 +54,8 @@ def test_revision_empty_claim_and_failure_are_recoverable(app, monkeypatch):
     assert "report" in app.session_state
 
 
-def test_uploaded_snapshot_recheck_preserves_exclusion_and_cleans_extraction(app, monkeypatch):
+@pytest.mark.parametrize("prefix", ["", "repo-main/"])
+def test_uploaded_snapshot_recheck_preserves_exclusion_and_cleans_extraction(app, monkeypatch, prefix):
     import io
     import zipfile
     import streamlit as st
@@ -64,8 +65,8 @@ def test_uploaded_snapshot_recheck_preserves_exclusion_and_cleans_extraction(app
 
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w") as archive:
-        archive.writestr("README.md", "Declares requests as a Python dependency.\nImports pytest in Python tests.\n")
-        archive.writestr("pyproject.toml", '[project]\ndependencies = ["requests"]\n')
+        archive.writestr(prefix + "README.md", "Declares requests as a Python dependency.\nImports pytest in Python tests.\n")
+        archive.writestr(prefix + "pyproject.toml", '[project]\ndependencies = ["requests"]\n')
     uploaded = UploadedFile(UploadedFileRec("snapshot", "repo.zip", "application/zip", buffer.getvalue()), FileURLs())
     def uploader(*args, **kwargs):
         st.session_state[kwargs["key"]] = uploaded
@@ -81,7 +82,13 @@ def test_uploaded_snapshot_recheck_preserves_exclusion_and_cleans_extraction(app
     app.session_state["sample_loaded"] = False
     app.run()
     next(b for b in app.button if b.label == "Find README claims").click().run()
+    assert app.session_state["claims_source_path"] == "README.md"
     next(b for b in app.button if b.label == "Run repository audit").click().run()
+    audit = app.session_state["report"].audits[0]
+    assert audit.verdict == Verdict.VERIFIED
+    assert audit.evidence[0].path == "pyproject.toml"
+    assert (audit.evidence[0].start_line, audit.evidence[0].end_line) == (2, 2)
+    assert all(e.path != "README.md" for e in audit.evidence)
     app.text_input(key="revision_editor_0").set_value("Imports pytest in Python tests.").run()
     app.button(key="revision_button_0").click().run()
     assert not app.exception
